@@ -95,7 +95,7 @@
   (helm-mode t)
   (helm-autoresize-mode 1)
   (global-unset-key (kbd "C-x c"))
-  (setq helm-split-window-in-side-p             t
+  (setq helm-split-window-in-side-p            t
         helm-move-to-line-cycle-in-source      t
         helm-ff-search-library-in-sexp         t
         helm-scroll-amount                     8
