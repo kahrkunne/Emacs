@@ -43,5 +43,19 @@
 (setq mc/unsupported-minor-modes '(company-mode auto-complete-mode flyspell-mode jedi-mode))
 (add-hook 'before-save-hook 'cleanup-buffer-safe)
 
+(defvar hexcolor-keywords
+  '(("#[abcdef[:digit:]]+"
+     (0 (put-text-property
+         (match-beginning 0)
+         (match-end 0)
+         'face (list :background
+                     (match-string-no-properties 0)))))))
+(defun hexcolor-add-to-font-lock ()
+  (font-lock-add-keywords nil hexcolor-keywords))
+(add-hook 'css-mode-hook 'hexcolor-add-to-font-lock)
+(add-hook 'emacs-lisp-mode-hook 'hexcolor-add-to-font-lock)
+(add-hook 'less-css-mode-hook 'hexcolor-add-to-font-lock)
+(add-hook 'conf-xdefaults-mode-hook 'hexcolor-add-to-font-lock)
+
 (provide 'editor-config)
 ;;; editor-config.el ends here
