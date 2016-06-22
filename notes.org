@@ -24,7 +24,7 @@ are to be declared where they are defined.
 *** Weird colors
 *** Fucks up line numbers
 ** TODO Fix workflow issue with paredit and evil-mode
-** TODO Throw this whole thing on github
+** DONE Throw this whole thing on github
 ** TODO Line numbers on last line
 ** See also: .el files in .emacs.d
 
