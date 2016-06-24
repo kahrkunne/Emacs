@@ -15,6 +15,8 @@ and that I need to look into.
 ** Tramp
 *** What does it do, exactly?
 
+** Avy
+*** Differences between avy and ace-jump?
 * TODO's
 Things in here are one-off issues that I need to fix.
 Things here are more general, issues with specific packages and functions
@@ -26,6 +28,8 @@ are to be declared where they are defined.
 ** TODO Fix workflow issue with paredit and evil-mode
 ** DONE Throw this whole thing on github
 ** TODO Line numbers on last line
+** TODO Fix agressive-indent-mode
+*** Looks to be related to use-package
 ** See also: .el files in .emacs.d
 
 * Long term issues/ideas
