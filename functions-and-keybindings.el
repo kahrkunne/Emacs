@@ -31,6 +31,7 @@
 (defun insert-date ()
   (interactive)
   (insert (format-time-string "%d.%m-%Y")))
+
 ;; Toggle between vertical and horizontal window splitting
 (defun toggle-window-split ()
   (interactive)
@@ -56,6 +57,7 @@
           (set-window-buffer (next-window) next-win-buffer)
           (select-window first-win)
           (if this-win-2nd (other-window 1))))))
+
 (defun rotate-windows ()
   "Rotate your windows"
   (interactive)
@@ -80,6 +82,7 @@
              (set-window-start w1 s2)
              (set-window-start w2 s1)
              (setq i (1+ i)))))))
+
 (defun cleanup-buffer-safe ()
   "Perform a bunch of safe operations on the whitespace content of a buffer.
 Does not indent buffer, because it is used for a before-save-hook, and that
@@ -96,6 +99,7 @@ Including indent-buffer, which should not be called automatically on save."
   (interactive)
   (cleanup-buffer-safe)
   (indent-region (point-min) (point-max)))
+
 (defun delete-current-buffer-file ()
   "Removes file connected to current buffer and kills buffer."
   (interactive)
@@ -108,6 +112,7 @@ Including indent-buffer, which should not be called automatically on save."
         (delete-file filename)
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
+
 (defun rename-current-buffer-file ()
   "Renames current buffer and file it is visiting."
   (interactive)
@@ -124,17 +129,20 @@ Including indent-buffer, which should not be called automatically on save."
           (set-buffer-modified-p nil)
           (message "File '%s' successfully renamed to '%s'"
                    name (file-name-nondirectory new-name)))))))
+
 (defun open-line-below ()
   (interactive)
   (end-of-line)
   (newline)
   (forward-line -1)
   (indent-for-tab-command))
+
 (defun open-line-above ()
   (interactive)
   (beginning-of-line)
   (newline)
   (indent-for-tab-command))
+
 ;; full screen magit-status
 (defadvice magit-status (around magit-fullscreen activate)
   (window-configuration-to-register :magit-fullscreen)
@@ -150,6 +158,7 @@ Including indent-buffer, which should not be called automatically on save."
 ;; Also auto refresh dired, but be quiet about it
 (setq global-auto-revert-non-file-buffers t)
 (setq auto-revert-verbose nil)
+
 (defun eval-and-replace ()
   "Replace the preceding sexp with its value."
   (interactive)
@@ -159,6 +168,7 @@ Including indent-buffer, which should not be called automatically on save."
              (current-buffer))
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
+
 (defun paste-above ()
   (interactive)
   (let ((pos (point))
@@ -167,6 +177,7 @@ Including indent-buffer, which should not be called automatically on save."
     (yank)
     (newline-and-indent)
     (goto-char (+ pos (- (point-max) cur-max)))))
+
 (defun paste-below ()
   (interactive)
   (let ((pos (point))

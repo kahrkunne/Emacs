@@ -49,9 +49,11 @@
   ;; Disable evil mode when going into multiple-cursors-mode.
   (add-hook 'multiple-cursors-mode-enabled-hook 'evil-emacs-state)
   (add-hook 'multiple-cursors-mode-disabled-hook 'evil-normal-state))
+
 (use-package rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
 (use-package dired-details+
   :commands dired-details-toggle
   :bind ("C-c t" . dired-details-toggle)
@@ -59,14 +61,18 @@
   (setq-default dired-details-hidden-string "--- ")
   (dired-details-install)
   (dired-details-hide))
+
 (use-package magit)
+
 (use-package ace-jump
   :commands ace-jump-mode
   :bind ("C-c SPC" . ace-jump-mode))
+
 (use-package evil
   :commands evil-ex
   :config
   (evil-mode 1))
+
 (require 'evil)
 (define-key evil-normal-state-map (kbd ";") 'evil-ex)
 (define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)
@@ -107,6 +113,7 @@
   (when (executable-find "curl")
     (setq helm-google-suggest-use-curl-p))
   (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages))
+
 (use-package key-chord
   :config
   (setq key-chord-two-keys-delay 0.5)
@@ -114,9 +121,11 @@
 ;; It wants to have this outside of :config for some reason.
 ;; TODO: Check out if it still does.
 (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
+
 (use-package agressive-indent
   :config
   (global-aggressive-indent-mode 1))
+
 (use-package company
   :config
   (add-hook 'after-init-hook 'global-company-mode)
@@ -127,30 +136,40 @@
     (add-to-list 'company-backends 'company-jedi))
   (add-hook 'python-mode-hook 'my/python-mode-hook))
 ;; TODO: Figure out if I even need this.
+
 (use-package concurrent)
+
 (use-package evil-surround
   :config
   (evil-surround-mode t))
+
 ;; TODO: Rediscover what this does.
 (use-package evil-visual-mark-mode
   :config
   (evil-visual-mark-mode t))
+
 (use-package expand-region
   :commands er/expand-region
   :bind ("C-=" . er/expand-region))
+
 (use-package fic-mode
   :config
   ;; TODO: This mode isn't global, so this part does nothing.
   ;; Might just get rid of fic-mode altogether.
   (fic-mode 1))
+
 ;; TODO: Look into making this thing go a little less anal when editing elisp.
 (use-package flycheck
   :config
   (add-hook 'after-init-hook #'global-flycheck-mode))
+
 (use-package geiser)
+
 ;; TODO: Figure out if I even need this.
 (use-package async)
+
 (use-package monokai-theme)
+
 (use-package paredit
   :config
   (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
@@ -160,16 +179,20 @@
   (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
   (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
   (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
+
 (use-package which-key
   :config
   (which-key-mode t))
+
 ;; TODO: Memorise snippets
 ;; Maybe autocomplete snippets?
 (use-package yasnippet
   :config
   (yas-global-mode 1))
+
 ;; TODO: Start using this or trash it.
 (use-package simple-mpc)
 
 (provide 'packages)
+
 ;;; packages ends here

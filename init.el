@@ -11,10 +11,14 @@
 
 ;;; Packages
 (load "~/.emacs.d/packages.el")
+
 ;;; Appearance
 (load "~/.emacs.d/appearance.el")
+
 ;;; Functions and keybindings
 (load "~/.emacs.d/functions-and-keybindings.el")
+
 ;;; Editor config
 (load "~/.emacs.d/editor-config.el")
+
 ;;; init.el ends here
