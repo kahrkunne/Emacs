@@ -11,19 +11,10 @@
 
 ;;; Packages
 (load "~/.emacs.d/packages.el")
-;; TODO: Flycheck errors on this line, dunno why.
-(require 'packages)
-
 ;;; Appearance
 (load "~/.emacs.d/appearance.el")
-(require 'appearance)
-
 ;;; Functions and keybindings
 (load "~/.emacs.d/functions-and-keybindings.el")
-(require 'functions-and-keybindings)
-
 ;;; Editor config
 (load "~/.emacs.d/editor-config.el")
-(require 'editor-config)
-
 ;;; init.el ends here
