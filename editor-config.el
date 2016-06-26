@@ -28,7 +28,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(setq python-python-command "/usr/bin/python2")
+(setq python-python-command "/usr/bin/python3")
 (global-linum-mode 1)
 (which-function-mode 1)
 (setq ring-bell-function 'ignore)

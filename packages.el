@@ -36,12 +36,6 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
-;;; System packages:
-;; Use python 2, not python 3.
-;; TODO: Test if this works (I forgot).
-(use-package python
-  :interpreter ("python2" . python-mode))
-
 ;;; User-installed packages:
 (use-package multiple-cursors
   :config
@@ -135,7 +129,6 @@
   (defun my/python-mode-hook ()
     (add-to-list 'company-backends 'company-jedi))
   (add-hook 'python-mode-hook 'my/python-mode-hook))
-;; TODO: Figure out if I even need this.
 
 (use-package concurrent)
 
