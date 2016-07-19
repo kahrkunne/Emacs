@@ -162,6 +162,8 @@ Including indent-buffer, which should not be called automatically on save."
 (defun eval-and-replace ()
   "Replace the preceding sexp with its value."
   (interactive)
+  (insert " ") ;; Dirty hack
+  (forward-char)
   (backward-kill-sexp)
   (condition-case nil
       (prin1 (eval (read (current-kill 0)))
