@@ -199,6 +199,7 @@ Including indent-buffer, which should not be called automatically on save."
 (global-set-key (kbd "C-c b") 'paste-below)
 (global-set-key (kbd "C-c a") 'paste-above)
 (global-set-key (kbd "C-c m") 'magit-status)
+(global-set-key (kbd "C-c f") 'eval-region)
 (define-key evil-normal-state-map (kbd "g k") 'open-line-above)
 (define-key evil-normal-state-map (kbd "g j") 'open-line-below)
 (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
