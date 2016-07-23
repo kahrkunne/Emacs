@@ -30,9 +30,11 @@
 ;;; Code:
 ;;; Setup stuff:
 (require 'package)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+;; NOTE: Org doesn't support https, so this is insecure!!
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages")
+                         ("org" . "http://orgmode.org/elpa/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
 (setq package-enable-at-startup nil)
 (package-initialize)
 
