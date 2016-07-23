@@ -39,7 +39,8 @@
 ;;; User-installed packages:
 (use-package slime
   :config
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
+  (setq inferior-lisp-program "/usr/bin/sbcl")
+  (load (expand-file-name "~/quicklisp/slime-helper.el")))
 (use-package slime-company
   :config
   (slime-setup '(slime-company)))
