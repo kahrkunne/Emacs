@@ -37,6 +37,12 @@
 (package-initialize)
 
 ;;; User-installed packages:
+(use-package slime
+  :config
+  (setq inferior-lisp-program "/usr/bin/sbcl"))
+(use-package slime-company
+  :config
+  (slime-setup '(slime-company)))
 (use-package multiple-cursors
   :config
   ;; Multiple-cursors doesn't play well with evil mode.
