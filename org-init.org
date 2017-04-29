@@ -1,8 +1,3 @@
-#+NAME: deadfa
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq debug-on-error t)
-#+END_SRC
-
 * Configuration
 This is Kahr Kunne's Emacs configuration, using literate programming with org-babel.
 ** Personal information
