@@ -533,6 +533,15 @@ https://www.emacswiki.org/emacs/DiredPlus
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package dired+)
 #+END_SRC
+**** sr-speedbar
+File sidebar for Emacs.
+https://www.emacswiki.org/emacs/SrSpeedbar
+#+NAME: sr-speedbar
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package sr-speedbar
+    :bind
+    (("C-c s" . sr-speedbar-toggle)))
+#+END_SRC
 ** EXWM
 Code for the X Emacs Window Manager (EXWM).
 https://github.com/ch11ng/exwm/wiki
