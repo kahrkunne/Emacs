@@ -531,9 +531,7 @@ An improvement on dired.
 https://www.emacswiki.org/emacs/DiredPlus
 #+NAME: dired+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package dired+
-    :config
-    (define-key ctrl-x-map "d" 'diredp-dired-files))
+  (use-package dired+)
 #+END_SRC
 ** EXWM
 Code for the X Emacs Window Manager (EXWM).
