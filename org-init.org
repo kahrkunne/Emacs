@@ -346,14 +346,15 @@ Configurations are such that avy behaves a bit more like ace-jump would.
 https://github.com/abo-abo/avy
 #+NAME: avy
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package avy
-    :commands (avy-goto-line)
-    :bind (("C-c l" . avy-goto-line))
-    :config
-    (setq avy-keys (number-sequence ?a ?z))
-    (setq avy-all-windows nil))
+    (use-package avy
+      :commands (avy-goto-line)
+      :bind (("C-c l" . avy-goto-line))
+      :config
+      (setq avy-keys (number-sequence ?a ?z))
+      (setq avy-all-windows nil)
+      (setq avy-timeout-seconds 0.3)
+      (setq avy-keys '(?a ?s ?d ?f ?j ?k ?l ?g ?h ?r ?e ?u ?i ?v ?n)))
 #+END_SRC
-***** TODO Start using more often
 **** ace-window
 Switch between windows using ace-jump.
 https://github.com/abo-abo/ace-window
@@ -400,8 +401,8 @@ https://bitbucket.org/lyro/evil/wiki/Home
 
   (require 'evil)
   (define-key evil-normal-state-map (kbd ";") 'evil-ex)
-  (define-key evil-normal-state-map (kbd "SPC") 'avy-goto-char)
-  (define-key evil-visual-state-map (kbd "SPC") 'avy-goto-char)
+  (define-key evil-normal-state-map (kbd "SPC") 'avy-goto-char-timer)
+  (define-key evil-visual-state-map (kbd "SPC") 'avy-goto-char-timer)
 #+END_SRC
 Also get evil-surround, for surrounding text (for example, in parens). Port of vim-surround.
 #+NAME: evil-surround
