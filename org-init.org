@@ -41,6 +41,13 @@ Enable default-forbidden commands here.
   (put 'upcase-region 'disabled nil)
 #+END_SRC
 *** Other
+Allow dired to delete directories
+#+NAME: dired-directories
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; allow dired to delete or copy dir
+  (setq dired-recursive-copies (quote always)) ; “always” means no asking
+  (setq dired-recursive-deletes (quote top)) ; “top” means ask once
+#+END_SRC
 Enable line numbers globally.
 #+NAME: linum
 #+BEGIN_SRC emacs-lisp :tangle yes
