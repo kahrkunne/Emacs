@@ -23,7 +23,7 @@
  '(org-agenda-files (quote ("~/Life/agenda.org")))
  '(package-selected-packages
    (quote
-    (rainbow-mode sr-speedbar elscreen powerline smart-mode-line nlinum dired+ ample-theme ein company-jedi jedi elpy ivy-hydra counsel gnuplot gnuplot-mode ess exwm-x xkcd xelb exwm lispyville lispy random-splash-image erc-image tao-theme closure-lint-mode ace-window switch-window avy web-mode moe-theme zenburn-theme yasnippet which-key use-package solarized-theme slime-company simple-mpc scheme-complete rainbow-delimiters python-environment pdf-tools paredit multiple-cursors monokai-theme monochrome-theme magit key-chord ivy hlinum helm haskell-mode geiser flycheck fic-mode expand-region evil-visual-mark-mode evil-surround evil-mc epc dired-details+ crux company-c-headers color-theme-solarized cherry-blossom-theme bliss-theme aggressive-indent ace-jump-mode)))
+    (no-littering system-packages indent-guide multi-term counsel-projectile projectile rainbow-mode sr-speedbar elscreen powerline smart-mode-line nlinum dired+ ample-theme ein company-jedi jedi elpy ivy-hydra counsel gnuplot gnuplot-mode ess exwm-x xkcd xelb exwm lispyville lispy random-splash-image erc-image tao-theme closure-lint-mode ace-window switch-window avy web-mode moe-theme zenburn-theme yasnippet which-key use-package solarized-theme slime-company simple-mpc scheme-complete rainbow-delimiters python-environment pdf-tools paredit multiple-cursors monokai-theme monochrome-theme magit key-chord ivy hlinum helm haskell-mode geiser flycheck fic-mode expand-region evil-visual-mark-mode evil-surround evil-mc epc dired-details+ crux company-c-headers color-theme-solarized cherry-blossom-theme bliss-theme aggressive-indent ace-jump-mode)))
  '(py-force-py-shell-name-p t)
  '(py-shell-name "python2"))
 (custom-set-faces
@@ -31,6 +31,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(fic-face ((t (:foreground "red3"))))
  '(org-level-1 ((t (:inherit variable-pitch :foreground "#FD971F" :height 1.0 :family "Terminus"))))
  '(org-level-2 ((t (:inherit variable-pitch :foreground "#A6E22E" :height 1.0 :family "Terminus"))))
  '(org-level-3 ((t (:inherit variable-pitch :foreground "#66D9EF" :height 1.0 :family "Terminus"))))

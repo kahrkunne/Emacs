@@ -9,6 +9,13 @@ General information stuff like full name and email address.
 #+END_SRC
 ** General configs
 General/generic Emacs configuration stuff.
+*** No littering
+Don't clutter my .emacs.d.
+https://github.com/tarsius/no-littering
+#+NAME: no-littering
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package 'no-littering)
+#+END_SRC
 *** Backups
 Store all backups in ~/.emacs.d/backups, instead of clutting the current directory.
 #+NAME: Backups directory
