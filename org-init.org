@@ -636,6 +636,23 @@ Agenda files
 #+END_SRC
 ** Custom code
 *** Custom functions
+Edit the current file with sudo
+#+NAME: sudo-edit
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (defun sudo-edit (&optional arg)
+    "Edit currently visited file as root.
+
+  With a prefix ARG prompt for a file to visit.
+  Will also prompt for a file to visit if current
+  buffer is not visiting a file."
+    (interactive "P")
+    (if (or arg (not buffer-file-name))
+        (find-file (concat "/sudo:root@localhost:"
+                           (ido-read-file-name "Find file(as root): ")))
+      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
+#+END_SRC
+
+
 Insert the current date
 #+NAME: insert-date
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -722,6 +739,7 @@ Pretty much self-explanatory
   (global-set-key (kbd "C-c a") 'paste-above)
   (global-set-key (kbd "C-c m") 'magit-status)
   (global-set-key (kbd "C-c f") 'eval-region)
+  (global-set-key (kbd "C-x C-r") 'sudo-edit)
   (define-key evil-normal-state-map (kbd "g k") 'open-line-above)
   (define-key evil-normal-state-map (kbd "g j") 'open-line-below)
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
