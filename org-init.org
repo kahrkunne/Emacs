@@ -330,6 +330,15 @@ https://github.com/lewang/fic-mode
     :config
     (add-hook 'prog-mode-hook #'fic-mode))
 #+END_SRC
+**** rainbow-mode
+Display hex colours in their corresponding colour.
+https://julien.danjou.info/projects/emacs-packages
+#+NAME: rainbow-mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package rainbow-mode
+    :config
+    (rainbow-mode 1))
+#+END_SRC
 *** Navigation
 **** avy
 Allows you to jump to any character in an easy and intuitive way. Analogous to vim-easymotion.
@@ -607,28 +616,6 @@ Agenda files
   (global-set-key (kbd "C-c g") 'org-agenda ) 
 #+END_SRC
 ** Custom code
-*** Highlight hex colors
-Highlight text that can be interpreted as a hex color (such as #abcdef) in their respective color
-I think this depends on some package that I have installed but not in this config.
-BUG: doesn't seem to work in my current colour theme
-TODO: there's a package for this IIRC
-#+NAME: hexcolor
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defvar hexcolor-keywords
-    '(("#[abcdef[:digit:]]+"
-       (0 (put-text-property
-           (match-beginning 0)
-           (match-end 0)
-           'face (list :background
-                       (match-string-no-properties 0)))))))
-  (defun hexcolor-add-to-font-lock ()
-    (font-lock-add-keywords nil hexcolor-keywords))
-  (add-hook 'css-mode-hook 'hexcolor-add-to-font-lock)
-  (add-hook 'emacs-lisp-mode-hook 'hexcolor-add-to-font-lock)
-  (add-hook 'less-css-mode-hook 'hexcolor-add-to-font-lock)
-  (add-hook 'conf-xdefaults-mode-hook 'hexcolor-add-to-font-lock)
-#+END_SRC
-**** TODO Sort out where this comes from
 *** Custom functions
 Insert the current date
 #+NAME: insert-date
