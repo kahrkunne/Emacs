@@ -82,6 +82,11 @@ Auto refresh dired, silently.
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
 #+END_SRC
+Fix terminals giving extra newlines
+#+NAME: terminal-fix
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-hook 'term-mode-hook 'toggle-truncate-lines)
+#+END_SRC
 ** Appearance
 Change how Emacs looks.
 *** Toolbars
