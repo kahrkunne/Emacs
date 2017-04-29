@@ -1,13 +1,14 @@
 * Configuration
 This is Kahr Kunne's Emacs configuration, using literate programming with org-babel.
 ** Personal information
+General information stuff like full name and email address.
 #+NAME: Personal information
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq user-full-name "Kahr Kunne"
         user-mail-address "kahr.kunne@gmail.com")
 #+END_SRC
-
 ** General configs
+General/generic Emacs configuration stuff.
 *** Backups
 Store all backups in ~/.emacs.d/backups, instead of clutting the current directory.
 #+NAME: Backups directory
@@ -39,12 +40,11 @@ Enable default-forbidden commands here.
 #+BEGIN_SRC emacs-lisp :tangle yes
   (put 'upcase-region 'disabled nil)
 #+END_SRC
-
 *** Other
 Enable line numbers globally.
 #+NAME: linum
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (global-linum-mode 1)
+  (add-hook 'prog-mode-hook 'nlinum-mode)
 #+END_SRC
 Turn off the bell
 #+NAME: bell
@@ -83,6 +83,7 @@ Auto refresh dired, silently.
   (setq auto-revert-verbose nil)
 #+END_SRC
 ** Appearance
+Change how Emacs looks.
 *** Toolbars
 Disable toolbars, because I don't need them
 #+NAME: Toolbars
@@ -119,25 +120,41 @@ Stuff set by Custom.
    '(org-level-4 ((t (:inherit variable-pitch :foreground "#E6DB74" :height 1.0 :family "Terminus"))))
    '(org-level-5 ((t (:inherit variable-pitch :foreground "#E6DB74" :height 1.0 :family "Terminus")))))
 #+END_SRC
-**** TODO Migrate out of custom-set-variables?
-**** TODO Fix Org fonts
 *** Theme and font
 Set the theme and font
 #+NAME: Theme
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (setq custom-safe-themes t)
   (set-frame-font "Terminus-12")
+  (use-package random-splash-image
+    :config
+    (defun use-fancy-splash-screens-p () t)
+    (setq random-splash-image-dir (concat (getenv "HOME") "/Pictures/emacs-splashes"))
+    (random-splash-image-set))
+  (use-package ample-theme)
+  (ample-theme)
 #+END_SRC
 **** TODO Font doesn't currently work right, requires .Xdefaults hack
+*** powerline
+Powerline for Emacs.
+https://github.com/milkypostman/powerline
+#+NAME: powerline
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package powerline
+    :config (powerline-default-theme))
+#+END_SRC
 ** Packages
+Configuration for packages. This category is kind of ambigious.
 *** Initialize packages
 Add alternative package sources such as melpa. Note that currently this is unsafe - the org repository doesn't use https, and AFAIK none of them use TLS. There is a fix for this floating online, but at the time I couldn't get it to work.
 #+NAME: Package initialization
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages")
-                           ("org" . "http://orgmode.org/elpa/")
-                           ("melpa" . "https://melpa.org/packages/")
-                           ("melpa-stable" . "https://stable.melpa.org/packages/")))
-  (package-initialize)
+    (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                             ("org" . "http://orgmode.org/elpa/")
+                             ("melpa" . "https://melpa.org/packages/")
+                             ("melpa-stable" . "https://stable.melpa.org/packages/")
+                             ("elpy" . "http://jorgenschaefer.github.io/packages/")))
+    (package-initialize)
 #+END_SRC
 
 Initialize use-package
@@ -147,13 +164,23 @@ Initialize use-package
 ;;  (setq package-enable-at-startup nil)
 ;;  (package-initialize)
 #+END_SRC
-
 *** Programming
+**** geiser
+Geiser is like SLIME for Scheme. 
+http://www.nongnu.org/geiser/
+#+NAME: Geiser
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package geiser
+    :config
+    (add-hook 'scheme-mode-hook 'geiser-mode))  
+#+END_SRC
 **** SLIME
 Use the Superior Lisp Interaction Mode for Emacs (SLIME).
 https://common-lisp.net/project/slime/
+(currently turned off due to some bug)
+TODO: Fix
 #+NAME: SLIME
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package slime
     :config
     (setq inferior-lisp-program "/usr/bin/sbcl")
@@ -162,7 +189,7 @@ https://common-lisp.net/project/slime/
 Use slime-company, for autocompletions using company-mode.
 https://github.com/anwyn/slime-company
 #+NAME: slime-company
-#+BEGIN_SRC emacs-lisp :tangle yes
+ffda#+BEGIN_SRC emacs-lisp :tangle no
   (use-package slime-company
     :config
     (slime-setup '(slime-company)))
@@ -170,17 +197,17 @@ https://github.com/anwyn/slime-company
 ***** TODO Learn properly
 ***** TODO Use more often (by programming in lisp more often ;-))
 ***** TODO Figure out if  I still need the slime-helper.el file
-
+***** TODO Get working again (currently broken)
 **** agressive-indent
 Keep code *always* indented
 https://github.com/Malabarba/aggressive-indent-mode
+Currently off.
 #+NAME: agressive-indent
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package agressive-indent
     :config
     (aggressive-indent-global-mode 1))
 #+END_SRC
-
 **** company
 Text completion framework for Emacs. Allows for text completion.
 http://company-mode.github.io/
@@ -196,7 +223,6 @@ http://company-mode.github.io/
       (add-to-list 'company-backends 'company-jedi))
     (add-hook 'python-mode-hook 'my/python-mode-hook))
 #+END_SRC
-
 **** flycheck
 Very good syntax checking.
 http://www.flycheck.org/en/latest/
@@ -207,26 +233,59 @@ Note to self: developer (lunaryorn) is a massive jackass
     :config
     (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
-**** paredit
-Pseudo-structural editing of Lisp code. Fucking magical, but kind of hard to get into.
-https://github.com/emacsmirror/paredit
-Might be deprecated by smartparens (https://github.com/Fuco1/smartparens)
-Also worth checking out: lispyville (https://github.com/noctuid/lispyville) because it's geared towards evil users (like me)
-#+NAME: paredit
+**** lispy + lispyville
+Lispy: reimagination of paredit, with a vi-esque slant.
+https://github.com/abo-abo/lispy
+#+NAME: lispy
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package paredit
+  (use-package lispy
     :config
-    (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
-    (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-    (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-    (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-    (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-    (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-    (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
+    (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode) 1))
+    (add-hook 'eval-expression-minibuffer-setup-hook (lambda () (lispy-mode 1)))
+    (add-hook 'ielm-mode-hook (lambda () (lispy-mode 1)))
+    (add-hook 'lisp-mode-hook (lambda () (lispy-mode 1)))
+    (add-hook 'lisp-interaction-mode-hook (lambda () (lispy-mode 1)))
+    (add-hook 'scheme-mode-hook (lambda () (lispy-mode 1))))
 #+END_SRC
-***** TODO Look into replacing with smartparens or lispyville
-***** TODO Learn better and unleash it's full power
 
+Lispyville: Lisp editing for evil, using together with lispy
+https://github.com/noctuid/lispyville
+#+NAME: lispyville
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package lispyville
+    :config
+    (add-hook 'lispy-mode-hook #'lispyville-mode))
+#+END_SRC
+**** jedi
+Autocompletion for python
+#+NAME: jedi
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package jedi
+    :init
+    (add-hook 'python-mode-hook 'jedi:setup)
+    (add-hook 'python-mode-hook 'jedi:ac-setup)
+    (add-hook 'python-mode-hook (lambda () (company-mode -1)))
+    (add-hook 'python-mode-hook 'ac-linum-workaround))
+#+END_SRC
+**** web-mode
+Major-mode for all the web-related stuff.
+http://web-mode.org/
+#+NAME: web-mode
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package web-mode
+    :init
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tmpl\\'" . web-mode))
+    (setq web-mode-engines-alist
+          '(("cheetah" . "\\.tmpl\\'"))))
+#+END_SRC
 *** Visual
 **** rainbow-delimiters
 Rainbow delimiters, give parens rainbow colors. Mostly useful when programming lisp.
@@ -259,13 +318,6 @@ https://github.com/lewang/fic-mode
     :config
     (add-hook 'prog-mode-hook #'fic-mode))
 #+END_SRC
-**** theme
-Not much to say here
-#+NAME: theme
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package monokai-theme)
-#+END_SRC
-
 *** Navigation
 **** avy
 Allows you to jump to any character in an easy and intuitive way. Analogous to vim-easymotion.
@@ -292,7 +344,6 @@ https://github.com/abo-abo/ace-window
     :config
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ? j ?k ?l))) 
 #+END_SRC
-
 *** Project management
 **** magit
 Magit is an extremely powerful and pleasant Git interface for Emacs. If you use Git a lot, this package is pretty much a must.
@@ -327,7 +378,6 @@ Also get evil-surround, for surrounding text (for example, in parens). Port of v
     :config
     (evil-surround-mode t))
 #+END_SRC
-
 ***** TODO Brush up my vim-fu - it's gotten kinda rusty
 ***** TODO There's a reason for the latter half of this code, but I forgot what
 ***** TODO Start using evil-surround again
@@ -356,23 +406,53 @@ https://github.com/magnars/expand-region.el
     :commands er/expand-region
     :bind ("C-=" . er/expand-region))
 #+END_SRC
-
 **** yasnippet
 Gives snippets, similar to what TextMate did.
 https://github.com/joaotavora/yasnippet
 #+NAME: yasnippet
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package yasnippet
+    :bind
+    ("C-c c" . yas-expand)
     :config
     (yas-global-mode 1))
 #+END_SRC
 *** Emacs enhancements
+**** ivy
+Like helm, but cleaner and faster.
+https://github.com/abo-abo/swiper
+
+#+NAME: ivy
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package ivy
+    :bind
+    (:map ivy-mode-map
+          ("C-'" . ivy-avy))
+    :config
+    (ivy-mode 1)
+    (setq ivy-height                10
+          ivy-count-format          "(%d/%d) "
+          ivy-use-virtual-buffers   t)
+    (global-set-key (kbd "C-s") 'swiper)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-x l") 'counsel-locate)
+    (global-set-key (kbd "C-c C-r") 'ivy-resume))
+#+END_SRC
 **** helm
 Completion and selection framework. Fork of anything.el. Hard to explain exactly what it does, but one of the best Emacs packages out there IMO.
 https://github.com/emacs-helm/helm
+Currently off, as I'm using Ivy now.
 
 #+NAME: helm
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package helm
     :init (require 'helm-config)
     :commands (helm-command-prefix
@@ -434,10 +514,105 @@ https://github.com/justbur/emacs-which-key
     :config
     (which-key-mode t))
 #+END_SRC
+** EXWM
+Code for the X Emacs Window Manager (EXWM).
+https://github.com/ch11ng/exwm/wiki
+(Currently turned off)
+#+NAME: exwm
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package exwm)
+  (use-package exwm-x)
+  (use-package exwm-config
+    :config
+    ;; 9 Workspaces by default
+    (setq exwm-workspace-number 10)
+    ;; Naming windows; see the EXWM example config (https://github.com/ch11ng/exwm/wiki/Configuration-Example)
+    (add-hook 'exwm-update-class-hook
+              (lambda ()
+                (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                            (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer exwm-class-name))))
+    (add-hook 'exwm-update-title-hook
+              (lambda ()
+                (when (or (not exwm-instance-name)
+                          (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                          (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer exwm-title))))
+    ;; Keybindings
+    ;; Functions
+    (defun exwm-kahr/launcher ()
+      (interactive)
+      (exwm-x-run-shell-command "bash -c 'rofi -show run'"))
+    (defun exwm-kahr/terminal ()
+      (interactive)
+      (exwm-x-run-shell-command "urxvt"))
+    (exwm-input-set-key (kbd "s-x") #'exwm-reset)
+    (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
+    (dotimes (i 10)
+      (exwm-input-set-key (kbd (format "s-%d" i))
+                          `(lambda ()
+                             (interactive)
+                             (exwm-workspace-switch ,i)))) 
+    (exwm-input-set-key (kbd "s-r") 'exwm-kahr/launcher)
+    (exwm-input-set-key (kbd "s-t") 'exwm-kahr/terminal)
+    ;; Start EXW
+    (require 'exwm-randr)
+    (setq exwm-randr-workspace-output-plist '(0 "DVI-I-1" 1 "VGA-0"))
+    (add-hook 'exwm-randr-screen-change-hook
+              (lambda ()
+                (start-process-shell-command
+                 "xrandr" nil "xrandr --output DVI-I-1 --right-of VGA-0 --auto")))
+    (exwm-enable)
+    (exwm-randr-enable))
+#+END_SRC
+** Org
+*** Agenda
+Org's agenda is essentially a replacement for a real-life agenda.
+
+Agenda files
+#+NAME: org-agenda-files
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-agenda-files (quote ("~/Life/agenda.org")))
+  (add-to-list 'org-modules "org-habit")
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
+  (global-set-key (kbd "C-c g") 'org-agenda ) 
+#+END_SRC
+** Publishing
+For exporting blog posts to my blog.
+#+NAME: publishing
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (setq blog-header-file "~/Website/templates/header.html")
+    (defun website-html-preamble (info)
+      (format "<ul>
+  <li><a href='/'>Home</a></li>
+  <li><a href='/archive.html'>Archive</a></li>
+  </ul>"))
+    (setq org-publish-project-alist
+          '(("blog-blog"
+             :base-directory "~/Website/org"
+             :base-extension "org"
+             :publishing-directory "~/Website/templates/blog"
+             :recursive t
+             :publishing-function org-html-publish-to-html
+             :html-head-include-default-style nil
+             :html-head-include-scripts nil
+             :html-preamble "hitlergroet"
+            ("blog-static"
+             :base-directory "~/Website/org"
+             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf"
+             :publishing-directory "~/Website/static/blog"
+             :recursive t
+             :publishing-function org-publish-attachment)
+            ("blog"
+             :components ("blog-blog" "blog-static")))))
+#+END_SRC
 ** Custom code
 *** Highlight hex colors
 Highlight text that can be interpreted as a hex color (such as #abcdef) in their respective color
 I think this depends on some package that I have installed but not in this config.
+BUG: doesn't seem to work in my current colour theme
+TODO: there's a package for this IIRC
 #+NAME: hexcolor
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defvar hexcolor-keywords
