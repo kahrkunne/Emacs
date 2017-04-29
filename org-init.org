@@ -578,35 +578,6 @@ Agenda files
         '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
   (global-set-key (kbd "C-c g") 'org-agenda ) 
 #+END_SRC
-** Publishing
-For exporting blog posts to my blog.
-#+NAME: publishing
-#+BEGIN_SRC emacs-lisp :tangle yes
-    (setq blog-header-file "~/Website/templates/header.html")
-    (defun website-html-preamble (info)
-      (format "<ul>
-  <li><a href='/'>Home</a></li>
-  <li><a href='/archive.html'>Archive</a></li>
-  </ul>"))
-    (setq org-publish-project-alist
-          '(("blog-blog"
-             :base-directory "~/Website/org"
-             :base-extension "org"
-             :publishing-directory "~/Website/templates/blog"
-             :recursive t
-             :publishing-function org-html-publish-to-html
-             :html-head-include-default-style nil
-             :html-head-include-scripts nil
-             :html-preamble "hitlergroet"
-            ("blog-static"
-             :base-directory "~/Website/org"
-             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf"
-             :publishing-directory "~/Website/static/blog"
-             :recursive t
-             :publishing-function org-publish-attachment)
-            ("blog"
-             :components ("blog-blog" "blog-static")))))
-#+END_SRC
 ** Custom code
 *** Highlight hex colors
 Highlight text that can be interpreted as a hex color (such as #abcdef) in their respective color
