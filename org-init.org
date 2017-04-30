@@ -353,14 +353,12 @@ Configurations are such that avy behaves a bit more like ace-jump would.
 https://github.com/abo-abo/avy
 #+NAME: avy
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package avy
-      :commands (avy-goto-line)
-      :bind (("C-c l" . avy-goto-line))
-      :config
-      (setq avy-keys (number-sequence ?a ?z))
-      (setq avy-all-windows nil)
-      (setq avy-timeout-seconds 0.3)
-      (setq avy-keys '(?a ?s ?d ?f ?j ?k ?l ?g ?h ?r ?e ?u ?i ?v ?n)))
+  (use-package avy
+    :config
+    (setq avy-keys (number-sequence ?a ?z))
+    (setq avy-all-windows nil)
+    (setq avy-timeout-seconds 0.3)
+    (setq avy-keys '(?a ?s ?d ?f ?j ?k ?l ?g ?h ?r ?e ?u ?i ?v ?n)))
 #+END_SRC
 **** ace-window
 Switch between windows using ace-jump.
@@ -458,6 +456,14 @@ https://github.com/joaotavora/yasnippet
     (yas-global-mode 1))
 #+END_SRC
 *** Emacs enhancements
+**** hydra
+Tie commands into a family of short keybindings.
+https://github.com/abo-abo/hydra
+
+#+NAME: hydra
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package hydra)
+#+END_SRC
 **** ivy
 Like helm, but cleaner and faster.
 https://github.com/abo-abo/swiper
@@ -732,6 +738,75 @@ Paste above or below the point.
 Pretty much self-explanatory
 #+NAME: keybindings
 #+BEGIN_SRC emacs-lisp
+  (defhydra hydra-zoom (global-map "<f2>")
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out"))
+
+  (defhydra hydra-buffer-menu ()
+    "
+  ^Mark^             ^Unmark^           ^Actions^          ^Search
+  ^^^^^^^^-----------------------------------------------------------------
+  _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
+  _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
+  _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
+  _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
+  _~_: modified
+  "
+    ("m" Buffer-menu-mark)
+    ("u" Buffer-menu-unmark)
+    ("U" Buffer-menu-backup-unmark)
+    ("d" Buffer-menu-delete)
+    ("D" Buffer-menu-delete-backwards)
+    ("s" Buffer-menu-save)
+    ("~" Buffer-menu-not-modified)
+    ("x" Buffer-menu-execute)
+    ("b" Buffer-menu-bury)
+    ("g" revert-buffer)
+    ("T" Buffer-menu-toggle-files-only)
+    ("O" Buffer-menu-multi-occur :color blue)
+    ("I" Buffer-menu-isearch-buffers :color blue)
+    ("R" Buffer-menu-isearch-buffers-regexp :color blue)
+    ("c" nil "cancel")
+    ("v" Buffer-menu-select "select" :color blue)
+    ("o" Buffer-menu-other-window "other-window" :color blue)
+    ("q" quit-window "quit" :color blue))
+  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+
+  (defhydra hydra-launch ()
+    "
+  ^Term^             ^Files^           ^IRC^          ^Email
+  ^^^^^^^^-------------------------------------------------------
+  _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus
+  _e_: eshell
+  _s_: shell
+  "
+    ("t" ansi-term "ansi-term")
+    ("e" eshell "eshell")
+    ("s" shell "shell")
+    ("d" dired "dired")
+    ("i" erc "erc")
+    ("g" gnus "gnus"))
+  (global-set-key (kbd "C-c l") 'hydra-launch/body)
+
+  (defhydra hydra-navigate ()
+    "
+  ^Char^             ^Line^           ^search^          ^File^          ^buffer
+  ^^^^^^^^---------------------------------------------------------------------------------------
+  _c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
+  _j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
+  "
+    ("c" avy-goto-char-timer "avy-goto-char-timer")
+    ("j" avy-goto-char "avy-goto-char")
+    ("l" avy-goto-line "avy-goto-line")
+    ("s" swiper "swiper")
+    ("a" swiper-all "swiper-all")
+    ("f" counsel-find-file "counsel-find-file")
+    ("p" counsel-find-file-at-point "counsel-find-file-at-point")
+    ("b" switch-to-buffer "switch-to-buffer")
+    ("o" switch-to-buffer-other-window "switch-to-buffer-other-window"))
+  (global-set-key (kbd "C-c n") 'hydra-navigate/body)
+
   (global-set-key (kbd "C-c d") 'insert-date)
   (global-set-key (kbd "C-x g") 'webjump)
   (global-set-key (kbd "C-c e") 'eval-and-replace)
