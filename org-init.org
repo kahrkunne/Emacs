@@ -282,8 +282,7 @@ Autocompletion for python
   (use-package jedi
     :init
     (add-hook 'python-mode-hook 'jedi:setup)
-    (add-hook 'python-mode-hook 'jedi:ac-setup)
-    (add-hook 'python-mode-hook (lambda () (company-mode -1)))
+    (add-hook 'python-mode-hook 'company-jedi)
     (add-hook 'python-mode-hook 'ac-linum-workaround))
 #+END_SRC
 **** web-mode
