@@ -773,7 +773,7 @@ Pretty much self-explanatory
     ("q" quit-window "quit" :color blue))
   (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
 
-  (defhydra hydra-launch ()
+  (defhydra hydra-launch (:color blue)
     "
   ^Term^             ^Files^           ^IRC^          ^Email
   ^^^^^^^^-------------------------------------------------------
@@ -789,7 +789,7 @@ Pretty much self-explanatory
     ("g" gnus "gnus"))
   (global-set-key (kbd "C-c l") 'hydra-launch/body)
 
-  (defhydra hydra-navigate ()
+  (defhydra hydra-navigate (:color blue)
     "
   ^Char^             ^Line^           ^search^          ^File^          ^buffer
   ^^^^^^^^---------------------------------------------------------------------------------------
