@@ -14,7 +14,7 @@ Don't clutter my .emacs.d.
 https://github.com/tarsius/no-littering
 #+NAME: no-littering
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package 'no-littering)
+  (use-package no-littering)
 #+END_SRC
 *** Backups
 Store all backups in ~/.emacs.d/backups, instead of clutting the current directory.
@@ -238,9 +238,9 @@ http://company-mode.github.io/
     (setq company-idle-delay 0.25)
     (setq company-tooltip-limit 10)
     (setq company-minimum-prefix-length 4)
-    (defun my/python-mode-hook ()
-      (add-to-list 'company-backends 'company-jedi))
-    (add-hook 'python-mode-hook 'my/python-mode-hook))
+    (setq company-global-modes
+          '(not
+            eshell-mode comint-mode org-mode erc-mode)))
 #+END_SRC
 **** flycheck
 Very good syntax checking.
@@ -283,9 +283,9 @@ https://github.com/syohex/emacs-company-jedi
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun my/python-mode-hook ()
     (add-to-list 'company-backends 'company-jedi))
-  (use-package jedi
+  (use-package company-jedi
     :init
-    (add-hook 'python-mode-hook 'my/python-mode-hook)
+    (add-hook 'python-mode-hook 'my/python-mode-hook))
 #+END_SRC
 **** web-mode
 Major-mode for all the web-related stuff.
@@ -816,6 +816,7 @@ Pretty much self-explanatory
   (global-set-key (kbd "C-c m") 'magit-status)
   (global-set-key (kbd "C-c f") 'eval-region)
   (global-set-key (kbd "C-x C-r") 'sudo-edit)
+  (global-set-key (kbd "C-c r") 'rename-buffer)
   (define-key evil-normal-state-map (kbd "g k") 'open-line-above)
   (define-key evil-normal-state-map (kbd "g j") 'open-line-below)
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
