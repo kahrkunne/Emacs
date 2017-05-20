@@ -7,15 +7,7 @@ General information stuff like full name and email address.
   (setq user-full-name "Kahr Kunne"
         user-mail-address "kahr.kunne@gmail.com")
 #+END_SRC
-** General configs
-General/generic Emacs configuration stuff.
-*** No littering
-Don't clutter my .emacs.d.
-https://github.com/tarsius/no-littering
-#+NAME: no-littering
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package no-littering)
-#+END_SRC
+** Emacs settings and built-in packages
 *** Backups
 Store all backups in ~/.emacs.d/backups, instead of clutting the current directory.
 #+NAME: Backups directory
@@ -50,9 +42,81 @@ Enable default-forbidden commands here.
 *** ERC
 #+NAME: erc
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (erc-scrolltobottom-mode)
-  (add-to-list 'erc-mode-hook (lambda ()
-                                (set (make-local-variable 'scroll-conservatively) 100)))
+#+END_SRC
+*** Term
+Term mode fixes so that I can use normal C-c
+#+NAME: term-fixes
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (eval-after-load "term"
+    '(progn (term-set-escape-char ?\C-q)
+            (define-key term-raw-map (kbd "C-c") nil)))
+  (eval-after-load "term"
+    '(define-key term-raw-map (kbd "C-c o") (lambda ()(interactive)(term-send-raw-string "\C-c"))))
+#+END_SRC
+*** Eshell
+Code related to eshell
+#+NAME: eshell
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (defun eshell/cat-with-syntax-highlight (filename)
+      "Like cat(1) but with syntax highlighting."
+      (let ((existing-buffer (get-file-buffer filename))
+            (buffer (find-file-noselect filename)))
+        (eshell-print
+         (with-current-buffer buffer
+           (if (fboundp 'font-lock-ensure)
+               (font-lock-ensure)
+             (with-no-warnings
+               (font-lock-fontify-buffer)))
+           (buffer-string)))
+        (unless existing-buffer
+          (kill-buffer buffer))
+        nil))
+
+  (defun eshell/imgcat (&rest args)
+    "Display image(s)."
+    (let ((elems (eshell-flatten-list args))
+          (minibuffer-message-timeout 0))
+      (if (not (file-exists-p (expand-file-name (car elems))))
+          nil
+        (while elems
+          (call-process-shell-command (concat "convert -resize "
+                                              (number-to-string (* 0.75 (window-pixel-height)))
+                                              "x"
+                                              (number-to-string (* 0.75 (window-pixel-width)))
+                                              " "
+                                              (car elems)
+                                              " "
+                                              "/tmp/"
+                                              (car elems)))
+          (setcar elems (concat "/tmp/" (car elems)))
+          (eshell-printn
+           (propertize " " 'display (create-image (expand-file-name (car elems)))))
+          (delete-file (car elems))
+          (setq elems (cdr elems)))))) 
+
+    (defun eshell/bettercat (filename &rest args)
+      (if (equal (substring (mailcap-extension-to-mime (file-name-extension filename)) 0 5)
+                 "image")
+          (eshell/imgcat (cons filename args))
+        (eshell/cat-with-syntax-highlight filename))) 
+
+    (advice-add 'eshell/cat :override #'eshell/bettercat) 
+
+  (add-hook 'eshell-mode-hook
+    (lambda () 
+      (define-key eshell-mode-map (kbd "<tab>")
+        (lambda () (interactive) (pcomplete-std-complete))))) 
+#+END_SRC
+
+*** Dired
+#+NAME: dired
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq dired-recursive-copies 'always
+        dired-recursive-deletes 'always
+        dired-dwim-target t
+        dired-listing-switches "-alh")
+
+  (dired-async-mode 1)
 #+END_SRC
 *** Other
 Allow dired to delete directories
@@ -271,7 +335,8 @@ https://github.com/abo-abo/lispy
     (add-hook 'ielm-mode-hook (lambda () (lispy-mode 1)))
     (add-hook 'lisp-mode-hook (lambda () (lispy-mode 1)))
     (add-hook 'lisp-interaction-mode-hook (lambda () (lispy-mode 1)))
-    (add-hook 'scheme-mode-hook (lambda () (lispy-mode 1))))
+    (add-hook 'scheme-mode-hook (lambda () (lispy-mode 1)))
+    (define-key  lispy-mode-map-lispy (kbd "\"") 'lispy-doublequote))
 #+END_SRC
 
 Lispyville: Lisp editing for evil, using together with lispy
@@ -464,6 +529,13 @@ https://github.com/joaotavora/yasnippet
     (yas-global-mode 1))
 #+END_SRC
 *** Emacs enhancements
+*** No littering
+Don't clutter my .emacs.d.
+https://github.com/tarsius/no-littering
+#+NAME: no-littering
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package no-littering)
+#+END_SRC
 **** hydra
 Tie commands into a family of short keybindings.
 https://github.com/abo-abo/hydra
@@ -475,7 +547,6 @@ https://github.com/abo-abo/hydra
 **** ivy
 Like helm, but cleaner and faster.
 https://github.com/abo-abo/swiper
-
 #+NAME: ivy
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package ivy
@@ -486,7 +557,15 @@ https://github.com/abo-abo/swiper
     (ivy-mode 1)
     (setq ivy-height                10
           ivy-count-format          "(%d/%d) "
-          ivy-use-virtual-buffers   t)
+          ivy-use-virtual-buffers   t
+          ivy-re-builders-alist     '((t . ivy--regex-ignore-order))
+          ivy-initial-inputs-alist '((org-refile . "")
+                                     (org-capture-refile . "")
+                                     (counsel-M-x . "")
+                                     (counsel-describe-function . "")
+                                     (counsel-describe-variable . "")
+                                     (man . "")
+                                     (woman . "")))
     (global-set-key (kbd "C-s") 'swiper)
     (global-set-key (kbd "M-x") 'counsel-M-x)
     (global-set-key (kbd "C-x C-f") 'counsel-find-file)
@@ -498,7 +577,7 @@ https://github.com/abo-abo/swiper
     (global-set-key (kbd "C-c j") 'counsel-git-grep)
     (global-set-key (kbd "C-c k") 'counsel-ag)
     (global-set-key (kbd "C-x l") 'counsel-locate)
-    (global-set-key (kbd "C-c C-r") 'ivy-resume))
+    (global-set-key (kbd "C-c C-r") 'ivy-resume)) 
 #+END_SRC
 **** helm
 Completion and selection framework. Fork of anything.el. Hard to explain exactly what it does, but one of the best Emacs packages out there IMO.
@@ -575,14 +654,31 @@ https://www.emacswiki.org/emacs/DiredPlus
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package dired+)
 #+END_SRC
-**** sr-speedbar
+**** neotree
 File sidebar for Emacs.
 https://www.emacswiki.org/emacs/SrSpeedbar
-#+NAME: sr-speedbar
+#+NAME: neotree
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package sr-speedbar
+  (use-package neotree
     :bind
-    (("C-c s" . sr-speedbar-toggle)))
+    (("C-c s" . neotree)))
+#+END_SRC
+**** shackle
+Deal with pop-up buffers.
+https://github.com/wasamasa/shackle
+#+NAME: shackle
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package shackle
+    :config
+    (setq shackle-default-alignment 'below
+          shackle-default-size 10
+          shackle-rules
+          '(("*Backtrace*" :popup t :size 20 :align t)
+            (buffer-menu-mode :size 20 :align t)
+            (apropos :size 20 :popup t :align t :select t)
+            ("*Warnings*" :ignore :align t)
+            ("*Help*" :select t)))
+    (shackle-mode t))
 #+END_SRC
 ** EXWM
 Code for the X Emacs Window Manager (EXWM).
@@ -590,6 +686,7 @@ https://github.com/ch11ng/exwm/wiki
 (Currently turned off)
 #+NAME: exwm
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (setq debug-on-error t)
   (use-package exwm)
   (use-package exwm-x)
   (use-package exwm-config
@@ -751,41 +848,11 @@ Pretty much self-explanatory
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out"))
 
-  (defhydra hydra-buffer-menu ()
-    "
-  ^Mark^             ^Unmark^           ^Actions^          ^Search
-  ^^^^^^^^-----------------------------------------------------------------
-  _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
-  _s_: save          _U_: unmark up     _b_: bury          _I_: isearch
-  _d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
-  _D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
-  _~_: modified
-  "
-    ("m" Buffer-menu-mark)
-    ("u" Buffer-menu-unmark)
-    ("U" Buffer-menu-backup-unmark)
-    ("d" Buffer-menu-delete)
-    ("D" Buffer-menu-delete-backwards)
-    ("s" Buffer-menu-save)
-    ("~" Buffer-menu-not-modified)
-    ("x" Buffer-menu-execute)
-    ("b" Buffer-menu-bury)
-    ("g" revert-buffer)
-    ("T" Buffer-menu-toggle-files-only)
-    ("O" Buffer-menu-multi-occur :color blue)
-    ("I" Buffer-menu-isearch-buffers :color blue)
-    ("R" Buffer-menu-isearch-buffers-regexp :color blue)
-    ("c" nil "cancel")
-    ("v" Buffer-menu-select "select" :color blue)
-    ("o" Buffer-menu-other-window "other-window" :color blue)
-    ("q" quit-window "quit" :color blue))
-  (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
-
   (defhydra hydra-launch (:color blue)
     "
-  ^Term^             ^Files^           ^IRC^          ^Email
-  ^^^^^^^^-------------------------------------------------------
-  _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus
+  ^Term^             ^Files^           ^IRC^          ^Email^        ^System        
+  ^^^^^^^^--------------------------------------------------------------------------
+  _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus      _l_: linux app
   _e_: eshell
   _s_: shell
   "
@@ -794,7 +861,8 @@ Pretty much self-explanatory
     ("s" shell "shell")
     ("d" dired "dired")
     ("i" erc "erc")
-    ("g" gnus "gnus"))
+    ("g" gnus "gnus")
+    ("l" counsel-linux-app "counsel-linux-app"))
   (global-set-key (kbd "C-c l") 'hydra-launch/body)
 
   (defhydra hydra-navigate (:color blue)
@@ -815,9 +883,24 @@ Pretty much self-explanatory
     ("o" switch-to-buffer-other-window "switch-to-buffer-other-window"))
   (global-set-key (kbd "C-c n") 'hydra-navigate/body)
 
+  (defun eshell-full-clear ()
+    (interactive)
+    (eshell/clear t))
+
+  (defhydra hydra-eshell (:color blue)
+    "
+  ^I/O^              ^Visual
+  ^^^^^^^-----------------------------
+  _b_: buffer        _c_: clear
+                   _x_: clear history
+  "
+    ("b" eshell-insert-buffer-name "eshell-insert-buffer-name")
+    ("c" eshell/clear "eshell/clear")
+    ("x" eshell-full-clear "eshell full clear"))
+  (global-set-key (kbd "C-c e") 'hydra-eshell/body)
+
   (global-set-key (kbd "C-c d") 'insert-date)
   (global-set-key (kbd "C-x g") 'webjump)
-  (global-set-key (kbd "C-c e") 'eval-and-replace)
   (global-set-key (kbd "C-c b") 'paste-below)
   (global-set-key (kbd "C-c a") 'paste-above)
   (global-set-key (kbd "C-c m") 'magit-status)
@@ -829,4 +912,6 @@ Pretty much self-explanatory
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
   (define-key evil-normal-state-map (kbd "g a") 'paste-above)
   (define-key evil-normal-state-map (kbd "g p") 'paste-below)
+  (global-set-key (kbd "C-h C-f") 'find-function)
+  (global-set-key (kbd "C-h C-v") 'find-variable)
 #+END_SRC
