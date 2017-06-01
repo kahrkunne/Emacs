@@ -146,6 +146,11 @@ Use python 3
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq python-python-command "/usr/bin/python3")
 #+END_SRC
+Indent python properly
+#+NAME: py_indent
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq python-indent-offset 4)
+#+END_SRC
 Always require a final newline.
 #+NAME: final newline
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -216,11 +221,6 @@ Set the theme and font
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq custom-safe-themes t)
   (set-frame-font "Terminus-12")
-  (use-package random-splash-image
-    :config
-    (defun use-fancy-splash-screens-p () t)
-    (setq random-splash-image-dir (concat (getenv "HOME") "/Pictures/emacs-splashes"))
-    (random-splash-image-set))
   (use-package ample-theme)
   (ample-theme)
 #+END_SRC
@@ -686,7 +686,6 @@ https://github.com/ch11ng/exwm/wiki
 (Currently turned off)
 #+NAME: exwm
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq debug-on-error t)
   (use-package exwm)
   (use-package exwm-x)
   (use-package exwm-config
@@ -722,13 +721,13 @@ https://github.com/ch11ng/exwm/wiki
                              (exwm-workspace-switch ,i)))) 
     (exwm-input-set-key (kbd "s-r") 'exwm-kahr/launcher)
     (exwm-input-set-key (kbd "s-t") 'exwm-kahr/terminal)
-    ;; Start EXW
+    ;; Start EXWM
     (require 'exwm-randr)
-    (setq exwm-randr-workspace-output-plist '(0 "DVI-I-1" 1 "VGA-0"))
+    (setq exwm-randr-workspace-output-plist '(0 "VGA-0" 1 "DVI-I-1" 2 "DVI-I-1" 3 "DVI-I-1" 4 "DVI-I-1" 5 "DVI-I-1" 6 "VGA-0" 7 "VGA-0" 8 "VGA-0" 9 "VGA-0"))
     (add-hook 'exwm-randr-screen-change-hook
               (lambda ()
                 (start-process-shell-command
-                 "xrandr" nil "xrandr --output DVI-I-1 --right-of VGA-0 --auto")))
+                 "xrandr" nil "xrandr --output VGA-0 --right-of DVI-I-1 --auto")))
     (exwm-enable)
     (exwm-randr-enable))
 #+END_SRC
@@ -763,6 +762,50 @@ Edit the current file with sudo
       (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 #+END_SRC
 
+Get a random activity from a file
+#+NAME: random-activity
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; FIXME this is horrible holy shit wtf I should neck myself
+  (defun read-lines (filePath)
+    "Return a list of lines of a file at filePath."
+    (with-temp-buffer
+      (insert-file-contents filePath)
+      (split-string (buffer-string) "\n" t)))
+
+  (defun ra/special (s)
+    (string= (substring s nil 1) "*"))
+
+  (defun ra/extract-cat (l)
+    (let ((n (cl-position t (cdr (mapcar #'ra/special l)))))
+      (list (subseq l 0 (+ n 1)) (nthcdr (+ n 1) l))))
+
+  (defun random-activity (&optional user-cat)
+    (setq file-raw (read-lines "/home/kahr/Tools/activities.org"))
+    (setq cats ())
+    (let* ((num-special (count t (mapcar #'ra/special file-raw)))
+           (activities
+            (dotimes (n (- num-special 1))
+              (let ((cat (car (ra/extract-cat file-raw)))
+                    (new-raw (cadr (ra/extract-cat file-raw))))
+                (setq cats (cons cat cats))
+                (setq file-raw new-raw)))))
+      ;; (nth (random (length activities))
+      ;;   activities)
+      (setq cats (cons file-raw cats))
+      cats
+      (let ((current-cat
+             (if user-cat
+                 (car
+                  (seq-filter
+                   (lambda (l)
+                     (string= (downcase (car l)) (downcase (concat "* " user-cat))))
+                   cats))
+               (nth (random (length cats)) cats))))
+  (concat (nth (random (length (cdr current-cat)))
+               (cdr current-cat))
+          " (" (substring (car current-cat) 2 nil) ")"))))
+
+#+END_SRC
 
 Insert the current date
 #+NAME: insert-date
@@ -914,4 +957,10 @@ Pretty much self-explanatory
   (define-key evil-normal-state-map (kbd "g p") 'paste-below)
   (global-set-key (kbd "C-h C-f") 'find-function)
   (global-set-key (kbd "C-h C-v") 'find-variable)
+  (global-set-key (kbd "C-c p") #'mingus-toggle)
+  (define-key evil-insert-state-map (kbd "C-o") nil)
+  (define-key evil-insert-state-map (kbd "C-d") nil)
+  (global-set-key (kbd "<XF86AudioLowerVolume>") #'mingus-vol-down)
+  (global-set-key (kbd "<XF86AudioRaiseVolume>") #'mingus-vol-up)
+  (global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
 #+END_SRC
