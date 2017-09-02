@@ -223,7 +223,7 @@ Set the theme and font
 #+NAME: Theme
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq custom-safe-themes t)
-  (set-frame-font "Terminus-12")
+  (set-frame-font "xos4 Terminus-12")
   (use-package ample-theme)
   (ample-theme)
 #+END_SRC
@@ -319,7 +319,6 @@ http://company-mode.github.io/
 **** flycheck
 Very good syntax checking.
 http://www.flycheck.org/en/latest/
-Note to self: developer (lunaryorn) is a massive jackass
 #+NAME: flycheck
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package flycheck
@@ -412,7 +411,7 @@ https://github.com/lewang/fic-mode
     (use-package fic-mode
       :config
       (add-hook 'prog-mode-hook #'fic-mode)
-      (setq fic-highlighted-words '("FIXME" "TODO" "BUG" "XXX" "NOTE" "HACK"))
+      (setq fic-highlighted-words '("FIXME" "TODO" "BUG" "XXX" "NOTE" "HACK")))
 #+END_SRC
 **** rainbow-mode
 Display hex colours in their corresponding colour.
@@ -695,7 +694,6 @@ https://github.com/wasamasa/shackle
 ** EXWM
 Code for the X Emacs Window Manager (EXWM).
 https://github.com/ch11ng/exwm/wiki
-(Currently turned off)
 #+NAME: exwm
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package exwm)
@@ -717,13 +715,6 @@ https://github.com/ch11ng/exwm/wiki
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer exwm-title))))
     ;; Keybindings
-    ;; Functions
-    (defun exwm-kahr/launcher ()
-      (interactive)
-      (exwm-x-run-shell-command "bash -c 'rofi -show run'"))
-    (defun exwm-kahr/terminal ()
-      (interactive)
-      (exwm-x-run-shell-command "urxvt"))
     (exwm-input-set-key (kbd "s-x") #'exwm-reset)
     (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
     (dotimes (i 10)
@@ -732,7 +723,7 @@ https://github.com/ch11ng/exwm/wiki
                              (interactive)
                              (exwm-workspace-switch ,i)))) 
     (exwm-input-set-key (kbd "s-r") 'exwm-kahr/launcher)
-    (exwm-input-set-key (kbd "s-t") 'exwm-kahr/terminal)
+    (exwm-input-set-key (kbd "s-t") 'exwmx-toggle-keyboard)
     ;; Start EXWM
     (require 'exwm-randr)
     (setq exwm-randr-workspace-output-plist '(0 "HDMI-0" 1 "DVI-D-1" 2 "DVI-D-1" 3 "DVI-D-1" 4 "DVI-D-1" 5 "DVI-D-1" 6 "HDMI-0" 7 "HDMI-0" 8 "HDMI-0" 9 "HDMI-0"))
