@@ -256,7 +256,6 @@ Initialize use-package
   (require 'package)
 ;;  (setq package-enable-at-startup nil)
 ;;  (package-initialize)
-  (setq use-package-always-ensure t)
 #+END_SRC
 *** Programming
 **** geiser

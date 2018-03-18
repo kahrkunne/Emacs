@@ -1,3 +1,5 @@
+/home/kahr/.emacs.d/org-init.org
+~/.emacs.d/#!home!kahr!.emacs.d!org-init.org#
 /home/kahr/Toshokan/toshokan/res/js/toshokan.js
 ~/.emacs.d/#!home!kahr!Toshokan!toshokan!res!js!toshokan.js#
 /home/kahr/Toshokan/toshokan/app/pages/animelist.py
@@ -46,8 +48,6 @@
 ~/.emacs.d/#!home!kahr!keyboard.org#
 /home/kahr/nicethings.org
 ~/.emacs.d/#!home!kahr!nicethings.org#
-/home/kahr/.emacs.d/org-init.org
-~/.emacs.d/#!home!kahr!.emacs.d!org-init.org#
 /sudo:root@localhost:/etc/nginx/nginx.conf
 /home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aetc_anginx_anginx.conf#
 /home/kahr/.rtorrent.rc
