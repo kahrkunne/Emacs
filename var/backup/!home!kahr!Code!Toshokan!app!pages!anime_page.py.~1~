@@ -1,0 +1,18 @@
+import tornado
+
+from ..models import Anime
+from . import Page
+from .templates.anime_page import anime_page
+
+class AnimePage(Page):
+
+    template = anime_page
+
+    @tornado.web.addslash
+    def get(self, uid, title):
+        anime = self.db.query(Anime).filter_by(uid = uid).first()
+        if anime:
+            self.t.anime = anime
+            self.write(self.render())
+        else:
+            self.write('Not Found.')

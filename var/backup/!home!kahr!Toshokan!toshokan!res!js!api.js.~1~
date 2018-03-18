@@ -1,0 +1,28 @@
+function addAnimeEntry(data, successCallback, errorCallback){
+    $.ajax({
+	type: "PUT",
+	url: "/animelist/" + data['username'] + '/' + data['anime_id'],
+	data: {
+	    'username': data['username'],
+	    'score': data['score'],
+	    'start_date': data['start_date'],
+	    'end_date': data['end_date'],
+	    'num_episodes': data['num_episodes'],
+	    'num_rewatches': data['num_rewatches'],
+	    'status': data['status'],
+	    'comments': data['comments']
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getAnimeEntry(username, anime_id, successCallback, errorCallback){
+    $.ajax({
+	type: "GET",
+	url: "/animelist/" + username + "/" + anime_id + ".json",
+	success: successCallback,
+	error: errorCallback
+    });
+}
+

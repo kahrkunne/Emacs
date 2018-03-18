@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{amssymb}
+\newcommand*{\field}[1]{\mathbb{#1}}
+
+\newcommand{\idiv}{\mbox{\bf ~div~}} 
+\newcommand{\imod}{\mbox{\bf ~mod~}} 
+\newcommand{\band}{~\wedge~} 
+\newcommand{\bor}{~\vee~} 
+\newcommand{\true}{\mbox{\bf ~true~}} 
+\newcommand{\false}{\mbox{\bf ~false~}} 
+\newcommand{\IF}{\mbox{\bf if~}} 
+\newcommand{\THEN}{\mbox{\bf ~then~}}
+\newcommand{\ELSE}{\mbox{\bf else~}}
+\newcommand{\END}{\mbox{\bf end}}
+\newcommand{\WHILE}{\mbox{\bf while~}}
+\newcommand{\DO}{\mbox{\bf ~do}}
+\newcommand{\FOR}{\mbox{\bf for~}}
+\newcommand{\TO}{\mbox{\bf ~to}}
+\newcommand{\SKIP}{\mbox{\bf ~skip}}
+\newcommand{\CONST}{\mbox{\bf const~}}
+\newcommand{\ARRAY}{\mbox{\bf ~array~}}
+\newcommand{\OF}{\mbox{\bf ~of~}}
+\newcommand{\VAR}{\mbox{\bf var~}}
+\newcommand{\vf}{\mbox{\sf vf}}
+\newcommand{\ord}{\mbox{\sf ord}}
+\newcommand{\imax}{\mbox{\bf ~max~}}
+\newcommand{\imin}{\mbox{\bf ~min~}}
+\newcommand{\Max}{\mbox{\sf Max}}
+\newcommand{\Min}{\mbox{\sf Min}} 
+
+\begin{document}
+\title{CompSci, Program Correctness, Homework 2}
+\author{Kahr Kunne, S3435342, Group 2}
+\maketitle
+
+\section*{Problem 1}
+\begin{tabbing}
+x\=xx\=xxx\=xxxx\=\kill
+\>$\{P: X \geq 0 \band (p = X + 3 \bor p = -X) \band p^2 + q = Y\}$\\
+$\IF p < 0 \THEN$\\
+\>\>$\{P \band p < 0 \}$\\ 
+\>\>\>(* definition of P and logic *)\\
+\>\>$\{p^2 + q = Y \band p = -X\}$\\
+\>\>\>(* calculus in preparation of an assignment to p *)\\
+\>\>$\{(-p)^2 + q = Y \band -p = X\}$\\
+\>$p := -p$\\
+\>\>$\{p^2 + q = Y \band p = X\}$\\
+$\ELSE$\\
+\>\>$\{P \band p \geq 0 \}$\\ 
+\>\>\>(* definition of P and logic *)\\
+\>\>$\{p^2 + q = Y \band p = X + 3\}$\\
+\>\>\>(* calculus in preparation of an assignment to p; substitution of Y *)\\
+\>\>$\{(p-3)^2 + q = Y + q + 27 - 6(p-3) \band p - 3 = X\}$\\
+\>$p := p - 3$;\\
+\>\>$\{p^2 + q = Y + q + 27 - 6p \band p = X\}$\\
+\>\>\>(* calculus in preparation of an assignment to q *)\\
+\>\>$\{p^2 + (-27 + 6p) = Y \band p = X\}$\\
+\>$q := -27 + 6 \cdot p$\\
+\>\>$\{p^2 + q = Y \band p = X\}$\\
+$\END$ (* collect branches *)\\
+\>$\{p^2 + q = Y \band p = X\}$\\
+\>\>(* logic *)\\
+\>$\{p = X \band p^2 + q = Y\}$
+\end{tabbing}
+
+\newpage
+
+\section*{Problem 2}
+For this exercise I will assume that the uppercase ``N'' in the line ``\WHILE i $<$ N \DO'' is supposed to be a lowercase ``n''.
+\begin{tabbing}
+x\=xx\=xxx\=xxxx\=\kill
+$\CONST n,x,y: \field{N}$;\\
+$\VAR a,b,i: \field{Z}$;\\
+\>$\{P: n \geq 0 \band X = f(n,x,y)\}$\\
+$a := 0$;\\
+$b := 1$;\\
+$i := 0$;\\
+\WHILE $i < n$ \DO\\
+\>$a := a + b$;\\
+\>$b := a - b$;\\
+\>$a := a - b$;\\
+\>$b := b * x + a * y$;\\
+\>$i := i + 1$;\\
+
+\end{tabbing}
+
+
+
+\end{document}

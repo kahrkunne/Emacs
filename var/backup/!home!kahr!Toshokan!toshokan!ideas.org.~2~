@@ -1,0 +1,41 @@
+* TODOs
+** TODO Change name
++ "Toshokan" is difficult to remember and spell (for normies)
++ Useless if we ever decide to translate the site to Japanese
+** TODO Data gathering
+*** TODO Mal user data
+*** TODO MAL anime data
+**** DONE MAL anime API data
+   - State "DONE"       from "TODO"       [2017-04-30 Sun 23:02]
+**** TODO Mal anime page scraping
+*** TODO MAL manga data
+*** TODO AniDB anime data
+- Sent message requesting database dump
+*** TODO VNDB VN data
+- Sent email requesting database dump
+*** TODO LN data
+**** TODO Determine source for LN data
+** TODO Data processing
+*** TODO Mal user data
+*** TODO MAL anime data
+**** TODO Mal anime API data
+Still waiting on some missing shows; Smith has the data.
+**** TODO Mal anime page data
+*** TODO MAL manga data
+*** TODO AniDB anime data
+*** TODO VNDB VN data
+*** TODO LN data
+** DONE Instant search
+   - State "DONE"       from "TODO"       [2017-04-30 Sun 23:07]
+** TODO Website design
+*** TODO General design template
+Reasv is working on this
+*** TODO Anime page design
+Reasv is working on this
+*** TODO Front page design
+*** TODO User page design
+** TODO User system
+** TODO Recommendation algorithm
+* Ideas
+** Recommendation system
+*** TODO write this up

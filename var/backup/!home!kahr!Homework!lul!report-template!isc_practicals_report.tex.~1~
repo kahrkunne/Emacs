@@ -1,0 +1,160 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction to Scientific Computing - WBCS14003             %
+%                                                              %
+%  LaTeX template for practicals report                        %
+%                                                              %
+%                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper,11pt,twoside]{article}
+\usepackage{a4wide}
+\usepackage{amssymb,amsmath}
+\usepackage{palatino,mathpazo}
+\usepackage{exercise}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{appendix}
+
+\renewcommand{\ExerciseHeader}{{%
+\textbf{\large\ExerciseHeaderDifficulty\ExerciseName\ %
+\ExerciseHeaderNB\ExerciseHeaderTitle\ExerciseHeaderOrigin}}\medskip}
+\def\ExerciseName{Assignment}
+\renewcommand{\theenumi}{\alph{enumi}}
+
+\newcommand{\tx}[1]{\texttt{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\noindent 
+{\bf
+Introduction to Scientific Computing\\
+Report Practical Example\\
+Anonymous s123456\\
+Nov 13, 2014
+}
+\bigbreak\hrule\smallskip\noindent
+
+
+\begin{Exercise}[title={Hamming distance of two DNA sequences}]
+
+\begin{enumerate}
+\item 
+\item The Hamming distance HD for two strings \tx{s} and \tx{t} of the
+  same length, say \verb|len_s|, is defined as the number of character
+  positions in which they differ.  So we can compute HD by a loop in
+  which we compare the character at each position $i$ of the two
+  strings, and increment HD by 1 for each position where the
+  characters are not the same. HD must be initialized with the value
+  0. The corresponding Matlab code is:
+  \begin{verbatim}
+    HD=0;
+    for i=1:len_s
+        if (s(i)~=t(i)) HD=HD+1;
+        end
+    end
+  \end{verbatim}
+  After reading the input file first a check is done whether the input
+  strings are of the same length. The complete code of the file
+  \tx{hamming1.m} is given in Appendix~\ref{app:hamming1} on
+  page~\pageref{app:hamming1}.
+
+\item Running the program \tx{hamming1.m} in Matlab gives a value
+  HD=22. This is indeed the correct value, as can be seen by
+  inspecting the two strings in the input file \tx{input.txt}.
+
+\item To compute the positions where '\tx{|}' symbols or spaces have to
+  be inserted, we can extend the loop above. We introduce a new
+  string, say \tx{v}: whenever there is a match on position i, we put
+  \tx{v}(i) equal to '\tx{|}', otherwise \tx{v}(i) is put equal to a
+  space. In Matlab code:
+  \begin{verbatim}
+   for i=1:len_s
+       if (s(i)~=t(i)) HD=HD+1; v(i)=' '; 
+       else v(i)='|'; 
+       end
+   end
+  \end{verbatim}
+  To display the strings \tx{s}, \tx{v}, \tx{t} below one another, we can
+  use Matlab's \tx{print} function for each string. An alternative way
+  is the following.  We define a matrix \tx{A} with 3 rows, each of
+  length \verb|len_s|, where the first row of \tx{A} equals the string
+  \tx{s}, the second row equals the string \tx{v}, and the third row
+  equals the string \tx{t}. Then we can use the \tx{disp()} function of
+  Matlab to display the matrix \tx{A}, which will show the desired
+  alignment.
+
+  The complete code of the file \tx{hamming2.m} is given in
+  Appendix~\ref{app:hamming2} on page~\pageref{app:hamming2}.
+
+
+\item Running the program \tx{hamming2.m} gives the following output
+  (copied from the command window of Matlab):
+  \begin{verbatim}
+   GGTCCAATGGGATTATGGCCTCTCTATATTATCCA
+   |   | |     ||     ||  |||  |||    
+   GTCACCAACTTCTTTATATCTGGCTAGCTTAGATT
+   \end{verbatim}
+  which indeed is correct.
+
+\item To print the alignment, which is defined by the
+  $3\times$\verb|len_s| matrix \tx{A}, to a file \tx{output}, we use
+  the fprintf command with the output file as the first argument. The
+  \verb|%s|
+  parameter indicates we are printing characters. In pseudocode:
+  \begin{verbatim}
+  for i=1:3
+    for j=1:len_s
+        fprintf(output,'%s',A(i,j));
+    end
+    fprintf(output,'\n');
+  end
+\end{verbatim}
+  The complete code of the file \tx{hamming3.m} is given in
+  Appendix~\ref{app:hamming3} on page~\pageref{app:hamming3}.
+
+  Running the extended program \tx{hamming3.m} gives the output file
+  \tx{hamming3-output.txt} which is included in
+  Appendix~\ref{app:hamming-output} on
+  page~\pageref{app:hamming-output}.
+
+  It indeed contains the correct information.
+
+\end{enumerate}
+\end{Exercise}
+
+\bigbreak\noindent
+The requested files \tx{hamming1.m}, \tx{hamming2.m}, \tx{hamming3.m},
+and \tx{hamming3-output.txt} are contained in the subdirectory
+\tx{results} of this directory.
+
+
+\newpage
+\appendix
+
+\section{Appendix: Matlab code of \texttt{hamming1.m}}
+\label{app:hamming1}
+{\small \verbatiminput{results/hamming1.m}}
+
+\newpage
+\section{Appendix: Matlab code of \texttt{hamming2.m}}
+\label{app:hamming2}
+{\small \verbatiminput{results/hamming2.m}}
+
+\newpage
+\section{Appendix: Matlab code of \texttt{hamming3.m}}
+\label{app:hamming3}
+{\small \verbatiminput{results/hamming3.m}}
+
+\newpage
+\section{Appendix: output file \texttt{hamming3-output.txt}}
+\label{app:hamming-output}
+{\small \verbatiminput{results/hamming3-output.txt}}
+
+
+\end{document}
+
+
+

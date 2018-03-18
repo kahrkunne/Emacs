@@ -1,0 +1,9 @@
+import tornado
+
+from . import Page
+from .templates.index import index
+
+class Index(Page):
+    template = index
+    def get(self):
+        self.write(self.render())

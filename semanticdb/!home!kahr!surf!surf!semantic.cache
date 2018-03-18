@@ -1,0 +1,2574 @@
+;; Object surf/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "surf/"
+  :tables
+  (list
+    (semanticdb-table "surf.c"
+      :major-mode 'c-mode
+      :tags 
+        '( ("signal.h" include (:system-flag t) nil [108 127])
+            ("X11/X.h" include (:system-flag t) nil [128 146])
+            ("X11/Xatom.h" include (:system-flag t) nil [147 169])
+            ("gtk/gtk.h" include (:system-flag t) nil [170 190])
+            ("gdk/gdkx.h" include (:system-flag t) nil [191 212])
+            ("gdk/gdk.h" include (:system-flag t) nil [213 233])
+            ("gdk/gdkkeysyms.h" include (:system-flag t) nil [234 261])
+            ("string.h" include (:system-flag t) nil [262 281])
+            ("sys/types.h" include (:system-flag t) nil [282 304])
+            ("sys/wait.h" include (:system-flag t) nil [305 326])
+            ("fcntl.h" include (:system-flag t) nil [327 345])
+            ("unistd.h" include (:system-flag t) nil [346 365])
+            ("limits.h" include (:system-flag t) nil [366 385])
+            ("stdlib.h" include (:system-flag t) nil [386 405])
+            ("stdio.h" include (:system-flag t) nil [406 424])
+            ("webkit/webkit.h" include (:system-flag t) nil [425 451])
+            ("JavaScriptCore/JavaScript.h" include (:system-flag t) nil [452 490])
+            ("sys/file.h" include (:system-flag t) nil [491 512])
+            ("libgen.h" include (:system-flag t) nil [513 532])
+            ("stdarg.h" include (:system-flag t) nil [533 552])
+            ("regex.h" include (:system-flag t) nil [553 571])
+            ("pwd.h" include (:system-flag t) nil [572 588])
+            ("glib.h" include (:system-flag t) nil [589 606])
+            ("glib/gstdio.h" include (:system-flag t) nil [607 631])
+            ("arg.h" include nil nil [633 649])
+            ("argv0" variable
+               (:pointer 1
+                :type "char")
+                nil [651 663])
+            ("LENGTH" variable (:constant-flag t) nil [673 679])
+            ("CLEANMASK" variable (:constant-flag t) nil [732 741])
+            ("COOKIEJAR_TYPE" variable (:constant-flag t) nil [797 811])
+            ("COOKIEJAR" variable (:constant-flag t) nil [853 862])
+            ("" type
+               (:members 
+                  ( ("AtomFind" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [949 958])
+                    ("AtomGo" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [959 966])
+                    ("AtomUri" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [967 975])
+                    ("AtomLast" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [976 986]))                  
+                :type "enum")
+                nil [942 987])
+            ("" type
+               (:members 
+                  ( ("ClkDoc" variable
+                       (:constant-flag t
+                        :default-value (1007 1046)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [996 1046])
+                    ("ClkLink" variable
+                       (:constant-flag t
+                        :default-value (1060 1095)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1049 1095])
+                    ("ClkImg" variable
+                       (:constant-flag t
+                        :default-value (1109 1145)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1098 1145])
+                    ("ClkMedia" variable
+                       (:constant-flag t
+                        :default-value (1159 1195)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1148 1195])
+                    ("ClkSel" variable
+                       (:constant-flag t
+                        :default-value (1209 1249)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1198 1249])
+                    ("ClkEdit" variable
+                       (:constant-flag t
+                        :default-value (1263 1302)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1252 1302])
+                    ("ClkAny" variable
+                       (:constant-flag t
+                        :default-value (1316 1332)
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1305 1332])
+                    ("ClkImg" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1335 1343])
+                    ("ClkMedia" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1344 1354])
+                    ("ClkSel" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1355 1363])
+                    ("ClkEdit" variable
+                       (:constant-flag t
+                        :type "int")
+                        (reparse-symbol enumsubparts) [1364 1372]))                  
+                :type "enum")
+                nil [988 1375])
+            ("Arg" type
+               (:typedef ("Arg" type (:type "union") nil nil)
+                :type "typedef")
+                nil [1377 1399])
+            ("Arg" type
+               (:members 
+                  ( ("b" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1413 1424])
+                    ("i" variable (:type ("gint" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1426 1433])
+                    ("v" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "void")
+                        (reparse-symbol classsubparts) [1435 1449]))                  
+                :type "union")
+                nil [1400 1452])
+            ("Client" type
+               (:members 
+                  ( ("win" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol classsubparts) [1479 1517])
+                    ("scroll" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol classsubparts) [1479 1517])
+                    ("vbox" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol classsubparts) [1479 1517])
+                    ("pane" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol classsubparts) [1479 1517])
+                    ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol classsubparts) [1519 1539])
+                    ("inspector" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol classsubparts) [1541 1571])
+                    ("title" variable
+                       (:pointer 1
+                        :type "char")
+                        (reparse-symbol classsubparts) [1573 1597])
+                    ("linkhover" variable
+                       (:pointer 1
+                        :type "char")
+                        (reparse-symbol classsubparts) [1573 1597])
+                    ("needle" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol classsubparts) [1599 1618])
+                    ("progress" variable (:type ("gint" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1620 1634])
+                    ("next" variable
+                       (:pointer 1
+                        :type ("Client" type
+                             (:prototype t
+                              :type "struct")
+                              nil nil))
+                        (reparse-symbol classsubparts) [1636 1656])
+                    ("zoomed" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1658 1711])
+                    ("fullscreen" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1658 1711])
+                    ("isinspecting" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1658 1711])
+                    ("sslfailed" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1658 1711]))                  
+                :type "struct")
+                nil [1454 1721])
+            ("Client" type
+               (:typedef ("Client" type (:type "struct") nil nil)
+                :type "typedef")
+                nil [1454 1721])
+            ("Key" type
+               (:typedef ("" type
+                     (:members 
+                        ( ("mod" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1741 1751])
+                          ("keyval" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1753 1766])
+                          ("func" function
+                             (:prototype-flag t
+                              :function-pointer t
+                              :arguments 
+                                ( ("c" variable
+                                     (:pointer 1
+                                      :type ("Client" type (:type "class") nil nil))
+                                      (reparse-symbol arg-sub-list) [1781 1791])
+                                  ("arg" variable
+                                     (:pointer 1
+                                      :constant-flag t
+                                      :type ("Arg" type (:type "class") nil nil))
+                                      (reparse-symbol arg-sub-list) [1792 1807]))                                
+                              :type "void")
+                              (reparse-symbol classsubparts) [1768 1808])
+                          ("arg" variable
+                             (:constant-flag t
+                              :type ("Arg" type (:type "class") nil nil))
+                              (reparse-symbol classsubparts) [1810 1824]))                        
+                      :type "struct")
+                      nil nil)
+                :type "typedef")
+                nil [1723 1831])
+            ("Button" type
+               (:typedef ("" type
+                     (:members 
+                        ( ("click" variable (:type "unsigned int") (reparse-symbol classsubparts) [1851 1870])
+                          ("mask" variable (:type "unsigned int") (reparse-symbol classsubparts) [1872 1890])
+                          ("button" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1892 1905])
+                          ("func" function
+                             (:prototype-flag t
+                              :function-pointer t
+                              :arguments 
+                                ( ("c" variable
+                                     (:pointer 1
+                                      :type ("Client" type (:type "class") nil nil))
+                                      (reparse-symbol arg-sub-list) [1920 1930])
+                                  ("arg" variable
+                                     (:pointer 1
+                                      :constant-flag t
+                                      :type ("Arg" type (:type "class") nil nil))
+                                      (reparse-symbol arg-sub-list) [1931 1946]))                                
+                              :type "void")
+                              (reparse-symbol classsubparts) [1907 1947])
+                          ("arg" variable
+                             (:constant-flag t
+                              :type ("Arg" type (:type "class") nil nil))
+                              (reparse-symbol classsubparts) [1949 1963]))                        
+                      :type "struct")
+                      nil nil)
+                :type "typedef")
+                nil [1833 1973])
+            ("CookieJar" type
+               (:typedef ("" type
+                     (:members 
+                        ( ("parent_instance" variable (:type ("SoupCookieJarText" type (:type "class") nil nil)) (reparse-symbol classsubparts) [1993 2027])
+                          ("lock" variable (:type "int") (reparse-symbol classsubparts) [2029 2038]))                        
+                      :type "struct")
+                      nil nil)
+                :type "typedef")
+                nil [1975 2051])
+            ("CookieJarClass" type
+               (:typedef ("" type
+                     (:members 
+                        ( ("parent_class" variable (:type ("SoupCookieJarTextClass" type (:type "class") nil nil)) (reparse-symbol classsubparts) [2071 2107]))                        
+                      :type "struct")
+                      nil nil)
+                :type "typedef")
+                nil [2053 2125])
+            ("SiteStyle" type
+               (:typedef ("" type
+                     (:members 
+                        ( ("regex" variable
+                             (:pointer 1
+                              :type "char")
+                              (reparse-symbol classsubparts) [2209 2221])
+                          ("style" variable
+                             (:pointer 1
+                              :type "char")
+                              (reparse-symbol classsubparts) [2223 2235])
+                          ("re" variable (:type ("regex_t" type (:type "class") nil nil)) (reparse-symbol classsubparts) [2237 2248]))                        
+                      :type "struct")
+                      nil nil)
+                :type "typedef")
+                nil [2191 2261])
+            ("dpy" variable
+               (:pointer 1
+                :typemodifiers ("static")
+                :type ("Display" type (:type "class") nil nil))
+                nil [2263 2283])
+            ("atoms" variable
+               (:dereference 1
+                :typemodifiers ("static")
+                :type ("Atom" type (:type "class") nil nil))
+                nil [2284 2312])
+            ("clients" variable
+               (:pointer 1
+                :typemodifiers ("static")
+                :default-value "NULL"
+                :type ("Client" type (:type "class") nil nil))
+                nil [2313 2343])
+            ("embed" variable
+               (:typemodifiers ("static")
+                :default-value "0"
+                :type ("GdkNativeWindow" type (:type "class") nil nil))
+                nil [2344 2377])
+            ("showxid" variable
+               (:typemodifiers ("static")
+                :default-value "FALSE"
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [2378 2410])
+            ("winid" variable
+               (:dereference 1
+                :typemodifiers ("static")
+                :type "char")
+                nil [2411 2433])
+            ("usingproxy" variable
+               (:typemodifiers ("static")
+                :default-value "0"
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [2434 2465])
+            ("togglestat" variable
+               (:dereference 1
+                :typemodifiers ("static")
+                :type "char")
+                nil [2466 2492])
+            ("pagestat" variable
+               (:dereference 1
+                :typemodifiers ("static")
+                :type "char")
+                nil [2493 2517])
+            ("tlsdb" variable
+               (:pointer 1
+                :typemodifiers ("static")
+                :type ("GTlsDatabase" type (:type "class") nil nil))
+                nil [2518 2545])
+            ("policysel" variable
+               (:typemodifiers ("static")
+                :default-value "0"
+                :type "int")
+                nil [2546 2571])
+            ("stylefile" variable
+               (:pointer 1
+                :typemodifiers ("static")
+                :default-value "NULL"
+                :type "char")
+                nil [2572 2602])
+            ("diskcache" variable
+               (:pointer 1
+                :typemodifiers ("static")
+                :default-value "NULL"
+                :type ("SoupCache" type (:type "class") nil nil))
+                nil [2603 2638])
+            ("addaccelgroup" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2666 2676]))                  
+                :type "void")
+                nil [2640 2677])
+            ("beforerequest" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("w" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2704 2721])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2722 2740])
+                    ("r" variable
+                       (:pointer 1
+                        :type ("WebKitWebResource" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2767 2788])
+                    ("req" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkRequest" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2789 2815])
+                    ("resp" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkResponse" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2842 2870])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2871 2881]))                  
+                :type "void")
+                nil [2678 2882])
+            ("buildfile" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("path" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [2906 2923]))                  
+                :type "char")
+                nil [2883 2924])
+            ("buildpath" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("path" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [2948 2965]))                  
+                :type "char")
+                nil [2925 2966])
+            ("buttonrelease" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("web" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [2997 3016])
+                    ("e" variable
+                       (:pointer 1
+                        :type ("GdkEventButton" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3017 3035])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3036 3046]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [2967 3047])
+            ("cleanup" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [3068 3073]))                  
+                :type "void")
+                nil [3048 3074])
+            ("clipboard" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3097 3107])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3108 3123]))                  
+                :type "void")
+                nil [3075 3124])
+            ("cookiejar_changed" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("SoupCookieJar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3187 3207])
+                    ("old_cookie" variable
+                       (:pointer 1
+                        :type ("SoupCookie" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3208 3231])
+                    ("new_cookie" variable
+                       (:pointer 1
+                        :type ("SoupCookie" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3262 3285]))                  
+                :type "void")
+                nil [3157 3286])
+            ("cookiejar_finalize" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("GObject" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3318 3332]))                  
+                :type "void")
+                nil [3287 3333])
+            ("cookiepolicy_get" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [3384 3389]))                  
+                :type ("SoupCookieJarAcceptPolicy" type (:type "class") nil nil))
+                nil [3334 3390])
+            ("cookiejar_new" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("filename" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [3427 3448])
+                    ("read_only" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [3449 3468])
+                    ("policy" variable (:type ("SoupCookieJarAcceptPolicy" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [3505 3538]))                  
+                :type ("SoupCookieJar" type (:type "class") nil nil))
+                nil [3391 3539])
+            ("cookiejar_set_property" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("GObject" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3575 3589])
+                    ("prop_id" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [3590 3604])
+                    ("value" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("GValue" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3609 3629])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3630 3648]))                  
+                :type "void")
+                nil [3540 3649])
+            ("cookiepolicy_set" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("p" variable
+                       (:constant-flag t
+                        :type ("SoupCookieJarAcceptPolicy" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3679 3713]))                  
+                :type "char")
+                nil [3650 3714])
+            ("copystr" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("str" variable
+                       (:pointer 2
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [3737 3748])
+                    ("src" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [3749 3765]))                  
+                :type "char")
+                nil [3716 3766])
+            ("createwindow" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3802 3819])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3820 3838])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3874 3884]))                  
+                :type ("WebKitWebView" type (:type "class") nil nil))
+                nil [3767 3885])
+            ("decidedownload" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3917 3934])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3935 3953])
+                    ("r" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkRequest" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [3985 4009])
+                    ("m" variable
+                       (:pointer 1
+                        :type ("gchar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4010 4019])
+                    ("p" variable
+                       (:pointer 1
+                        :type ("WebKitWebPolicyDecision" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4051 4078])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4079 4089]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [3886 4090])
+            ("decidewindow" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4120 4137])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4138 4156])
+                    ("r" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkRequest" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4186 4210])
+                    ("n" variable
+                       (:pointer 1
+                        :type ("WebKitWebNavigationAction" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4211 4269])
+                    ("p" variable
+                       (:pointer 1
+                        :type ("WebKitWebPolicyDecision" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4270 4297])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4298 4308]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [4091 4309])
+            ("deletion_interface" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4345 4365])
+                    ("arg1" variable
+                       (:pointer 1
+                        :type ("WebKitDOMHTMLElement" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4401 4428])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4429 4439]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [4310 4440])
+            ("destroyclient" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4467 4477]))                  
+                :type "void")
+                nil [4441 4478])
+            ("destroywin" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("w" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4502 4515])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4516 4526]))                  
+                :type "void")
+                nil [4479 4527])
+            ("die" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("errstr" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [4544 4563])
+                    ("..." variable (:type "vararg") (reparse-symbol arg-sub-list) [4564 4568]))                  
+                :type "void")
+                nil [4528 4569])
+            ("eval" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4587 4597])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4598 4613]))                  
+                :type "void")
+                nil [4570 4614])
+            ("find" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4632 4642])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4643 4658]))                  
+                :type "void")
+                nil [4615 4659])
+            ("fullscreen" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4683 4693])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4694 4709]))                  
+                :type "void")
+                nil [4660 4710])
+            ("geopolicyrequested" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4742 4759])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4760 4778])
+                    ("d" variable
+                       (:pointer 1
+                        :type ("WebKitGeolocationPolicyDecision" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4810 4845])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4846 4856]))                  
+                :type "void")
+                nil [4711 4857])
+            ("getatom" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :constant-flag t
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4885 4895])
+                    ("a" variable (:type "int") (reparse-symbol arg-sub-list) [4896 4902]))                  
+                :type "char")
+                nil [4858 4903])
+            ("gettogglestat" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4930 4940]))                  
+                :type "void")
+                nil [4904 4941])
+            ("getpagestat" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4966 4976]))                  
+                :type "void")
+                nil [4942 4977])
+            ("geturi" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [4998 5008]))                  
+                :type "char")
+                nil [4978 5009])
+            ("getstyle" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :constant-flag t
+                :arguments 
+                  ( ("uri" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [5039 5055]))                  
+                :type ("gchar" type (:type "class") nil nil))
+                nil [5010 5056])
+            ("setstyle" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5078 5088])
+                    ("style" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [5089 5107]))                  
+                :type "void")
+                nil [5057 5108])
+            ("handleplumb" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5134 5144])
+                    ("w" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5145 5162])
+                    ("uri" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("gchar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5163 5180]))                  
+                :type "void")
+                nil [5110 5181])
+            ("initdownload" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5212 5229])
+                    ("o" variable
+                       (:pointer 1
+                        :type ("WebKitDownload" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5230 5248])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5249 5259]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [5183 5260])
+            ("inspector" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5284 5294])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5295 5310]))                  
+                :type "void")
+                nil [5262 5311])
+            ("inspector_new" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5348 5370])
+                    ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5371 5388])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5425 5435]))                  
+                :type ("WebKitWebView" type (:type "class") nil nil))
+                nil [5312 5436])
+            ("inspector_show" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5468 5490])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5491 5501]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [5437 5502])
+            ("inspector_close" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5535 5557])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5558 5568]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [5503 5569])
+            ("inspector_finished" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5601 5623])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5624 5634]))                  
+                :type "void")
+                nil [5570 5635])
+            ("keypress" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("group" variable
+                       (:pointer 1
+                        :type ("GtkAccelGroup" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5662 5683])
+                    ("obj" variable
+                       (:pointer 1
+                        :type ("GObject" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5684 5697])
+                    ("key" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [5698 5708])
+                    ("mods" variable (:type ("GdkModifierType" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [5734 5755])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5756 5766]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [5637 5767])
+            ("linkhover" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5790 5807])
+                    ("t" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [5808 5822])
+                    ("l" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [5823 5837])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5860 5870]))                  
+                :type "void")
+                nil [5768 5871])
+            ("loadstatuschange" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5901 5921])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5922 5940])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [5970 5980]))                  
+                :type "void")
+                nil [5872 5981])
+            ("loaduri" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6002 6012])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6013 6028]))                  
+                :type "void")
+                nil [5982 6029])
+            ("navigate" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6051 6061])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6062 6077]))                  
+                :type "void")
+                nil [6030 6078])
+            ("newclient" function
+               (:prototype-flag t
+                :pointer 1
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [6104 6109]))                  
+                :type ("Client" type (:type "class") nil nil))
+                nil [6079 6110])
+            ("newwindow" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6133 6143])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6144 6159])
+                    ("noembed" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [6160 6177]))                  
+                :type "void")
+                nil [6111 6178])
+            ("pasteuri" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("clipboard" variable
+                       (:pointer 1
+                        :type ("GtkClipboard" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6200 6224])
+                    ("text" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [6225 6242])
+                    ("d" variable (:type ("gpointer" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [6243 6254]))                  
+                :type "void")
+                nil [6179 6255])
+            ("contextmenu" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6284 6304])
+                    ("menu" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6305 6321])
+                    ("target" variable
+                       (:pointer 1
+                        :type ("WebKitHitTestResult" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6350 6378])
+                    ("keyboard" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [6379 6397])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6426 6436]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [6256 6437])
+            ("menuactivate" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("item" variable
+                       (:pointer 1
+                        :type ("GtkMenuItem" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6463 6481])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6482 6492]))                  
+                :type "void")
+                nil [6438 6493])
+            ("print" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6512 6522])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6523 6538]))                  
+                :type "void")
+                nil [6494 6539])
+            ("processx" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("xevent" variable
+                       (:pointer 1
+                        :type ("GdkXEvent" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6572 6590])
+                    ("event" variable
+                       (:pointer 1
+                        :type ("GdkEvent" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6591 6607])
+                    ("d" variable (:type ("gpointer" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [6640 6651]))                  
+                :type ("GdkFilterReturn" type (:type "class") nil nil))
+                nil [6540 6652])
+            ("progresschange" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6680 6700])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6701 6719])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6720 6730]))                  
+                :type "void")
+                nil [6653 6731])
+            ("linkopen" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6753 6763])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6764 6779]))                  
+                :type "void")
+                nil [6732 6780])
+            ("linkopenembed" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6807 6817])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6818 6833]))                  
+                :type "void")
+                nil [6781 6834])
+            ("reload" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6854 6864])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6865 6880]))                  
+                :type "void")
+                nil [6835 6881])
+            ("scroll_h" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6903 6913])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6914 6929]))                  
+                :type "void")
+                nil [6882 6930])
+            ("scroll_v" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6952 6962])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6963 6978]))                  
+                :type "void")
+                nil [6931 6979])
+            ("scroll" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("a" variable
+                       (:pointer 1
+                        :type ("GtkAdjustment" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [6999 7016])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7017 7032]))                  
+                :type "void")
+                nil [6980 7033])
+            ("setatom" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7054 7064])
+                    ("a" variable (:type "int") (reparse-symbol arg-sub-list) [7065 7071])
+                    ("v" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [7072 7086]))                  
+                :type "void")
+                nil [7034 7087])
+            ("setup" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [7106 7111]))                  
+                :type "void")
+                nil [7088 7112])
+            ("sigchld" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("unused" variable (:type "int") (reparse-symbol arg-sub-list) [7133 7144]))                  
+                :type "void")
+                nil [7113 7145])
+            ("sighup" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("unused" variable (:type "int") (reparse-symbol arg-sub-list) [7165 7176]))                  
+                :type "void")
+                nil [7146 7177])
+            ("source" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7197 7207])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7208 7223]))                  
+                :type "void")
+                nil [7178 7224])
+            ("spawn" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7243 7253])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7254 7269]))                  
+                :type "void")
+                nil [7225 7270])
+            ("stop" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7288 7298])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7299 7314]))                  
+                :type "void")
+                nil [7271 7315])
+            ("titlechange" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7340 7360])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7361 7379])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7380 7390]))                  
+                :type "void")
+                nil [7316 7391])
+            ("titlechangeleave" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("a" variable
+                       (:pointer 1
+                        :type "void")
+                        (reparse-symbol arg-sub-list) [7421 7429])
+                    ("b" variable
+                       (:pointer 1
+                        :type "void")
+                        (reparse-symbol arg-sub-list) [7430 7438])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7439 7449]))                  
+                :type "void")
+                nil [7392 7450])
+            ("toggle" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7470 7480])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7481 7496]))                  
+                :type "void")
+                nil [7451 7497])
+            ("togglecookiepolicy" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7529 7539])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7540 7555]))                  
+                :type "void")
+                nil [7498 7556])
+            ("togglegeolocation" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7587 7597])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7598 7613]))                  
+                :type "void")
+                nil [7557 7614])
+            ("togglescrollbars" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7644 7654])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7655 7670]))                  
+                :type "void")
+                nil [7615 7671])
+            ("togglestyle" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7696 7706])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7707 7722]))                  
+                :type "void")
+                nil [7672 7723])
+            ("updatetitle" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7748 7758]))                  
+                :type "void")
+                nil [7724 7759])
+            ("updatewinid" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7784 7794]))                  
+                :type "void")
+                nil [7760 7795])
+            ("usage" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [7814 7819]))                  
+                :type "void")
+                nil [7796 7820])
+            ("windowobjectcleared" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("w" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7853 7866])
+                    ("frame" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7867 7889])
+                    ("js" variable (:type ("JSContextRef" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [7922 7938])
+                    ("win" variable (:type ("JSObjectRef" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [7939 7955])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7956 7966]))                  
+                :type "void")
+                nil [7821 7967])
+            ("zoom" function
+               (:prototype-flag t
+                :typemodifiers ("static")
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7985 7995])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [7996 8011]))                  
+                :type "void")
+                nil [7968 8012])
+            ("config.h" include nil nil [8080 8099])
+            ("addaccelgroup" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8120 8130]))                  
+                :type "void")
+                nil [8101 8467])
+            ("beforerequest" function
+               (:arguments 
+                  ( ("w" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8488 8505])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8506 8524])
+                    ("r" variable
+                       (:pointer 1
+                        :type ("WebKitWebResource" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8525 8546])
+                    ("req" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkRequest" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8561 8587])
+                    ("resp" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkResponse" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8588 8616])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [8631 8641]))                  
+                :type "void")
+                nil [8469 9250])
+            ("buildfile" function
+               (:pointer 1
+                :arguments 
+                  ( ("path" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [9269 9286]))                  
+                :type "char")
+                nil [9252 9674])
+            ("buildpath" function
+               (:pointer 1
+                :arguments 
+                  ( ("path" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [9693 9710]))                  
+                :type "char")
+                nil [9676 10419])
+            ("buttonrelease" function
+               (:arguments 
+                  ( ("web" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [10444 10463])
+                    ("e" variable
+                       (:pointer 1
+                        :type ("GdkEventButton" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [10464 10482])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [10483 10493]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [10421 11106])
+            ("cleanup" function
+               (:arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [11121 11126]))                  
+                :type "void")
+                nil [11108 11317])
+            ("cookiejar_changed" function
+               (:arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("SoupCookieJar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [11342 11362])
+                    ("old_cookie" variable
+                       (:pointer 1
+                        :type ("SoupCookie" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [11363 11386])
+                    ("new_cookie" variable
+                       (:pointer 1
+                        :type ("SoupCookie" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [11405 11428]))                  
+                :type "void")
+                nil [11319 11874])
+            ("cookiejar_class_init" function
+               (:arguments 
+                  ( ("klass" variable
+                       (:pointer 1
+                        :type ("CookieJarClass" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [11902 11924]))                  
+                :type "void")
+                nil [11876 12277])
+            ("cookiejar_finalize" function
+               (:arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("GObject" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [12303 12317]))                  
+                :type "void")
+                nil [12279 12409])
+            ("cookiejar_init" function
+               (:arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("CookieJar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [12431 12447]))                  
+                :type "void")
+                nil [12411 12486])
+            ("cookiejar_new" function
+               (:pointer 1
+                :arguments 
+                  ( ("filename" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [12518 12539])
+                    ("read_only" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [12540 12559])
+                    ("policy" variable (:type ("SoupCookieJarAcceptPolicy" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [12574 12607]))                  
+                :type ("SoupCookieJar" type (:type "class") nil nil))
+                nil [12488 12836])
+            ("cookiejar_set_property" function
+               (:arguments 
+                  ( ("self" variable
+                       (:pointer 1
+                        :type ("GObject" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [12866 12880])
+                    ("prop_id" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [12881 12895])
+                    ("value" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("GValue" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [12896 12916])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [12940 12958]))                  
+                :type "void")
+                nil [12838 13180])
+            ("cookiepolicy_get" function
+               (:arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [13225 13230]))                  
+                :type ("SoupCookieJarAcceptPolicy" type (:type "class") nil nil))
+                nil [13182 13454])
+            ("cookiepolicy_set" function
+               (:arguments 
+                  ( ("ep" variable
+                       (:constant-flag t
+                        :type ("SoupCookieJarAcceptPolicy" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [13478 13513]))                  
+                :type "char")
+                nil [13456 13714])
+            ("evalscript" function
+               (:arguments 
+                  ( ("js" variable (:type ("JSContextRef" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [13732 13748])
+                    ("script" variable
+                       (:pointer 1
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [13749 13762])
+                    ("scriptname" variable
+                       (:pointer 1
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [13763 13780]))                  
+                :type "void")
+                nil [13716 14132])
+            ("runscript" function
+               (:arguments 
+                  ( ("frame" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [14149 14171]))                  
+                :type "void")
+                nil [14134 14364])
+            ("clipboard" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [14381 14391])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [14392 14407]))                  
+                :type "void")
+                nil [14366 14783])
+            ("copystr" function
+               (:pointer 1
+                :arguments 
+                  ( ("str" variable
+                       (:pointer 2
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [14800 14811])
+                    ("src" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [14812 14828]))                  
+                :type "char")
+                nil [14785 14933])
+            ("createwindow" function
+               (:pointer 1
+                :arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [14964 14982])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [14983 15001])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15002 15012]))                  
+                :type ("WebKitWebView" type (:type "class") nil nil))
+                nil [14935 15059])
+            ("decidedownload" function
+               (:arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15085 15102])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15103 15121])
+                    ("r" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkRequest" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15122 15146])
+                    ("m" variable
+                       (:pointer 1
+                        :type ("gchar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15162 15171])
+                    ("p" variable
+                       (:pointer 1
+                        :type ("WebKitWebPolicyDecision" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15173 15200])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15201 15211]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [15061 15340])
+            ("decidewindow" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15364 15384])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15385 15403])
+                    ("r" variable
+                       (:pointer 1
+                        :type ("WebKitNetworkRequest" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15404 15428])
+                    ("n" variable
+                       (:pointer 1
+                        :type ("WebKitWebNavigationAction" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15442 15471])
+                    ("p" variable
+                       (:pointer 1
+                        :type ("WebKitWebPolicyDecision" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15472 15499])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15513 15523]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [15342 15793])
+            ("deletion_interface" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15823 15843])
+                    ("arg1" variable
+                       (:pointer 1
+                        :type ("WebKitDOMHTMLElement" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15844 15871])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15872 15882]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [15795 15901])
+            ("destroyclient" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [15922 15932]))                  
+                :type "void")
+                nil [15903 16285])
+            ("destroywin" function
+               (:arguments 
+                  ( ("w" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16303 16316])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16317 16327]))                  
+                :type "void")
+                nil [16287 16350])
+            ("die" function
+               (:arguments 
+                  ( ("errstr" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [16361 16380])
+                    ("..." variable (:type "vararg") (reparse-symbol arg-sub-list) [16381 16385]))                  
+                :type "void")
+                nil [16352 16491])
+            ("find" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16503 16513])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16514 16529]))                  
+                :type "void")
+                nil [16493 16679])
+            ("fullscreen" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16697 16707])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16708 16723]))                  
+                :type "void")
+                nil [16681 16878])
+            ("geopolicyrequested" function
+               (:arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16904 16921])
+                    ("f" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16922 16940])
+                    ("d" variable
+                       (:pointer 1
+                        :type ("WebKitGeolocationPolicyDecision" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16960 16995])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [16996 17006]))                  
+                :type "void")
+                nil [16880 17114])
+            ("getatom" function
+               (:pointer 1
+                :constant-flag t
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [17137 17147])
+                    ("a" variable (:type "int") (reparse-symbol arg-sub-list) [17148 17154]))                  
+                :type "char")
+                nil [17116 17549])
+            ("geturi" function
+               (:pointer 1
+                :arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [17565 17575]))                  
+                :type "char")
+                nil [17551 17684])
+            ("getstyle" function
+               (:pointer 1
+                :constant-flag t
+                :arguments 
+                  ( ("uri" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [17709 17725]))                  
+                :type ("gchar" type (:type "class") nil nil))
+                nil [17686 17941])
+            ("setstyle" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [17957 17967])
+                    ("style" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [17968 17986]))                  
+                :type "void")
+                nil [17943 18132])
+            ("handleplumb" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18151 18161])
+                    ("w" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18162 18179])
+                    ("uri" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("gchar" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18180 18197]))                  
+                :type "void")
+                nil [18134 18295])
+            ("initdownload" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18319 18339])
+                    ("o" variable
+                       (:pointer 1
+                        :type ("WebKitDownload" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18340 18358])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18359 18369]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [18297 18502])
+            ("inspector" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18519 18529])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18530 18545]))                  
+                :type "void")
+                nil [18504 18695])
+            ("inspector_new" function
+               (:pointer 1
+                :arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18727 18749])
+                    ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18750 18767])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18768 18778]))                  
+                :type ("WebKitWebView" type (:type "class") nil nil))
+                nil [18697 18830])
+            ("inspector_show" function
+               (:arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18856 18878])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [18879 18889]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [18832 19133])
+            ("inspector_close" function
+               (:arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19160 19182])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19183 19193]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [19135 19394])
+            ("inspector_finished" function
+               (:arguments 
+                  ( ("i" variable
+                       (:pointer 1
+                        :type ("WebKitWebInspector" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19420 19442])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19443 19453]))                  
+                :type "void")
+                nil [19396 19480])
+            ("keypress" function
+               (:arguments 
+                  ( ("group" variable
+                       (:pointer 1
+                        :type ("GtkAccelGroup" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19500 19521])
+                    ("obj" variable
+                       (:pointer 1
+                        :type ("GObject" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19522 19535])
+                    ("key" variable (:type ("guint" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [19536 19546])
+                    ("mods" variable (:type ("GdkModifierType" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [19547 19568])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19578 19588]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [19482 19911])
+            ("linkhover" function
+               (:arguments 
+                  ( ("v" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19928 19945])
+                    ("t" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [19946 19960])
+                    ("l" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [19961 19975])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [19976 19986]))                  
+                :type "void")
+                nil [19913 20137])
+            ("loadstatuschange" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [20161 20181])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [20182 20200])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [20201 20211]))                  
+                :type "void")
+                nil [20139 21101])
+            ("loaduri" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [21116 21126])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [21127 21142]))                  
+                :type "void")
+                nil [21103 21807])
+            ("navigate" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [21823 21833])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [21834 21849]))                  
+                :type "void")
+                nil [21809 21932])
+            ("newclient" function
+               (:pointer 1
+                :arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [21953 21958]))                  
+                :type ("Client" type (:type "class") nil nil))
+                nil [21934 29417])
+            ("newwindow" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [29434 29444])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [29445 29460])
+                    ("noembed" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [29461 29478]))                  
+                :type "void")
+                nil [29419 30239])
+            ("contextmenu" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [30262 30282])
+                    ("menu" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [30283 30299])
+                    ("target" variable
+                       (:pointer 1
+                        :type ("WebKitHitTestResult" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [30300 30328])
+                    ("keyboard" variable (:type ("gboolean" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [30341 30359])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [30360 30370]))                  
+                :type ("gboolean" type (:type "class") nil nil))
+                nil [30241 30597])
+            ("menuactivate" function
+               (:arguments 
+                  ( ("item" variable
+                       (:pointer 1
+                        :type ("GtkMenuItem" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [30617 30635])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [30636 30646]))                  
+                :type "void")
+                nil [30599 31661])
+            ("pasteuri" function
+               (:arguments 
+                  ( ("clipboard" variable
+                       (:pointer 1
+                        :type ("GtkClipboard" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [31677 31701])
+                    ("text" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [31702 31719])
+                    ("d" variable (:type ("gpointer" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [31720 31731]))                  
+                :type "void")
+                nil [31663 31810])
+            ("print" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [31823 31833])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [31834 31849]))                  
+                :type "void")
+                nil [31812 31919])
+            ("processx" function
+               (:arguments 
+                  ( ("e" variable
+                       (:pointer 1
+                        :type ("GdkXEvent" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [31946 31959])
+                    ("event" variable
+                       (:pointer 1
+                        :type ("GdkEvent" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [31960 31976])
+                    ("d" variable (:type ("gpointer" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [31977 31988]))                  
+                :type ("GdkFilterReturn" type (:type "class") nil nil))
+                nil [31921 32442])
+            ("progresschange" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32464 32484])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32485 32503])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32504 32514]))                  
+                :type "void")
+                nil [32444 32595])
+            ("linkopen" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32611 32621])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32622 32637]))                  
+                :type "void")
+                nil [32597 32667])
+            ("linkopenembed" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32688 32698])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32699 32714]))                  
+                :type "void")
+                nil [32669 32744])
+            ("reload" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32758 32768])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32769 32784]))                  
+                :type "void")
+                nil [32746 32929])
+            ("scroll_h" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32945 32955])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [32956 32971]))                  
+                :type "void")
+                nil [32931 33067])
+            ("scroll_v" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [33083 33093])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [33094 33109]))                  
+                :type "void")
+                nil [33069 33205])
+            ("scroll" function
+               (:arguments 
+                  ( ("a" variable
+                       (:pointer 1
+                        :type ("GtkAdjustment" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [33219 33236])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [33237 33252]))                  
+                :type "void")
+                nil [33207 33655])
+            ("setatom" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [33670 33680])
+                    ("a" variable (:type "int") (reparse-symbol arg-sub-list) [33681 33687])
+                    ("v" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [33688 33702]))                  
+                :type "void")
+                nil [33657 33903])
+            ("setup" function
+               (:arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [33916 33921]))                  
+                :type "void")
+                nil [33905 36907])
+            ("sigchld" function
+               (:arguments 
+                  ( ("unused" variable (:type "int") (reparse-symbol arg-sub-list) [36922 36933]))                  
+                :type "void")
+                nil [36909 37060])
+            ("sighup" function
+               (:arguments 
+                  ( ("unused" variable (:type "int") (reparse-symbol arg-sub-list) [37074 37085]))                  
+                :type "void")
+                nil [37062 37179])
+            ("source" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37193 37203])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37204 37219]))                  
+                :type "void")
+                nil [37181 37382])
+            ("spawn" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37395 37405])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37406 37421]))                  
+                :type "void")
+                nil [37384 37645])
+            ("eval" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37657 37667])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37668 37683]))                  
+                :type "void")
+                nil [37647 37848])
+            ("stop" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37860 37870])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37871 37886]))                  
+                :type "void")
+                nil [37850 37930])
+            ("titlechange" function
+               (:arguments 
+                  ( ("view" variable
+                       (:pointer 1
+                        :type ("WebKitWebView" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37949 37969])
+                    ("pspec" variable
+                       (:pointer 1
+                        :type ("GParamSpec" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37970 37988])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [37989 37999]))                  
+                :type "void")
+                nil [37932 38121])
+            ("titlechangeleave" function
+               (:arguments 
+                  ( ("a" variable
+                       (:pointer 1
+                        :type "void")
+                        (reparse-symbol arg-sub-list) [38145 38153])
+                    ("b" variable
+                       (:pointer 1
+                        :type "void")
+                        (reparse-symbol arg-sub-list) [38154 38162])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [38163 38173]))                  
+                :type "void")
+                nil [38123 38216])
+            ("toggle" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [38230 38240])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [38241 38256]))                  
+                :type "void")
+                nil [38218 38541])
+            ("togglecookiepolicy" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [38567 38577])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [38578 38593]))                  
+                :type "void")
+                nil [38543 39053])
+            ("togglegeolocation" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [39078 39088])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [39089 39104]))                  
+                :type "void")
+                nil [39055 39174])
+            ("twitch" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [39188 39198])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [39199 39214]))                  
+                :type "void")
+                nil [39176 39553])
+            ("togglescrollbars" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [39577 39587])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [39588 39603]))                  
+                :type "void")
+                nil [39555 40212])
+            ("togglestyle" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [40231 40241])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [40242 40257]))                  
+                :type "void")
+                nil [40214 40361])
+            ("gettogglestat" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [40382 40392]))                  
+                :type "void")
+                nil [40363 41155])
+            ("getpagestat" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [41174 41184]))                  
+                :type "void")
+                nil [41157 41386])
+            ("updatetitle" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [41405 41415]))                  
+                :type "void")
+                nil [41388 42115])
+            ("updatewinid" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [42134 42144]))                  
+                :type "void")
+                nil [42117 42246])
+            ("usage" function
+               (:arguments 
+                  ( ("" variable (:type "void") (reparse-symbol arg-sub-list) [42259 42264]))                  
+                :type "void")
+                nil [42248 42461])
+            ("windowobjectcleared" function
+               (:arguments 
+                  ( ("w" variable
+                       (:pointer 1
+                        :type ("GtkWidget" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [42488 42501])
+                    ("frame" variable
+                       (:pointer 1
+                        :type ("WebKitWebFrame" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [42502 42524])
+                    ("js" variable (:type ("JSContextRef" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [42525 42541])
+                    ("win" variable (:type ("JSObjectRef" type (:type "class") nil nil)) (reparse-symbol arg-sub-list) [42562 42578])
+                    ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [42579 42589]))                  
+                :type "void")
+                nil [42463 42612])
+            ("zoom" function
+               (:arguments 
+                  ( ("c" variable
+                       (:pointer 1
+                        :type ("Client" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [42624 42634])
+                    ("arg" variable
+                       (:pointer 1
+                        :constant-flag t
+                        :type ("Arg" type (:type "class") nil nil))
+                        (reparse-symbol arg-sub-list) [42635 42650]))                  
+                :type "void")
+                nil [42614 42920])
+            ("main" function
+               (:arguments 
+                  ( ("argc" variable (:type "int") (reparse-symbol arg-sub-list) [42931 42940])
+                    ("argv" variable
+                       (:pointer 1
+                        :dereference 1
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [42941 42954]))                  
+                :type "int")
+                nil [42922 44603]))          
+      :file "surf.c"
+      :pointmax 44605
+      :fsize 44605
+      :lastmodtime '(22307 47434 177820 261000)
+      :unmatched-syntax '((semantic-list 2140 . 2189) (symbol 2127 . 2140) (punctuation 1362 . 1363) (punctuation 1353 . 1354) (punctuation 1342 . 1343) (punctuation 1333 . 1334))
+      :lexical-table 
+        '(("CLEANMASK" (spp-arg-list ("mask") 741 . 747) . ((semantic-list "(mask & (MODKEY|GDK_SHIFT_MASK))" 756 . 788)))
+          ("COOKIEJAR" (spp-arg-list ("obj") 862 . 867) . ((semantic-list "(G_TYPE_CHECK_INSTANCE_CAST ((obj), COOKIEJAR_TYPE, CookieJar))" 877 . 940)))
+          ("COOKIEJAR_TYPE" . ((semantic-list "(cookiejar_get_type ())" 821 . 844)))
+          ("LENGTH" (spp-arg-list ("x") 679 . 682) . ((semantic-list "(sizeof(x) / sizeof(x[0]))" 697 . 723)))
+          )
+)
+    (semanticdb-table "arg.h"
+      :major-mode 'c-mode
+      :tags nil
+      :file "arg.h"
+      :pointmax 1011
+      :fsize 1010
+      :lastmodtime '(22307 47434 177820 261000)
+      :unmatched-syntax nil)
+    (semanticdb-table "config.h"
+      :file "config.h"
+      :fsize 5923
+      :lastmodtime '(22307 47439 51202 893000)))
+  :file "!home!kahr!surf!surf!semantic.cache"
+  :semantic-tag-version "2.0"
+  :semanticdb-version "2.2")

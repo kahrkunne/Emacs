@@ -1,0 +1,32 @@
+
+#from .layout import layout
+
+#extends layout
+#def main
+
+<h1>$anime.title</h1>
+<h2>$anime.title_eng</h2>
+<div>
+<div class="entrythumb">
+    <img class="entrythumb" src="/static/img/placeholder.jpg">
+</div>
+<br>
+<br>
+<br>
+<br>
+<div class="entryinfo">
+    <span>Type: </span>$anime.a_type<br>
+    <span>Episodes: </span>$anime.episodes<br>
+    <span>Status: </span>$anime.status<br>
+    <span>Aired: </span>$anime.start_date - $anime.end_date<br>
+    <span>Other Names: </span>$anime.synonyms<br>    
+</div>
+</div>
+<br>
+<br>
+<br>
+<p class="synopsis">
+    <span class="ptitle">Plot</span><br>
+    $anime.synopsis
+</p>
+#end def

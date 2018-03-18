@@ -1,0 +1,219 @@
+%%%%
+%% TEMPLATE HW1 2017-2018
+%%%%
+
+\documentclass[addpoints,10pt,answers]{exam}
+\usepackage{enumerate}
+\usepackage{mathtools}
+   
+%%%%
+% IMPORTANT: YOU SHOULD INSTANTIATE THE FOLLOWING THREE COMMANDS WITH YOUR OWN INFORMATION
+\newcommand{\studentonename}{Ronald Trump}     %%% Student one: first and last name
+\newcommand{\studentonenumber}{S1234567}  %%% Student one: student number
+\newcommand{\studenttwoname}{Mike Dense}     %%% Student two: first and last name
+\newcommand{\studenttwonumber}{S1234568}  %%% Student two: student number
+\newcommand{\ourdsgroup}{95}         %%% The number of your DS group in Nestor
+%%%%
+
+
+%%%% DO NOT MODIFY 
+\newcommand{\hwn}{1}
+\pagestyle{headandfoot}
+\runningheadrule
+\firstpageheader{Discrete Structures (2017-18)}{{\textbf{Homework No. \hwn}}}{\today}
+\runningheader{Discrete Structures (2017-18)}
+              {DS Group No.~\ourdsgroup~---~HW\hwn}
+              {Page \thepage\ of \numpages}
+\firstpagefooter{}{}{}
+\runningfooter{}{}{}
+ 
+  \begin{document}
+ \boxedpoints
+\begin{center}
+  \fbox{\fbox{\parbox{5.9in}{\centering
+  {\large
+  \studentonename~(\studentonenumber) \& \studenttwoname~(\studenttwonumber)  \\
+  DS Group No.~\ourdsgroup  }}}
+ }
+\end{center}
+
+{\large \begin{center} 
+\textbf{Answers}
+\end{center}}
+
+%%%% DO NOT MODIFY 
+\begin{questions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\question[12] 
+Let $\Sigma = \{a,b\}$ be an alphabet. 
+\begin{enumerate}[(a)]
+\item List the elements of $L_1$, the language consisting of all strings in $\Sigma^*$ that are palindromes and have length less than or equal to four. 
+\item List the elements of $L_2$, the language consisting of all strings in $\Sigma^*$ of length less than or equal to three in which all $a$'s appear to the left of all $b$'s.
+\end{enumerate}
+
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question[12]  Use mathematical induction to prove the following statement:\\
+
+\emph{Suppose real numbers $a$ and $b$, such that 
+$$
+A = 
+ \begin{pmatrix}
+a & 0 \\
+0 & b
+ \end{pmatrix}
+$$
+Then, for every positive integer $n$, it holds: 
+$$
+A^n = 
+ \begin{pmatrix}
+a^n & 0 \\
+0 & b^n
+ \end{pmatrix}
+$$
+}
+ 
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question[12] Use mathematical induction to prove the following statement:\\
+
+\emph{
+Let $A_1, \ldots, A_n$ and $B_1, \ldots, B_n$ be sets such that $A_i \subseteq B_i$ for every $i \in \{1, \ldots, n\}$.
+Then 
+$$
+\bigcup_{i = 1}^{n} A_i \subseteq \bigcup_{i = 1}^{n} B_i
+$$
+}
+ 
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question[12] Use mathematical induction to prove the following statement:\\
+
+\emph{
+The product of any 3 consecutive integers is divisible by 6. 
+}
+ 
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\question[12]
+Obtain an explicit formula for the 
+following recurrence relations:
+
+\begin{enumerate}[(a)]
+\item $c_n = 6c_{n-1} - 9c_{n-2}$, with $c_1 = 2.5$, $c_2 = 4.7$.
+\item $b_n = -3b_{n-1} - 2b_{n-2}$, with $b_1 = -2$, $b_2 = 4$.
+\end{enumerate}
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question[12] 
+Ten people volunteer for a three-person committee:
+\begin{enumerate}[(a)]
+\item 
+How many three-person committees can be formed from the 10 volunteers? 
+\item 
+Assume that every possible committee of three that can be formed from these ten names is written on a slip of paper, one slip for each possible committee, and the slips are put in ten hats. Show that at least one hat contains 12 or more slips of paper.
+\end{enumerate}
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question[12] Consider the sequences of integers whose first six elements are as follows:
+\begin{enumerate}[(i)]
+\item 
+$3,6,12,24,48,96, \ldots$
+\item 
+$2,16,54,128,250, 432, \ldots$
+\end{enumerate}
+
+In each case:
+\begin{enumerate}[(a)]
+\item 
+Find an explicit formula that generates the elements of each sequence.
+\item 
+Check that your formula is correct by finding the next three elements of the sequence.
+\end{enumerate}
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\question[12]
+Consider the recurrence relation given
+by $$a_n = -8a_{n-1} -16a_{n-2}$$
+\begin{enumerate}[(a)]
+\item Find an explicit formula for the sequence defined by $a_n$, with  
+$a_1 = \alpha$ and $a_2 = \beta$, where $\alpha$ and $\beta$ are two given constants.
+\item Use your solution to part (a) to 
+obtain an explicit formula for the sequence defined by $a_n$, with initial conditions $a_1 = -5$ and $a_2 = 9$.
+\end{enumerate}
+
+%%% TYPESET YOUR SOLUTIONS HERE
+%%%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+\begin{solution}
+TYPESET YOUR SOLUTION HERE.
+\end{solution}
+%%%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+\end{questions}
+
+\end{document}

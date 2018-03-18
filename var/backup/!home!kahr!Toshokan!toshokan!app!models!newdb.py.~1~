@@ -1,0 +1,165 @@
+import re
+import inspect
+
+from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+from sqlalchemy import (Column, Integer, String, Sequence, ForeignKey, create_engine, Date, DateTime)
+from sqlalchemy.orm import Session, relationship, sessionmaker, validates
+from sqlalchemy.sql import func
+from tornado.escape import xhtml_escape
+
+Base = declarative_base()
+
+class Link(Base):
+    __tablename__ = 'tshk_link'
+    uid = Column(Integer, Sequence('link_id_seq'), primary_key=True)
+
+    anime_id = Column(Integer)
+    anime_desc = Column(String)
+
+    manga_id = Column(Integer)
+    manga_desc = Column(String)
+
+    character_id = Column(Integer)
+    character_desc = Column(String)
+
+    person_id = Column(Integer)
+    person_desc = Column(String)
+
+    episode_id = Column(Integer)
+    episode_desc = Column(String)
+
+    genre_id = Column(Integer)
+    genre_desc = Column(String)
+
+    song_id = Column(Integer)
+    song_desc = Column(String)
+
+    company_id = Column(Integer)
+    company_desc = Column(String)
+
+    user_id = Column(Integer)
+    user_desc = Column(String)
+
+    def __repr__(self):
+        print('<Link(uid={}, '.format(self.uid), end='')
+        valid_ids = [x for x in dir(self) if getattr(self, x)]
+        for id_ in valid_ids:
+            print('{}={}, '.format(id_, getattr(self, _id)), end='')
+        print(')>')
+
+class Anime(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    num_episodes = Column(Integer)
+    kind = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+    source = Column(String)
+    duration = Column(Integer)
+    rating = Column(String)
+    season = Column(String)
+    timeslot = Column(String)
+    _extra_atts = [('Character', 'person', Column(Integer, ForeignKey('tshk_person.uid'))),
+                   ('Person', 'character', Column(Integer, ForeignKey('tshk_character.uid')))]
+
+class Character(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer)
+    _extra_atts = [('Anime', 'person', Column(Integer, ForeignKey('tshk_person.uid'))),
+                   ('Manga', 'person', Column(Integer, ForeignKey('tshk_person.uid'))),
+                   ('Person', 'anime', Column(Integer, ForeignKey('tshk_anime.uid'))),
+                   ('Person', 'manga', Column(Integer, ForeignKey('tshk_manga.uid'))),]
+
+class Manga(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    volumes = Column(Integer)
+    chapters = Column(Integer)
+    kind = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+    _extra_atts = [('Character', 'person', Column(Integer, ForeignKey('tshk_person.uid'))),
+                   ('Person', 'character', Column(Integer, ForeignKey('tshk_character.uid')))]
+
+
+class Episode(Base, metaclass=DiscreteModelFactory):
+    number = Column(Integer)
+    airdate = Column(Date)
+    name_jp = Column(String)
+
+class Genre(Base, metaclass=DiscreteModelFactory):
+    pass
+class Studio(Base, metaclass=DiscreteModelFactory):
+    pass
+class Producer(Base, metaclass=DiscreteModelFactory):
+    pass
+class Licensor(Base, metaclass=DiscreteModelFactory):
+    pass
+class Song(Base, metaclass=DiscreteModelFactory):
+    pass
+class Serialization(Base, metaclass=DiscreteModelFactory):
+    pass
+
+class Person(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    given_name = Column(String)
+    family_name = Column(String)
+    birthday = Column(String)
+    alt_names = Column(String)
+    flags = Column(String)
+    _extra_atts = [('Anime', 'character', Column(Integer, ForeignKey('tshk_character.uid'))),
+                   ('Manga', 'character', Column(Integer, ForeignKey('tshk_character.uid'))),
+                   ('Character', 'anime', Column(Integer, ForeignKey('tshk_anime.uid'))),
+                   ('Character', 'manga', Column(Integer, ForeignKey('tshk_manga.uid')))]
+
+
+
+class User(Base, metaclass=DiscreteModelFactory):
+    """The User model.
+
+    uid (int): The unique id of each `User`. `uid`s must not be exposed directly to end-users in any way
+               without priorly being obfuscated.
+
+    name (str): The username. Must be between 4 and 16 characters, and only contain dashes, underscores and 
+                alphanumeric characters. Cannot start with a dash, and cannot be only composed of digits.
+                Usernames have to be case-insensitively unique, meaning that `Bob` and `bob` should be treated as 
+                the same user. However the original capitalization is still stored in the database and displayed on the website.
+
+    password (str): The salted hash of the `User`'s password.
+
+    joined (datetime): `datetime` object representing the exact time this `User` was created.
+
+    """
+    name = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    display_name = Column(String, nullable=False)
+    joined = Column(DateTime(timezone=True), default=func.now())
+
+    def __repr__(self):
+        return "<User(uid='%s', name='%s', email='%s')>" % (self.uid, self.name, self.email)
+
+    @validates("name")
+    def validate_name(self, key, name):
+        valid_username_regex = r"(?=(?=^[A-z])|(?=^\d(?!\d*$)))(?=[\w-]{3,16}$)"
+        if re.match(valid_username_regex, name) is None or len(name) > 16:
+            raise ValueError()
+        else:
+            return name.lower()
+
+    @validates("email")
+    def validate_email(self, key, email):
+        if len(email) >= 4 and len(email) <= 128:
+            return email.lower()
+        else:
+            raise ValueError()
+
+    @validates("display_name")
+    def validate_dname(self, key, dname):
+        dname = xhtml_escape(dname)
+        if len(dname) > 64:
+            raise ValueError()
+        else:
+            return dname

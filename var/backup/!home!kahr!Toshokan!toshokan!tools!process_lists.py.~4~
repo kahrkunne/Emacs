@@ -1,0 +1,127 @@
+#!/usr/bin/python
+import glob
+from dateutil.parser import parse as parse_date
+from os.path import isfile
+from io import StringIO, BytesIO
+import json
+
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String, Date, Float, Sequence
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import (database_exists, create_database)
+from bs4 import BeautifulSoup
+from lxml import etree
+import lxml.html as lh
+
+lists = glob.glob('/home/kahr/Toshokan/toshokan/tools/tmp/lists_bkp/**/*', recursive=True)
+users = glob.glob('/home/kahr/Toshokan/toshokan/tools/tmp/users_bkp/**/*', recursive=True)
+
+lists = [l for l in lists if isfile(l)]
+users = [u for u in users if isfile(u)]
+
+Base = declarative_base()
+class User(Base):
+        __tablename__ = 'users'
+
+        name = Column(String, unique=True, primary_key=True)
+        last_online = Column(Date)
+        gender = Column(Integer) # 0, 1, 2 for male/female/autism
+        birthday = Column(Date)
+        location = Column(String)
+        joined = Column(Date)
+        nposts = Column(Integer)
+        nreviews = Column(Integer)
+        nrecs = Column(Integer)
+        nbposts = Column(Integer)
+        nclubs = Column(Integer)
+
+class list_entry(Base):
+    __tablename__ = 'list_entries'
+
+    uid = Column(Integer, Sequence('list_uid_seq'), primary_key=True)
+    title = Column(String)
+    user = Column(String)
+
+def add2(f):
+    try:
+        add_user(f)
+    except:
+        print(f)
+
+def add_user(f):
+    engine = create_engine('sqlite:///user_db')
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    User.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    with open(f, 'r') as a:
+        d = a.read()
+    soup = BeautifulSoup(d, 'html.parser')
+
+    name = soup.find("span", class_="di-ib po-r")\
+               .text.split('\'')[0].strip().split(' ')[2][:-1]
+    exists = session.query(User).filter_by(name=name).first()
+    if exists:
+            return
+
+    right_titles = [x.text for x in soup.findAll("span", class_='user-status-title')]
+    right_data = [x.text for x in soup.findAll("span", class_='user-status-data')]
+    right_info = dict(zip(right_titles, right_data))
+    for s in ['Last Online', 'Gender', 'Birthday', 'Location', 'Joined', 'Forum Posts', 'Reviews', 'Recommendations', 'Blog Posts', 'Clubs']:
+        if s not in right_info:
+            right_info[s] = None
+
+    def xint(a):
+        if a is None:
+            None
+        else:
+            int(a)
+
+    try:
+        last_online = parse_date(right_info['Last Online'])
+    except:
+        last_online = None
+
+    gender = {'Male':0, 'Female':1, 'Non-Binary':2, None:None}[right_info['Gender']]
+    if right_info['Birthday']:
+        birthday = parse_date(right_info['Birthday'])
+    else:
+        birthday = None
+
+    location = right_info['Location']
+
+    if right_info['Joined']:
+        joined = parse_date(right_info['Joined'])
+    else:
+        joined = None
+
+    nposts = xint(right_info['Forum Posts'])
+    nreviews = xint(right_info['Reviews'])
+    nrecs = xint(right_info['Recommendations'])
+    nbposts = xint(right_info['Blog Posts'])
+    nclubs = xint(right_info['Clubs'])
+
+    user = User(name=name, last_online=last_online, gender=gender,
+                birthday=birthday, location=location, joined=joined,
+                nposts=nposts, nreviews=nreviews, nrecs=nrecs,
+                nbposts=nbposts, nclubs=nclubs)
+    try:
+        session.add(user)
+        session.commit()
+    except:
+        pass
+
+
+def add_list(f):
+    with open(f, 'r') as x:
+        d = x.read()[2:]
+    page = lh.fromstring(d)
+
+    name = page[0][5].text.split("\'")[0][2:]
+    data = page.xpath("//table[@class='list-table']")[0].get('data-items')
+    data = json.loads(data)
+
+    for anime in data:
+        title = anime['anime_title']

@@ -1,0 +1,253 @@
+"""Utilities for dealing with the anime database."""
+from dateutil.parser import parse as parse_date
+import json
+import datetime
+
+from config import db
+from debug import log
+
+from bs4 import BeautifulSoup
+from sqlalchemy import (create_engine, Column, Integer, String, Date, Sequence, Float, DateTime, Index, ForeignKey)
+from sqlalchemy.sql import func
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import (database_exists, create_database)
+from lxml import html as lh
+
+Base = declarative_base()
+
+class User(Base):
+    """A user entry."""
+    __tablename__ = 'users'
+
+    uid = Column(Integer, Sequence('user_id_seq'), primary_key=True, autoincrement=True)
+    name = Column(String, unique=True)
+
+    joined = Column(DateTime(timezone=True), default=func.now())
+    animelist = relationship("AnimeEntry", backref="user")
+
+class ListEntry(Base):
+    """An entry in an anime list."""
+    __tablename__ = 'list_entries'
+
+    uid = Column(Integer, Sequence('list_uid_seq'), primary_key=True)
+    user = Column(String)
+    title = Column(String)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+
+class Anime(Base):
+    __tablename__ = 'anime'
+
+    uid = Column(Integer, Sequence('anime_id_seq'), primary_key=True)
+    mal_id = Column(Integer, unique=True)
+    title = Column(String)
+    title_eng = Column(String)
+    synonyms = Column(String)
+    episodes = Column(Integer)
+    mal_score = Column(Float)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    synopsis = Column(String)
+    flags = Column(String)
+    added = Column(DateTime(timezone=True), default=func.now())
+    image_link = Column(String)
+    producers = Column(String)
+    licensors = Column(String)
+    studios = Column(String)
+    source = Column(String)
+    genres = Column(String)
+    duration = Column(String)
+    rating = Column(String)
+    season = Column(String)
+    related_anime = Column(String)
+
+class Old_Anime(Base):
+    __tablename__ = 'anime_old'
+
+    uid = Column(Integer, Sequence('anime_id_seq'), primary_key=True)
+    mal_id = Column(Integer, unique=True)
+    title = Column(String)
+    title_eng = Column(String)
+    synonyms = Column(String)
+    episodes = Column(Integer)
+    mal_score = Column(Float)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    synopsis = Column(String)
+    flags = Column(String)
+    added = Column(DateTime(timezone=True), default=func.now())
+
+class AnimeEntry(Base):
+    __tablename__ = 'list_entries_anime'
+
+    uid = Column(Integer, Sequence('anime_list_entry_id_seq'), primary_key=True, autoincrement=True)
+    anime_id = Column(Integer, ForeignKey("anime.uid"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.uid"), nullable=False)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+    added = Column(DateTime(timezone=True), default=func.now())
+
+    def __repr__(self):
+        return "<AnimeEntry(uid='%s', title='%s', user='%s')>" % (self.uid, self.anime_id, self.user_id)
+
+Index('anime_entry_qualifier', AnimeEntry.user_id, AnimeEntry.anime_id)
+
+def generate_session(Table):
+    """Given a table class Table, return a database session."""
+    engine = create_engine('{}://{}:{}@{}/{}'.format(db['engine'], db['user'], db['password'],
+                                                     db['domain'], db['database']))
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    Table.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+def add_user(session, user_page, user_id='<UNKNOWN>'):
+    """Add a user to the database.
+    Takes a database session, a HTML MAL user page and optionally an identifier for the user."""
+    # Custom version of int() which treats None specially
+    def int_(a):
+        if a is None:
+            None
+        else:
+            int(a)
+
+    soup = BeautifulSoup(user_page, 'html.parser')
+
+    try:
+        name = soup.find("span", class_="di-ib po-r").text.split('\'')[0].strip().split(' ')[2][:-1]
+    except:
+        log('finding name for user: {}'.format(user_id), 1, 'E')
+        return None
+
+    if session.query(User).filter_by(name=name).first():
+        log('user exists in database: {}, SKIPPING'.format(name), 4, 'I')
+        return None
+
+    left_titles = [x.text for x in soup.findAll("span", class_='user-status-title')]
+    left_data = [x.text for x in soup.findAll("span", class_='user-status-data')]
+    left_info = dict(zip(left_titles, left_data))
+    for s in ['Last Online', 'Gender', 'Birthday', 'Location', 'Joined',
+              'Forum Posts', 'Reviews', 'Recommendations', 'Blog Posts', 'Clubs']:
+        if s not in left_info:
+            left_info[s] = None
+
+    # Last online date. This will fail to parse if it's of the format "5 minutes ago" or similar.
+    try:
+        last_online = parse_date(left_info['Last Online'])
+    except:
+        log('could not determine last online date for user: {}'.format(name), 2, 'E')
+        last_online = None
+
+    # Gender. As of current, not sure why this would fail.
+    try:
+        gender = {'Male':0, 'Female':1, 'Non-Binary':2, None:None}[left_info['Gender']]
+    except:
+        log('could not determine gender of user: {}'.format(name), 1, 'E')
+        return None
+
+    # Birthday. Not sure why this would fail.
+    # XXX This looks horrible, but is actually correct; we don't want to log if the user has no birthday.
+    if left_info['Birthday']:
+        try:
+            birthday = parse_date(left_info['Birthday'])
+        except:
+            log('could not parse birthday of user: {}'.format(name), 2, 'E')
+            birthday = None
+    else:
+        birthday = None
+
+    location = left_info['Location']
+
+    if left_info['Joined']:
+        joined = parse_date(left_info['Joined'])
+    else:
+        joined = None
+
+    nposts = int_(left_info['Forum Posts'])
+    nreviews = int_(left_info['Reviews'])
+    nrecs = int_(left_info['Recommendations'])
+    nbposts = int_(left_info['Blog Posts'])
+    nclubs = int_(left_info['Clubs'])
+
+    user = User(name=name, last_online=last_online, gender=gender,
+                birthday=birthday, location=location, joined=joined,
+                nposts=nposts, nreviews=nreviews, nrecs=nrecs,
+                nbposts=nbposts, nclubs=nclubs)
+
+    # This function changes state of session;
+    # Remember, python is pass-by-reference!
+    session.add(user)
+
+    log('added user: {}'.format(name), 4, 'I')
+    return session
+
+def add_list(session, data, name):
+    """Adds an anime list to the database."""
+    for anime in data:
+        title = anime['anime_title']
+        status = anime['status']
+        num_watched = anime['num_watched_episodes']
+        score = anime['score']
+        if type(score) != int:
+            score = 0
+        # FIXME Not sure what would cause this; could be a bug!
+        if type(num_watched) != int:
+            num_watched = 0
+
+        entry = ListEntry(user=name, title=title, status=status,
+                          num_watched=num_watched, score=score)
+
+        # Changes state
+        session.add(entry)
+    return session
+
+def add_anime_from_old(session, data, count=1):
+    for key in data:
+        if data[key] == []:
+            data[key] = [None]
+        elif not data[key]:
+            data[key] = None
+
+    old_session = generate_session(Old_Anime)
+    mal_id = int(data['mal_id'])
+    old_obj = old_session.query(Old_Anime).filter(Old_Anime.mal_id == mal_id)[0]
+
+    title = old_obj.title
+    title_eng = old_obj.title_eng
+    synonyms = old_obj.synonyms
+    episodes = old_obj.episodes
+    mal_score = old_obj.mal_score
+    a_type = old_obj.a_type
+    status = old_obj.status
+    start_date = old_obj.start_date
+    end_date = old_obj.end_date
+    synopsis = old_obj.synopsis
+    flags = old_obj.flags
+    image_link = data['image_link']
+    producers = json.dumps(data['producers'])
+    licensors = json.dumps(data['licensors'])
+    studios = json.dumps(data['studios'])
+    source = data['source'][0]
+    genres = json.dumps(data['genres'])
+    duration = data['duration'][0]
+    rating = data['rating'][0]
+    season = data['season'][0]
+    rel = json.dumps(data['rel_anime'])
+
+    entry = Anime(mal_id=mal_id, title=title, title_eng=title_eng, synonyms=synonyms, episodes=episodes,
+                  mal_score=mal_score, a_type=a_type, status=status, start_date=start_date, end_date=end_date,
+                  synopsis=synopsis, flags=flags, image_link=image_link, producers=producers, licensors=licensors,
+                  studios=studios, source=source, genres=genres, duration=duration, rating=rating, season=season,
+                  related_anime=rel)
+    session.add(entry)
+    if count % 1000 == 0:
+        session.commit()
+    return 0

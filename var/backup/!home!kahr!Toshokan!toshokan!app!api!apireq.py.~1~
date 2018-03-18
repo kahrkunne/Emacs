@@ -1,0 +1,15 @@
+from tornado.web import RequestHandler
+
+class APIReq(RequestHandler):
+    def initialize(self, db, conf):
+        self.db = db
+        self.conf = conf
+        self.t.url = self.reverse_url
+        self.t.backend["solr_url"] = self.conf['solr']['url']
+
+    def get_current_user(self):
+        return {
+            "id":self.get_secure_cookie("user_id"),
+            "name":self.get_secure_cookie("username"),
+            "dname":self.get_secure_cookie("dname"),
+        }

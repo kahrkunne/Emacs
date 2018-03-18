@@ -1,0 +1,50 @@
+#!/usr/bin/python
+import sys
+import os
+import secrets
+
+import tornado.ioloop
+import tornado.web
+from tornado.web import url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import app.pages as pages
+from app.conf import load_conf, save_conf
+
+def make_app(session, conf):
+    return tornado.web.Application(
+        [
+            url(r"/logout/?", pages.Logout, {'db':session, 'conf':conf}, name="logout"),
+            url(r"/?", pages.Home, {'db':session, 'conf':conf}, name="home"),
+            url(r"/anime/(\d+)/?(.*)", pages.AnimePage, {'db':session, 'conf':conf}, name="anime"),
+            url(r"/manga/(\d+)/?(.*)", pages.MangaPage, {'db':session, 'conf':conf}, name="manga"),
+            url(r"/person/(\d+)/?(.*)", pages.PersonPage, {'db':session, 'conf':conf}, name="person"),
+            url(r"/character/(\d+)/?(.*)", pages.CharacterPage, {'db':session, 'conf':conf}, name="character"),
+            url(r"/search/?", pages.Search, {'db':session, 'conf':conf}, name="search"),
+            url(r"/login/?", pages.Login, {'db':session, 'conf':conf}, name="login"),
+            url(r"/register/?", pages.Register, {'db':session, 'conf':conf}, name="register"),
+            url(r"/animelist/([\w-]+)/?", pages.AnimeList, {'db':session, 'conf':conf}, name="animelist"),
+            url(r"/animelist/([\w-]+)/add/?", pages.AnimeListAdd, {'db':session, 'conf':conf}, name="animelist_add")
+        ],
+        static_path=os.path.join(os.path.dirname(__file__), "res"),
+        debug=conf['debug'],
+        cookie_secret=conf["secret"],
+        login_url="/login")
+
+if __name__ == "__main__":
+    conf = load_conf(sys.argv[1])
+    if not conf.get("secret"):
+        conf["secret"] = secrets.token_hex(128)
+        save_conf(sys.argv[1], conf)
+
+    engine = create_engine('postgresql://%s:%s@%s:%s/%s' %
+                           (conf['db']['user'], conf['db']['pw'], conf['db']['address'],
+                            conf['db']['port'], conf['db']['database']), echo=False)
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    app = make_app(session, conf)
+    app.listen(8888)
+    tornado.ioloop.IOLoop.current().start()

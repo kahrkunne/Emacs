@@ -1,0 +1,15 @@
+from . import modelfactory
+
+from sqlalchemy import (Column, Integer, String)
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Person(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    given_name = Column(String)
+    family_name = Column(String)
+    birthday = Column(String)
+    alt_names = Column(String)
+    flags = Column(String)

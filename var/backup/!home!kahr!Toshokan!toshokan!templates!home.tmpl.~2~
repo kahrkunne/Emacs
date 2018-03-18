@@ -1,0 +1,9 @@
+#from .layout import layout
+
+#extends layout
+#def main
+
+<b> hello world </b>
+<a href="/login">log in</a>
+<a href="/logout">log out</a>
+#end def

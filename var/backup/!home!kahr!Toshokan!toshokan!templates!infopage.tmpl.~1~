@@ -1,0 +1,31 @@
+#from .layout import layout
+
+#extends layout
+#def main
+<div class="row">
+    <div class="col-lg-3">
+	<div class="infopage-leftcol">
+	    <div class="entrythumb">
+		#block leftcol-image
+		<img class="img-fluid" src="http://via.placeholder.com/1500x1500">
+		#end block
+	    </div>
+
+	    #block leftcol-info
+	    #end block
+	</div>
+    </div>
+
+    <div class="col">
+	<div class="infopage-rightcol">
+	    <ul class="nav nav-pills">
+		#block info-tabs
+		#end block
+
+	    </ul>
+	    <div class="tab-content">
+		#block info-tab-content
+		#end block
+	    </div>
+	</div>
+#end def

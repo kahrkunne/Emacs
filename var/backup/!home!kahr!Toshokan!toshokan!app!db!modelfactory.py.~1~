@@ -1,0 +1,43 @@
+from linking import gen_link
+
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy import (Column, Integer, String, Sequence)
+from sqlalchemy.orm import Session
+_discrete_models = []
+
+class DiscreteModelFactory(DeclarativeMeta):
+    def __new__(cls, class_name, parents, d):
+        d.setdefault('__tablename__', class_name.lower())
+        d.setdefault('uid', Column(Integer, Sequence(class_name + '_id_seq'), primary_key=True))
+        d.setdefault('name', Column(String))
+        d.setdefault('description', Column(String))
+        d.setdefault('__repr__', lambda self: "<{}(uid={}, name='{}')>".format(class_name, self.uid, self.name))
+        for model in _discrete_models + [None]:
+            # Self-linking for first class defined, as _discrete_models will be empty
+            if model:
+                m_name = model.__name__
+            else:
+                m_name = class_name
+
+            if '_forbidden_edges' in d and m_name in d['_forbidden_edges']:
+                continue
+
+            for us, them in [(class_name, m_name), (m_name, class_name), (class_name, class_name)]:
+                @property
+                def _tmp(self, _us=us, _them=them):
+                    session = Session.object_session(self)
+                    link_class = gen_link(_us, _them)
+                    links = session.query(link_class).filter(link_class.source == self.uid).all()
+                    out = []
+                    for l in links:
+                        out.append((l._targetrel, l.description))
+                    return out
+                if us == class_name:
+                    # Set our attribute
+                    d.setdefault(them.lower() + 's', _tmp)
+                else:
+                    setattr(model, them.lower() + 's', _tmp)
+
+        model = type(class_name, parents, d)
+        _discrete_models.append(model)
+        return model

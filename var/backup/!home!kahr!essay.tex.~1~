@@ -1,0 +1,12 @@
+\documentclass[12p]{article}
+\date{September 29, 2017}
+\author{Kahr Kunne}
+\title{insert title here}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\end{document}

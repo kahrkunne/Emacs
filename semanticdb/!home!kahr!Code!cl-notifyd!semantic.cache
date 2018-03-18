@@ -1,0 +1,25 @@
+;; Object semanticdb-project-database-file
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "semanticdb-project-database-file"
+  :tables
+  (list
+    (semanticdb-table "semanticdb-table"
+      :major-mode lisp-mode
+      :tags 
+        '( ("load" code nil nil [134 156])
+            ("ql:quickload" code nil nil [157 187])
+            ("ql:quickload" code nil nil [188 217])
+            ("defparameter" code nil nil [219 270])
+            ("ensure-directories-exist" code nil nil [271 311])
+            ("when" code nil nil [312 432])
+            ("notifyd-loop" function nil nil [434 555])
+            ("replace-all" function (:arguments ("string" "part" "replacement" "test")) nil [557 1200])
+            ("count-sub" function (:arguments ("loop" "with" "z" "=" "0" "with" "s" "=" "0" "while" "s" "do" "when" "finally" "return")) nil [1203 1369]))          
+      :file "cl-notifyd.lisp"
+      :pointmax 3452
+      :fsize 3452
+      :lastmodtime '(22737 23060 783956 144000)
+      :unmatched-syntax nil))
+  :file "!home!kahr!Code!cl-notifyd!semantic.cache"
+  :semantic-tag-version "2.0"
+  :semanticdb-version "2.2")

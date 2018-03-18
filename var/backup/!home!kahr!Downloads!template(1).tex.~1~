@@ -1,0 +1,111 @@
+\documentclass[a4paper]{article}
+
+\usepackage{a4wide,times}
+\usepackage[english]{babel}
+
+% -----------------------------------------------
+% especially use this for you code
+% -----------------------------------------------
+
+\usepackage{courier}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{Gray}{gray}{0.95}
+
+\lstset{ %
+	language = C,                   % choose the language of the code
+	basicstyle = \small\ttfamily,   % the size and fonts that are used
+	frame = single,                 % adds a frame around the code
+	tabsize = 3,                    % sets default tabsize
+	breaklines = true,              % sets automatic line breaking
+	numbers = left,                 % where to put the line-numbers
+	numberstyle = \footnotesize,    % the style of the line-numbers
+	backgroundcolor = \color{Gray}  % the background color of the listing
+}
+
+% -- until here ---------------------------------
+
+\begin{document}
+
+
+\title{Programming report \\
+       assignment X for A\&DinC
+}
+\date{\today}
+\author{First Author (student number) \\
+        Second  Author (student number)
+}
+
+\maketitle
+
+[ \textit{About the writing style: keep it professional. 
+Write correct sentences, check your spelling.} ]
+
+\section{Problem description}
+
+[ \textit{Here you explain what the problem is. 
+Suggestion: first give a short description in general terms, then provide a more precise problem specification, e.g.\ in terms of input-output behaviour.} ]
+
+\section{Problem analysis}
+
+[ \textit{Here you analyze the problem: what is the essence of the problem, and how can it be solved? 
+Useful methods are: abstraction, divide-and-conquer, and analogy. 
+Abstraction skips the irrelevant details and focuses on the essence of the problem, which may be described in mathematical terms (sets, functions, arrays, etc.).
+Divide-and-conquer divides the problem in subproblems, in such a way that solution of the subproblems leads to a solution of the original problem. 
+Analogy looks for problems that are similar to the problem at hand and for which we already have a solution. 
+When you see more than one way to solve the problem, you may indicate this, and explain why you choose one specific solution. 
+You may also use pseudocode (Appendix C of the lecture notes) to describe one or more algorithms that are part of the solution.} ]
+
+\section{Program design}
+
+[ \textit{Here you indicate how you translate your ideas for solving the problem into a C program. 
+The general advice here is: keep it general! 
+Do not explain every statement in the program, but describe instead the strategic choices you made. 
+Examples of such choices are the data structures, the functions and the programming constructs that are used in the program.} ]
+
+\section{Evaluation of the program}
+
+[ \textit{Here you report about the testing and the performance of the program. 
+Indicate (here or in the Appendix) the test sets that you have used, and the output they generated. 
+Also indicate whether your program was accepted by Themis. 
+Do not forget to check for memory leaks.} ]
+
+\section{Extension of the program (optional)}
+
+[ \textit{In this optional section you describe any extensions you made to the program. 
+Indicate whether you followed one of the suggested extra's, or that you came up with an extension of your own.} ]
+
+\section{Process description}
+
+[ \textit{Here you describe shortly the process that led to the final code and the report. 
+What was easy, what was difficult? 
+Did you make interesting mistakes?  
+What have you learned from this assignment? 
+Also indicate who did what while working on the assignment.} ]
+
+\section{Conclusions}
+
+[ \textit{Here you formulate your conclusions. Does your program solve the problem? Is it efficient? It is optimal?} ]
+
+\section{Appendix: program text}
+
+[ \textit{Here you provide the program text. 
+It should correspond exactly with the final program that you submitted to Themis. 
+If this is not the case, motivate why there are differences and indicate clearly what they are. 
+The program should contain appropriate comments so as to improve readability. 
+The program should satisfy the criteria given in Appendix D of the lecture notes. 
+This \LaTeX\ file contains an example how to include program files.} ]
+
+\lstinputlisting[caption = \tt prog.c]{prog.c}
+
+\section{Appendix: test sets}
+
+[ \textit{When you use large test sets for the evaluation of the program, you can give them here.} ]
+
+\section{Appendix: extended program text (optional)}
+
+[ \textit{In this optional section you provide the text of the extended program. 
+The same criteria apply as for the program text.} ]
+
+\end{document}

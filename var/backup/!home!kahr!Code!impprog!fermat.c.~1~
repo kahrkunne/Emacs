@@ -1,0 +1,29 @@
+/* file: fermat.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.1 */
+/* Description:
+ * Determine if a given input is a prime number.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int mod(int a, int p, int m)
+{
+  int x = a % m;
+  int y = 1;
+  for (int i = 0; i <= p; ++i) {
+    y = y % m;
+  }
+  return y;
+}
+
+int main(int argc, char *argv[])
+{
+  int num;
+  scanf("%d\n", &num);
+  
+  printf("%d\n", mod(10, 1, 3));
+  return 0;
+}

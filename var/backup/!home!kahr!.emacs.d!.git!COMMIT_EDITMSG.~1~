@@ -1,0 +1,60 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   init.el
+#	modified:   org-init.org
+#
+# Untracked files:
+#	#!home!kahr!.config!fish!config.fish#
+#	#!home!kahr!.emacs.d!elpa!monokai-theme-20160419.1444!monokai-theme.el#
+#	#!home!kahr!.emacs.d!exwm-x!exwm-x-shortcuts.el#
+#	#!home!kahr!.emacs.d!org-init.el#
+#	#!home!kahr!.stumpwmrc#
+#	#!home!kahr!.syncplay#
+#	#!home!kahr!Code!VN_Engine!Engine.lisp#
+#	#!home!kahr!Code!cl-notifyd!cl-notifyd.lisp#
+#	#!home!kahr!FictionBase!main.py#
+#	#!home!kahr!Toshokan!toshokan!tools!fetch_mal_pages.py#
+#	#!home!kahr!Website!org!helloworld.org#
+#	#!home!kahr!Website!org!tasteanecdotes.org#
+#	#!home!kahr!Website!templates!index.html#
+#	#!home!kahr!Website!website.py#
+#	#!home!kahr!Youtube!Scripts!On_the_skill_of_taste.org#
+#	#!home!kahr!anime.org#
+#	#!tmp!kek.tmpl#
+#	#!tmp!test.py#
+#	#init.el#
+#	%backup%~
+#	.mc-lists.el
+#	.python-environments/
+#	abbrev_defs
+#	ac-comphist.dat
+#	auto-save-list/
+#	backups/
+#	elpa/
+#	eshell/
+#	exwm-x/
+#	games/
+#	image-dired/
+#	kahr@Lain.26795:1480110966
+#	kahr@Lain.920:1491861755
+#	kahr@Lain.9210:1491861755
+#	meme-theme.el
+#	mentor/
+#	org-init.el
+#	recentf
+#	recentf~
+#	renpy.el
+#	savehist
+#	semanticdb/
+#	smith-theme.el
+#	snippets/org-mode/README.org
+#	tramp
+#	url/
+#	var/
+#	wew.png
+#

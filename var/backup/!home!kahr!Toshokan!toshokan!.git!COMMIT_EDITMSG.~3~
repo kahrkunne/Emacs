@@ -1,0 +1,25 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch recengine
+# Your branch is up-to-date with 'master'.
+#
+# Changes to be committed:
+#	modified:   app/recengine/util/util.py
+#
+# Untracked files:
+#	tests/
+#	tools/.#add_users.py
+#	tools/add_users.py
+#	tools/fetch_mal_pages.py
+#	tools/fetch_user_pages.py
+#	tools/fix_pages.py
+#	tools/get_anime_data_from_title.py
+#	tools/legacy/
+#	tools/process_lists.py
+#	tools/process_mal_pages.py
+#	tools/profile_links1
+#	tools/profile_links2
+#	tools/profile_links3
+#	tools/wew.png
+#

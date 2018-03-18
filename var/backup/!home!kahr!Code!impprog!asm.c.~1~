@@ -1,0 +1,30 @@
+/* file: asm.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.1 */
+/* Description:
+ * Implements a basic processor.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int R1 = 0;
+int R2 = 0;
+
+int main(int argc, char *argv[])
+{
+  // 0 = reading operation; 1 = reading argument 1; 2 = reading argument 2.
+  int state = 0;
+  // 0 = operation; 1 = register; 2 = constant
+  int expectedInput = 0;
+  char o1, o2, o3;
+  char c = 0;
+  while (c != '\n') {
+    c = getchar();
+    if (c == ' ') {
+      
+    }
+  }
+  return 0;
+}

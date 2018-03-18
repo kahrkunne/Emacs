@@ -1,0 +1,94 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+
+typedef struct Stack {
+	int *array;
+	int top;
+	int size;
+} Stack;
+
+Stack newStack (int s) {
+    Stack st;
+    st.array = malloc(s*sizeof(int));
+    assert(st.array != NULL);
+    st.top = 0;
+    st.size = s;
+	return st;
+}
+
+void doubleStackSize (Stack *stp) {
+    int newSize = 2 * stp->size;
+    stp->array = realloc(stp->array, newSize * sizeof(int));
+    assert(stp->array != NULL);
+    stp->size = newSize;
+}
+
+int isEmptyStack (Stack st) {
+	return (st.top == 0);
+}
+
+void stackEmptyError () {
+    printf("stack empty\n");
+    abort();
+}
+
+void push (int value, Stack *stp) {
+    if (stp->top == stp->size) {
+        doubleStackSize(stp);
+    }
+    stp->array[stp->top] = value;
+    stp->top++;
+}
+
+int pop (Stack *stp) {
+    if ( isEmptyStack(*stp) ) {
+        stackEmptyError();
+    }
+    (stp->top)--;
+    return (stp->array)[stp->top];
+}
+
+void freeStack (Stack st) {
+    free(st.array);
+}
+
+int main(int argc, char *argv[]) {
+    int n;
+    scanf("%d%", &n);
+
+    for (int i = 0; i < n; i++) {
+        int l, j = 0;
+        scanf("%d", &l);
+        Stack st;
+        st = newStack(l + 1);
+
+        int height, end;
+        scanf("%d", &height);
+        while (j <= l) {
+            if (st.top == 0 || height >= st.array[st.top - 1]) {
+                push (height, &st);
+                j++;
+                end = j;
+                if (j < l) {
+                    scanf("%d", &height);
+                } else {
+                    height = 0;
+                }
+            } else {
+                while (height < st.array[st.top - 1] && isEmptyStack (st) != 1) {
+                    /* Level should decrease by one each time */
+                    int level = st.array[st.top - 1];
+                    while (st.array[st.top - 1] == st.array[st.top - 2]) {
+                        pop (&st);
+                    }
+                    pop (&st);
+                    int start = st.top;
+                    printf("[%d,%d)@%d ", start, end, level);
+                }
+            }
+        }
+    }
+
+    return 0;
+}

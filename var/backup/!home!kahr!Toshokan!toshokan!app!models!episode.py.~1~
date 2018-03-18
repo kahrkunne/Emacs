@@ -1,0 +1,12 @@
+from . import modelfactory
+
+from sqlalchemy import (Column, Integer, String, Date)
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Episode(Base, metaclass=DiscreteModelFactory):
+    number = Column(Integer)
+    airdate = Column(Date)
+    name_jp = Column(String)

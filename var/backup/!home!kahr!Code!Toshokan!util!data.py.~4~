@@ -1,0 +1,264 @@
+#!/usr/bin/python
+"""Library for downloading, processing and importing MAL data"""
+from urllib import request
+import pickle
+from debug import log
+import os
+from bs4 import BeautifulSoup
+from db import Anime, Person, Character, VARole, Genre, Producer, Licensor, Studio, Song, Manga, Serialization, link
+from datetime import datetime
+import parsedatetime as pdt
+import re
+from pytimeparse.timeparse import timeparse
+
+def find_by_mal_id(session, cls, mal_id):
+    return session.query(cls).filter_by(mal_id=mal_id).all()[0]
+
+def find_leftbox(soup, txt):
+    """Find the data in the left area of the MAL page"""
+    try:
+        # XXX Hard to understand.
+        text = [a for a in soup.findAll('span') if a.text == (txt + ':')][0].parent.text
+        final = [a.strip() for a in [b.split(',') for b in text.split('\n')][2]]
+        return(final)
+    # FIXME Bare except.
+    except:
+        return([])
+
+def fetch_page(uid, kind, proxy):
+    log(4, 'I', "Fetching {} page for ID: {}".format(kind, uid))
+    url = "https://myanimelist.net/{}/{}".format(kind, uid)
+
+    req = request.Request(url)
+    if proxy:
+        req.set_proxy(proxy, 'http')
+    with request.urlopen(req) as r:
+        html = r.read()
+
+    soup = BeautifulSoup(html, 'html.parser')
+    return soup
+
+def fetch_anime(uid, proxy=None):
+    # TODO: error handling, everything else seems to be in order.
+    a = Anime()
+
+    soup = fetch_page(uid, 'anime', proxy)
+
+    a.mal_id = uid
+    aired = ' '.join(find_leftbox(soup, "Aired")).split(' to ')
+    a.start_date = pdt.Calendar().parseDT(aired[0], sourceTime=datetime.min)[0]
+    try:
+        a.end_date = pdt.Calendar().parseDT(aired[1], sourceTime=datetime.min)[0]
+    except:
+        a.end_date = None
+
+    timeslot = find_leftbox(soup, "Broadcast")
+    num_episodes = find_leftbox(soup, "Episodes")
+    kind = find_leftbox(soup, "Type")
+    status = find_leftbox(soup, "Status")
+
+    source = find_leftbox(soup, "Source")
+    duration = find_leftbox(soup, "Duration")
+    rating = find_leftbox(soup, "Rating")
+    season = find_leftbox(soup, "Premiered")
+
+    a.timeslot = timeslot[0] if timeslot else None
+    a.kind = kind[0] if kind else None
+    a.status = status[0] if status else None
+    a.num_episodes = int(num_episodes[0]) if num_episodes and num_episodes[0] != 'Unknown' else None
+    a.source = source[0] if source else None
+    a.duration = timeparse(duration[0].replace('.','')) if duration else None
+    a.rating = rating[0] if rating else None
+    a.season = season[0] if season else None
+
+    a.description = soup.find("span", itemprop="description").text
+    a.synonyms = ';'.join([x.text.strip() for x in soup.findAll("div", class_='spaceit_pad')
+                           if x.find("span", class_="dark_text")])
+    a.name = soup.find('span', itemprop='name').text
+
+    return a
+
+def fetch_person(uid, proxy=None):
+    p = Person()
+
+    soup = fetch_page(uid, 'people', proxy)
+
+    p.mal_id = uid
+    given_name = find_leftbox(soup, 'Given name')[0:1]
+    if given_name:
+        p.given_name = given_name[0][6:]
+        family_name = find_leftbox(soup, 'Family name')[0:1]
+    if family_name:
+        p.family_name = family_name[0].split('Family name: ')[1].split('Alternate names: ')[0].split('Birthday')[0].split('Website')[0]
+        p.name = soup.find('h1', class_='h1').text
+        p.description = soup.find('div', class_='people-informantion-more js-people-informantion-more').text
+
+    names = find_leftbox(soup, 'Alternate names')
+    if names:
+        names[0] = names[0][7:]
+        p.alt_names = ';'.join(names)
+    else:
+        p.alt_names = None
+
+    birthday = ', '.join(find_leftbox(soup, 'Birthday'))
+    if birthday == 'Unknown':
+        p.birthday = None
+    elif len(birthday) == 4:
+        p.birthday = '{}-00-00'.format(birthday)
+    else:
+        new_birthday = pdt.Calendar().parseDT(birthday, sourceTime=datetime.min)[0]
+        year = '0000' if new_birthday.year == 1 else str(new_birthday.year)
+        month = '00' if new_birthday.month == 1 and 'Jan' not in birthday else format(new_birthday.month, '02d')
+        day = '00' if new_birthday.day == 1 and birthday[0] != 1 else format(new_birthday.day, '02d')
+        p.birthday = '{}-{}-{}'.format(year, month, day)
+
+    return p
+
+def fetch_character(uid, proxy=None):
+    c = Character()
+    soup = fetch_page(uid, 'character', proxy)
+
+    # Kill myself
+    d = soup.findAll('td', valign='top', style='padding-left: 5px;')[0]
+    spoilers = [x.text for x in d.findAll('div', class_='spoiler')]
+    description = '\n'.join(d.text.split('\n')[14:])
+    header = soup.findAll('div', class_='normal_header', style='height: 15px;')[0].text
+    description = str(description.split(header)[1].split('Voice')[0])
+    for s in spoilers:
+        description = description.replace(s, '[spoiler]{}[/spoiler]'.format(s))
+        description = description.replace('\r', '')
+
+    c.description = description
+    c.name = re.sub(' +', ' ', soup.find('h1', class_='h1').text.strip())
+    c.mal_id = uid
+    return c
+
+def fetch_manga(uid, proxy=None):
+    m = Manga()
+    soup = fetch_page(uid, 'manga', proxy)
+
+    m.mal_id = uid
+    m.kind = find_leftbox(soup, 'Type')[0]
+    m.volumes = int(find_leftbox(soup, 'Volumes')[0])
+    m.chapters = int(find_leftbox(soup, 'Chapters')[0])
+    published = ' '.join(find_leftbox(soup, "Published")).split(' to ')
+
+    m.start_date = pdt.Calendar().parseDT(published[0], sourceTime=datetime.min)[0]
+    try:
+        m.end_date = pdt.Calendar().parseDT(published[1], sourceTime=datetime.min)[0]
+    except:
+        m.end_date = None
+
+    m.description = soup.find("span", itemprop="description").text
+    m.synonyms = ';'.join([x.text.strip() for x in soup.findAll("div", class_='spaceit_pad')
+                           if x.find("span", class_="dark_text")])
+    m.name = soup.find('span', itemprop='name').text
+
+    return m
+
+def link_page(uid, session, kind, proxy=None):
+
+    if kind == 'anime':
+        uscls = Anime
+    else:
+        uscls = Manga
+
+    us = find_by_mal_id(session, uscls, uid)
+    soup = fetch_page(uid, kind, proxy)
+
+    # "pc" for person/character, which is the part that starts here
+    pc_link = 'https://myanimelist.net' + [x for x in soup.findAll('a')
+                                           if x.text == 'More characters'][0]['href']
+    pc_req = request.Request(pc_link)
+    if proxy:
+        pc_req.set_proxy(proxy, 'http')
+    with request.urlopen(pc_req) as r:
+        pc_html = r.read()
+
+    pc_soup = BeautifulSoup(pc_html, 'html.parser')
+
+    pc_units = pc_soup.findAll('table', border='0', cellpadding='0', cellspacing='0', width='100%')[2:]
+    for pc_unit in pc_units:
+        info = [x for x in pc_unit.text.split('\n') if x]
+        kind = 'VA' if len(info) == 4 else 'Person'
+        if kind == 'VA':
+            # Find right link -> get id part of link -> convert to int
+            character = find_by_mal_id(session, Character, int(pc_unit.findAll('a')[1]['href'].split('/')[4]))
+            person = find_by_mal_id(session, Person, int(pc_unit.findAll('a')[2]['href'].split('/')[4]))
+
+            r = VARole()
+            session.add(r)
+            link(session, character, us)
+            link(session, person, us)
+            link(session, character, person)
+            link(session, r, character, info[1])
+            link(session, r, person, info[3])
+            link(session, r, us, '{} <-> {}'.format(info[0],info[4]))
+        else:
+            person = find_by_mal_id(session, Person, int(pc_unit.findAll('a')[1]['href'].split('/')[4]))
+            link(session, person, us, info[1])
+
+    # OP(s) and ED(s)
+    songs = soup.findAll('div', class_='di-tc va-t ')
+    for x in range(len(songs)):
+        raw = songs[x]
+        songs = raw.text.strip().split('\n')[3].split('#')
+        for song in songs:
+            if song:
+                try:
+                    split = song.split(': ')
+                    if len(split) != 2:
+                        raise
+                    number = split[0]
+                    song = split[1]
+                except:
+                    number = ''
+                kind = 'OP' if x == 0 else 'ED'
+                songobj = Song(name=song)
+                session.add(songobj)
+                link(session, us, songobj, '{}{}'.format(kind, number))
+
+    # Studios, producers, licensors, genres, etc
+    for cat in ['Producers', 'Licensors', 'Studios', 'Genres', 'Authors', 'Serialization']:
+        g = [x for x in soup.findAll('div') if cat in x.text][-1]
+        if 'add some' in g.text:
+            continue
+        ids = [int(x['href'].split('/')[3]) for x in g.findAll('a')]
+
+        if cat == 'Authors':
+            cls = person
+        elif cat == 'Serialization':
+            cls = Serialization
+        else:
+            cls = globals()[cat[:-1]]
+
+        for x in range(len(ids)):
+            uid = ids[x]
+            obj = find_by_mal_id(session, cls, uid)
+            if not obj:
+                obj = cls(name=g.findAll('a')[x].text, mal_id=uid)
+                session.add(obj)
+            link(session, us, obj)
+
+    # Related stuff
+    rel_anime = soup.find('table', class_='anime_detail_related_anime').findAll('td')
+    for x in range(len(rel_anime)):
+        label = rel_anime[x][:-1]
+        split_url = rel_anime[x+1].find('a')['href'].split('/')
+        x += 1
+        uid = int(split_url[2])
+        if split_url[1] == 'anime':
+            obj = find_by_mal_id(session, Anime, uid)
+        else:
+            # Everything that's not an anime is a manga, even if it's not
+            obj = find_by_mal_id(session, Manga, uid)
+        link(us, obj, label)
+
+def fetch_all_anime_test(start=0):
+    for x in range(start, 40000):
+        try:
+            fetch_anime(x)
+        except Exception as e:
+            if(str(e) != 'HTTP Error 404: Not Found'):
+                log(2, 'E', "EXCEPTION {} for id {}".format(e, x))
+                return

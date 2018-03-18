@@ -1,0 +1,17 @@
+/* file: functions. */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.1 */
+/* Description:
+ * Apply a series of functions to input number.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int main(int argc, char *argv[])
+{
+  int num;
+  scanf("%d ", &num);
+  return 0;
+}

@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int *readGrades() {
+  int *grades;
+  int grade;
+  int size = 1;
+  grades = (int*)malloc(size*sizeof(int));
+  int i;
+  while (scanf("%d ", &grade) != EOF) {
+    grades = realloc(grades, size * sizeof(int));
+    grades[i] = grade;
+    i++;
+    size++;
+  }
+  return grades;
+}
+	
+void computeFrequencies(int grades[], int freq[10]) {
+  /* Please, implement the body of this function */
+}
+
+int arrayMax(int length, int arr[]) {
+  int i, max = arr[0];
+  for (i=1; i < length; i++) {
+    if (arr[i] > max) {
+      max = arr[i];
+    }
+  }
+  return max;
+}
+	
+
+void printHistogram(int freq[10]) {
+  /* Please, implement the body of this function */
+}
+
+int main(int argc, char *argv[]) {
+  int *grades;
+  int frequencies[10];
+
+  grades = readGrades();
+  /* Please, complete the main function */
+
+  return 0;
+}

@@ -1,0 +1,16 @@
+import tornado
+
+from . import Page
+from .templates.logout import logout
+
+class Logout(Page):
+    template = logout
+    @tornado.web.addslash
+    def get(self):
+        self.write('k')
+
+    @tornado.web.addslash
+    def post(self):
+        self.clear_cookie("user_id")
+        self.clear_cookie("username")
+        self.clear_cookie("dbname")

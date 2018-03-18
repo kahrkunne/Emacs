@@ -1,0 +1,55 @@
+#!/usr/bin/python
+import os
+import pickle
+
+from bs4 import BeautifulSoup
+
+def find_leftbox(soup, txt):
+    try:
+        text = [a for a in soup.findAll('span') if a.text == (txt + ':')][0].parent.text.split("\n")[2]
+        final = [a.strip() for a in text.split(',')]
+        return(final)
+    except:
+        return([])
+
+def process():
+    print('Starting!')
+    entries = []
+    for filename in os.listdir('anime_pages'):
+        with open('anime_pages/' + filename, 'r') as f:
+            data = f.read()
+        soup = BeautifulSoup(data, 'html.parser')
+
+        entry = {}
+        entry['mal_id'] = filename
+
+        try:
+            entry['image_link'] = soup.find('img', class_='ac')['src']
+        except TypeError:
+            entry['image_link'] = ''
+        entry['producers'] = find_leftbox(soup, "Producers")
+        entry['licensors'] = find_leftbox(soup, "Licensors")
+        entry['studios'] = find_leftbox(soup, "Studios")
+        entry['source'] = find_leftbox(soup, "Source")
+        entry['genres'] = find_leftbox(soup, "Genres")
+        entry['duration'] = find_leftbox(soup, "Duration")
+        entry['rating'] = find_leftbox(soup, "Rating")
+        entry['season'] = find_leftbox(soup, "Premiered")
+
+        try:
+            l = soup.find('table', class_='anime_detail_related_anime').findAll('td', class_='borderClass')
+            rel_anime = {}
+            for x in range(0,len(l),2):
+                rel_anime[l[x].text[:-1]] = l[x + 1].text.split(',')
+            entry['rel_anime'] = rel_anime
+        except AttributeError:
+            entry['rel_anime'] = {}
+        eds = soup.find('div', class_='theme-songs js-theme-songs ending').findAll('span')
+        entry['ed'] = [ed.text for ed in eds]
+        ops = soup.find('div', class_='theme-songs js-theme-songs opnening').findAll('span')
+        entry['op'] = [op.text for op in ops]
+        entries.append(entry)
+    with open('parsed_page_data', 'wb') as f:
+        pickle.dump(entries, f)
+    print('Finished!')
+    return entries

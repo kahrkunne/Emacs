@@ -1,0 +1,51 @@
+/* file: decomp.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.01 */
+/* Description:
+ * decompress an image
+ */
+#include <stdio.h>
+#include <stdlib.h>
+
+char **m;
+
+void decomp(char *input[], int maxx, int maxy, int startx, int starty)
+{
+  if (input[0] == '1') {
+    char f = input[1];
+    for (int x = startx; x < maxx; ++x) {
+      for (int y = starty; y < maxy; ++y) {
+	m[x][y] = f;
+      }
+    }
+    return;
+  } else if (input[0] == 0) {
+    decomp(maxval, input[1]
+  }
+
+}
+
+int main(int argc, char *argv[])
+{
+  int n;
+  scanf("%d", &n);
+  m = (char **) malloc(n * sizeof(char *));
+  for (int i = 0; i < n; ++i) {
+    m[i] = (char *) malloc(n * sizeof(char));
+    // For debugging purposes
+    for (int j = 0; j < n; ++j) {
+      m[i][j] = 'N';
+    }
+  }
+
+  // Worst possible case: for an n*n matrix, if it can't be compressed at all, the size of the output can be described by the function P(n) in the following manner:
+  // If the base 2 logarithm of n = 1 (i.e. n=2), the output will have 5 characters, i.e. P(2) = 5;
+  // Otherwise, the input will have 1 + (P(n/2)*4) characters.
+  // It can be shown that P(n)/n*n approaches 1.333 repeating.
+  // In conclusion, input is never bigger than n*n*1.333 repeating, so it is also never bigger than n*n*1.4 rounded down.
+  int maxval = n*n*1.4;
+  char *input;
+  scanf("%s", input);
+
+  return 0;
+}

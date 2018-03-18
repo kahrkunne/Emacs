@@ -1,0 +1,28 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Your branch is up to date with 'origin/master'.
+#
+# Changes to be committed:
+#	deleted:    app/db.py
+#	new file:   app/models/__init__.py
+#	new file:   app/models/linking.py
+#	new file:   app/models/modelfactory.py
+#	new file:   app/models/models.py
+#	modified:   app/pages/anime_page.py
+#	modified:   app/pages/animelist.py
+#	modified:   app/pages/login.py
+#	modified:   app/pages/register.py
+#	modified:   app/pages/search.py
+#	modified:   app/pages/templates/anime_list.py
+#	modified:   app/pages/templates/anime_page.py
+#	modified:   app/pages/templates/index.py
+#	modified:   app/pages/templates/layout.py
+#	modified:   app/pages/templates/login.py
+#	modified:   app/pages/templates/register.py
+#	modified:   app/pages/templates/search.py
+#	deleted:    templates/.#search.tmpl
+#	modified:   templates/search.tmpl
+#

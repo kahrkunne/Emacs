@@ -1,0 +1,197 @@
+from redis import Redis
+from pottery import RedisDict
+import array
+import pickle
+from itertools import chain
+import operator
+from config import (min_delta, min_score, occur_penalty, comp_alg)
+from animelist_utils import al_from_mal, titles_from_ids
+from scipy.stats import pearsonr
+
+#redis = Redis.from_url('http://localhost:6379')
+#toshokan = RedisDict(redis=redis, key='recengine')
+toshokan = None
+
+def setup_data():
+    """Generate dataset for recommendation engine."""
+    alists = array.array('H')
+    users = array.array('I')
+    # Current working index, for tracking user table.
+    i = 0
+    for user in toshokan:
+        # Only entries with scores matter.
+        good_entries = [entry for entry in toshokan[user] if entry[3] != 0]
+        # Entire concept of list comparison is nonsensical for lists with < 2 elements.
+        if len(good_entries) < 2:
+            continue
+        working_alist = array.array('H')
+        # Keep track of titles in working_alist separately for speed.
+        working_titles = array.array('H')
+        start_index = i
+        for entry in good_entries:
+            aid = entry[0]
+            # Some users have their lists duplicated; we don't want that.
+            if aid in working_titles:
+                continue
+            working_titles.append(aid)
+            num_watched = entry[2]
+            # Because of a bug in the data, some users have a num_watched of unreasonable values.
+            if num_watched > 10000:
+                num_watched = 0
+            score = entry[3]
+            working_alist.append(aid)
+            working_alist.append(score)
+            i += 2
+        # Lists need to be scaled so every user uses the same scale.
+        scaled = scale_alist(working_alist)
+        # Some lists can not be scaled; in which case, don't add the working list.
+        if scaled:
+            alists += scaled
+            users.append(start_index)
+        else:
+            # Rollback changes to i.
+            i -= len(working_alist)
+    # FIXME: I'm not sure if the users still need to be sorted; I assume not.
+    return (alists, sorted(array.array('I', set(users))))
+
+def get_alist(data, users, index):
+    """Get an anime list in data starting from an index."""
+    next_index = users[users.index(index) + 1]
+    return data[index:next_index]
+
+def get_last_alist(data, users, index):
+    """Get the last anime list starting from its index in data."""
+    return data[index:]
+
+def scale_alist(alist):
+    """Scale an anime list, so that every user uses the same scale."""
+    scores = alist[1::2]
+    lowest = scores[0]
+    highest = scores[-1]
+    # If highest and lowest scores are the same, scaling is impossible
+    if lowest == highest:
+        return False
+    # The amount the intervals between scores needs to be scaled.
+    scale_factor = 1 / (highest - lowest)
+    nscores = array.array('f', scores[:])
+    nscores[0] = 0
+    # Scale the new scores, so that the interval between scores stays the same.
+    for index in range(1, len(scores)):
+        new_gap = scale_factor * (scores[index] - scores[index - 1])
+        nscores[index] = nscores[index - 1] + new_gap
+    new_al = array.array('H')
+    i = 0
+    for score in nscores:
+        new_al.append(alist[i])
+        # Multiply scores by 1000 so that they can be expressed as integer.
+        new_al.append(int(score * 1000))
+        i += 2
+    # Sort by anime_id
+    new_al = array.array('H', chain(*tupper(new_al)))
+    return new_al
+
+def common_entry_scores(alist1, alist2):
+    """Find the scores of the common entries between alist1 and alist2."""
+    # alist1 and alist2 arrive in [anime_id, score, anime_id, score ...] format, sorted by anime_id
+    # turn them into [(anime_id, score), (anime_id, score), (anime_id, score) ...] format
+    a1 = zip(*[iter(alist1)]*2)
+    a2 = zip(*[iter(alist2)]*2)
+    # all anime_ids that are in both a1 and a2
+    u = set(alist1[::2]) & set(alist2[::2])
+    # if there's none of those, return
+    if not u:
+        return None
+    # s1 = "the score for every anime in a1 if that anime is in u"
+    s1 = [s[1] for s in a1 if s[0] in u]
+    s2 = [s[1] for s in a2 if s[0] in u]
+    return(s1, s2)
+
+def tupper(alist):
+    """Turn list into (aid, score) tuples, sorted by aid."""
+    # Arcane magic, thanks StackOverflow.
+    return sorted(zip(*[iter(alist)]*2), key=lambda e: e[0])
+
+def load_data():
+    """Load working data from binary files."""
+    with open('/home/kahr/Toshokan/recengine-data.bin', 'rb') as f:
+        data = pickle.load(f)
+    with open('/home/kahr/Toshokan/recengine-users.bin', 'rb') as f:
+        users = pickle.load(f)
+    return (data, users)
+
+def compare_alist(a1, a2, alg='naive'):
+    """Compare animelists, naively"""
+    cs = common_entry_scores(a1, a2)
+    if cs:
+        s1, s2 = cs
+    else:
+        return None
+    if len(s1) < 25:
+        return None
+    if alg == 'naive':
+        d = 1000 - (sum(map(operator.abs, map(operator.sub, s1, s2)))/len(s1))
+    elif alg == 'pearson':
+        d = (1000*pearsonr(s1, s2)[0])/2 + 500
+    try:
+        return int(d)
+    except:
+        return None
+
+def get_deltas(data, users, user_alist):
+    #deltas = array.array('H')
+    deltas = []
+    al = user_alist
+    i = 0
+    while i < len(users) - 1:
+        n_al = data[users[i]:users[i+1]]
+        deltas.append(compare_alist(al, n_al, alg=comp_alg))
+        i += 1
+    n_al = data[users[i]:]
+    deltas.append(compare_alist(al, n_al, alg=comp_alg))
+    return deltas
+
+def get_reqs(data, users, deltas, our_user):
+    our_anime = our_user[::2]
+    i = 0
+    pot_reqs = []
+    simsums = {}
+    for d in deltas:
+        if d is not None and d > min_delta:
+            try:
+                comparing_user = zip(*[iter(data[users[i]:users[i+1]])]*2)
+            except:
+                break
+            for a, s in comparing_user:
+                rec_value = d*s
+                if a not in our_anime and s > min_score:
+                    simsums.setdefault(a, 0)
+                    pot_reqs.append((a, rec_value))
+                    simsums[a] += d 
+        i += 1
+    reqs = {}
+#    tot_occurs = sum(a_occurs.values())
+    for a, r in pot_reqs:
+#        occurs = a_occurs[a]
+        r /= simsums[a]
+#        d = int(tot_occurs / occurs)
+#        r *= (d/occur_penalty)
+#        if occurs < tot_occurs/1000:
+#            r = 0
+        if a in reqs:
+            reqs[a] += r
+        else:
+            reqs[a] = r
+    return list(reversed(sorted([[k,v] for k, v in reqs.items()], key=lambda x: x[1])))
+
+def get_user_reqs(data, users, our_user):
+    deltas = get_deltas(data, users, our_user)
+    return get_reqs(data, users, deltas, our_user)
+
+def reqs_as_id(reqs):
+    return [x[0] for x in reqs]
+
+def reqs_from_mal(name):
+    data, users = load_data()
+    al = al_from_mal(name)
+    reqs = get_user_reqs(data, users, al)
+    return titles_from_ids(reqs_as_id(reqs[:25]))

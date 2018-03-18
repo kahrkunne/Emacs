@@ -1,0 +1,6 @@
+db = {}
+db['engine'] = 'postgresql+psycopg2'
+db['user'] = 'kahr'
+db['password'] = 'makama9makama9'
+db['domain'] = 'localhost'
+db['database'] = 'list_db'

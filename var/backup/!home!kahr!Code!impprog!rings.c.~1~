@@ -1,0 +1,22 @@
+/* file: rings.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.01 */
+/* Description:
+ * Calculate overlapping rings or something
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+  int numRings;
+  scanf("%d", &numRings);
+  int rings[numRings][3];
+  for (int i = 0; i < numRings; ++i) {
+    scanf("%d %d %d", &numRings[i][0], &numRings[i][1], &numRings[i][2]);
+  }
+
+  
+  return 0;
+}

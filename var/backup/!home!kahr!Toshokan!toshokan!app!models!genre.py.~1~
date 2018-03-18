@@ -1,0 +1,11 @@
+from .model import Base, Column, Integer, Sequence, String
+
+class Genre(Base):
+    __tablename__ = 'tshk_genre'
+    uid = Column(Integer, Sequence('genre_id_seq'), primary_key=True)
+
+    name = Column(String)
+    description = Column(String)
+
+    def __repr__(self):
+        return "<Genre(uid={}, name={})>".format(self.uid, self.name)

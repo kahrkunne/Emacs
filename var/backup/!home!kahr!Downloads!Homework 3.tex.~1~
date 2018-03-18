@@ -1,0 +1,255 @@
+\documentclass[11pt]{article}
+\usepackage{amssymb}
+\usepackage[margin=0.9in]{geometry}
+\title{\vspace{-8ex}Program Correctness Homework 3}
+\author{S3328481 CS2\\\small Merijn Schr\"{o}der\\\small m.l.schroder@student.rug.nl}
+
+\begin{document}
+	\maketitle
+	\section*{Exercise 10.14}
+	\begin{enumerate}
+		\item[(a)] $Q:$ $z =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<n\}$\\
+		$S(k) =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<k\}$\\
+		$S(1) =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<1\} =$ Max $\emptyset = -\infty$\\
+		$S(2) =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<2\} = 0$
+		\begin{tabbing}
+			xx\=\kill
+			\>	$S(k+1)$\\
+			$\equiv$ \{definition of $S$\}\\
+			\>	Max$\{a[i]*b[j]|i,j:0\leq i<j<k+1\}$\\
+			$\equiv$ \{split domain: $j<k \lor j=k$\}\\
+			\>	Max$\{a[i]*b[j]|i,j:0\leq i<j<k\}$ max Max$\{a[i]*b[k]|i:0\leq i<k\}$\\
+			$\equiv$ \{definition of $S$; calculus\}\\
+			\>	$S(k)$ max ($b[k]$ * Max$\{a[i]|i:0\leq i<k\})$\\
+			$\equiv$ \{introduce $T(k) =$ Max$\{a[i]|i:0\leq i<k\}$\}\\
+			\>	$S(k)$ max ($b[k]$ * $T(k))$		
+		\end{tabbing}
+		$T(0) =$ Max$\{a[i]|i:0\leq i<0\} =$ Max $\emptyset = -\infty$\\
+		$T(1) =$ Max$\{a[i]|i:0\leq i<1\} = 0$
+		\begin{tabbing}
+			xx\=\kill
+			\>	$T(k+1)$\\
+			$\equiv$ \{definition of $T$\}\\
+			\>	Max$\{a[i]|i:0\leq i<k+1\}$\\
+			$\equiv$ \{split domain: $i<k \lor i=k$\}\\
+			\>	Max$\{a[i]|i:0\leq i<k\}$ max $a[k]$\\
+			$\equiv$ \{definition of $T$\}\\
+			\>	$T(k)$ max $a[k]$
+		\end{tabbing}
+		So, for the following definitions\\\\		
+		$S(k) =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<k\}$\\
+		$T(k) =$ Max$\{a[i]|i:0\leq i<k\}$\\\\		
+		we found the recurrences\\\\		
+		\begin{tabular}{l l l}
+			&&$S(1) = T(0) = -\infty$\\
+			&&$S(2) = T(1) = 0$\\
+			$0 \leq k<n$&$\Rightarrow$&$S(k+1) = S(k)$ max ($b[k]$ * $T(k))$\\
+			$0 \leq k<n$&$\Rightarrow$&$T(k+1) = T(k)$ max $a[k]$
+		\end{tabular}
+		\newpage
+		\begin{enumerate}
+			\item[1]
+			$J: z=S(k) \land 0\leq k\leq n \land t=T(k)$\\
+			$B: k\neq n$
+			\begin{tabbing}
+				xx\=\kill
+				\>	$J \land \neg B$\\
+				$\equiv$ \{definitions of $J$ and $B$\}\\
+				\>	$z=S(k) \land 0\leq k\leq n \land t=T(k) \land k=n$\\
+				$\Rightarrow$ \{$z=S(k) \land k=n \Rightarrow z=S(n)$; $a\land b \Rightarrow a$\}\\
+				\>	$z=S(n)$\\
+				$\equiv$ \{definition of $S(n)$\}\\
+				\>	$z =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<n\}$\\
+				$\equiv$ \{definition of $Q$\}\\
+				\>	$Q$
+			\end{tabbing}
+			
+			\item[2]
+			\begin{tabbing}
+			xx\=xx\=\kill
+			\>	\{$P:$ \textbf{true}\}\\
+			\>	\>	$(*$ base cases recurrences; $n \in \mathbb{N}$ $*)$\\
+			\>	\{$-\infty = S(1) \land 0\leq 1\leq n \land 0 = T(1)$\}\\
+			$z := -\infty;$\\
+			$k := 1;$\\
+			$t := 0;$\\
+			\>	\{$J: z=S(k) \land 0\leq k\leq n \land t=T(k)$\}
+			\end{tabbing}
+			
+			\item[3]
+			vf: $n-k \in \mathbb{Z}$			
+			\begin{tabbing}
+			xx\=\kill
+			\>	$J \land B$\\
+			$\equiv$ \{definitions of $J$ and $B$\}\\
+			\>	$z=S(k) \land 0\leq k < n \land t=T(k)$\\
+			$\equiv$ \{$k < n$: calculus\}\\
+			\>	$n-k\geq 0$\\
+			$\equiv$ \{definition of vf\}\\
+			\>	vf $\geq 0$
+			\end{tabbing}
+			\item[4]
+			\begin{tabbing}
+			xx\=xx\=\kill
+			\>	\{$J \land B \land vf = V$\}\\
+			\>	\>	$(*$ definitions of $J$, $B$ and vf $*)$\\
+			\>	\{$z=S(k) \land 0\leq k<n \land t=T(k) \land n-k=V$\}\\
+			\>	\> $(*$ $0\leq k<n \Rightarrow S(k+1) = S(k)$ max ($b[k] * T(k)$); substitution $*)$\\
+			\>	\{$z$ max ($b[k] * T(k)) = S(k+1) \land 0\leq k<n \land t=T(k) \land n-k=V$\}\\
+			\>	\>	$(*$ substitution $t=T(k)$ $*)$\\
+			\>	\{$z$ max ($b[k] * t) = S(k+1) \land 0\leq k<n \land t=T(k) \land n-k=V$\}\\
+			$z := z$ max ($b[k] * t);$\\
+			\>	\{$z=S(k+1) \land 0\leq k<n \land t=T(k) \land n-k=V$\}\\
+			\>	\> $(*$ $0\leq k<n \Rightarrow T(k+1) = T(k)$ max $a[k]$; substitution $*)$\\
+			\>	\{$z=S(k+1) \land 0\leq k< n \land t$ max $a[k]=T(k+1) \land n-k=V$\\
+			$t := t$ max $a[k]$;\\
+			\>	\{$z=S(k+1) \land 0\leq k< n \land t=T(k+1) \land n-k=V$\\
+			\>	\>	$(*$ calculus $*)$\\
+			\>	\{$z=S(k+1) \land 0\leq k+1\leq n \land t=T(k+1) \land n-(k+1)<V$\\
+			$k := k + 1;$\\
+			\>	\{$z=S(k) \land 0\leq k\leq n \land t=T(k) \land n-k<V$\\
+			\>	\>	$(*$ definitions of $J$ and vf $*)$\\
+			\>	\{$J \land$ vf $<V$\}
+			\end{tabbing}
+			\newpage
+			\item[5]
+			\begin{tabbing}
+			xx\=xx\=xx\=\kill
+			\textbf{const} $n:\mathbb{N}$, $a$,$b:$ array$[0..n)$ of $\mathbb{R}$ \hspace{0.5in} \{$\forall i \in [0..n):b[i]\geq 0$\}\\
+			\textbf{var} $k:\mathbb{N}$; $z$,$t:\mathbb{R}$;\\
+			\>	\{$P:$ \textbf{true}\}\\
+			$z := -\infty;$\\
+			$k := 1;$\\
+			$t := 0;$\\
+			\>	\{$J: z=S(k) \land 0\leq k\leq n \land t=T(k)$\}\\
+			\>	\>	$(*$ vf = $n-k$ $*)$\\
+			\textbf{while} $k \neq n$ \textbf{do}\\
+			\>	$z := z$ max ($b[k] * t);$\\
+			\>	$t := t$ max $a[k]$;\\
+			\>	$k := k + 1;$\\
+			\textbf{end};\\
+			\>	\{$Q: z =$ Max$\{a[i]*b[j]|i,j:0\leq i<j<n\}$\}			
+			\end{tabbing}
+		\end{enumerate}
+	\end{enumerate}
+	\newpage
+	\section*{Exercise 9.15}
+	$Q: z = \#\{(i,j)|0 \leq i \leq j < n \land a=\sum (f(h)|h:i \leq h < j)\}$\\
+	$S(k) = \#\{(i,j)|0 \leq i \leq j < k \land a=\sum (f(h)|h:i \leq h < j)\}$\\
+	$S(0) = \#\{(i,j)|0 \leq i \leq j < 0 \land a=\sum (f(h)|h:i \leq h < j)\} = 0$	
+	\begin{tabbing}
+	xx\=xx\=\kill
+	\>	$S(k+1)$\\
+	$\equiv$ \{definition of $S$\}\\
+	\>	$\#\{(i,j)|0 \leq i \leq j < k+1 \land a=\sum (f(h)|h:i \leq h < k+1)\}$\\
+	$\equiv$ \{split domain: $j<k$ and $j=k$\}\\
+	\>	$\#\{(i,j)|0 \leq i \leq j < k \land a=\sum (f(h)|h:i \leq h < k)\} + \#\{i|0 \leq i < k \land a=\sum (f(h)|h:i \leq h < k)\}$\\
+	$\equiv$ \{definition of $S$\}\\
+	\>	$S(k) + \#\{i|0 \leq i < k \land a=\sum (f(h)|h:i \leq h < k)\}$\\
+	$\equiv$ \{introduce $T(k) = \#\{i|0 \leq i < k \land a=\sum (f(h)|h:i \leq h < k)\}$\}\\
+	\>	$S(k) + T(k)$	
+	\end{tabbing}	
+	$T(0) = \#\{i|0 \leq i < 0 \land a=\sum (f(h)|h:i \leq h < 0)\} = 0$	
+	\begin{tabbing}
+	xx\=xx\=\kill
+	\>	$T(k+1)$\\
+	$\equiv$ \{definition of $T$\}\\
+	\>	$\#\{i|0 \leq i < k+1 \land a=\sum (f(h)|h:i \leq h < k+1)\}$\\
+	$\equiv$ \{split domain: $i<k$ and $i=k$\}\\
+	\>	$\#\{i|0 \leq i < k \land a=\sum (f(h)|h:i \leq h < k)\} + 0$\\
+	$\equiv$ \{definition of $T$\}\\
+	\>	$T(k)$
+	\end{tabbing}	
+	So, for the following definitions\\\\	
+	$S(k) = \#\{(i,j)|0 \leq i \leq j < k \land a=\sum (f(h)|h:i \leq h < j)\}$\\
+	$T(k) = \#\{i|0 \leq i < k \land a=\sum (f(h)|h:i \leq h < k)\}$\\\\
+	we found the recurrences\\\\	
+	\begin{tabular}{l l l}
+	&&$S(0) = T(0) = 0$\\
+	$0 \leq k<n$&$\Rightarrow$&$S(k+1) = S(k) + T(k)$\\
+	$0 \leq k<n$&$\Rightarrow$&$T(k+1) = T(k)$
+	\end{tabular}
+	
+	\begin{enumerate}
+	\item[1]
+	$J: z = S(k) \land t = T(k) \land 0 \leq k \leq n$\\
+	$B: k \neq n$	
+	\begin{tabbing}
+	xx\=xx\=\kill
+	\>	$J \land \neg B$\\
+	$\equiv$ \{definitions of $J$ and $B$\}\\
+	\>	$z = S(k) \land t = T(k) \land 0 \leq k \leq n \land k = n$\\
+	$\equiv$ \{$z = S(k) \land k = n \Rightarrow z = S(n)$\}\\
+	\>	$z = S(n)$\\
+	$\equiv$ \{definition of $S(n)$\}\\	
+	\>	$z = \#\{(i,j)|0 \leq i \leq j < n \land a=\sum (f(h)|h:i \leq h < j)\}$\\
+	$\equiv$ \{definition of $Q$\}\\
+	\>	$Q$
+	\end{tabbing}
+	\newpage
+	\item[2]
+	\begin{tabbing}
+	xx\=xx\=xx\=\kill
+	\>	\{$P:$ \textbf{true}\}\\
+	\>	\>	$(*$ base cases recurrences; $n \in \mathbb{N}$ $*)$\\
+	\>	\{$0 = S(0) \land 0 = T(0) \land 0 \leq 0 \leq n$\}\\
+	$z := 0;$\\
+	$k := 0;$\\
+	$t := 0;$\\
+	\>	\{$J: z = S(k) \land t = T(k) \land 0 \leq k \leq n$\}\\
+	\end{tabbing}	
+	\item[3]
+	vf: $n - k \in \mathbb{Z}$	
+	\begin{tabbing}
+	xx\=xx\=\kill
+	\>	$J \land B$\\
+	$\equiv$ \{definitions of $J$ and $B$\}\\
+	\>	$z = S(k) \land t = T(k) \land 0 \leq k < n$\\
+	$\equiv$ \{$k < n$: calculus\}\\
+	\>	$n - k \geq 0$\\
+	$\equiv$ \{definition of vf\}\\
+	\>	vf $\geq 0$
+	\end{tabbing}
+	
+	\item[4]
+	\begin{tabbing}
+	xx\=xx\=xx\=\kill
+	\>	\{$J \land B \land$ vf $= V$\}\\
+	\>	\>	$(*$ definitions of $J$, $B$, and vf $*)$\\
+	\>	\{$z = S(k) \land t = T(k) \land 0 \leq k < n \land n - k = V$\}\\
+	\>	\>	$(*$ $0 \leq k < n \Rightarrow S(k+1) = S(k) + T(k)$; substitution $*)$\\
+	\>	\{$z + T(k) = S(k) \land t = T(k) \land 0 \leq k < n \land n - k = V$\}\\
+	\>	\>	$(*$ substitution $t = T(k)$ $*)$\\
+	\>	\{$z + t = S(k+1) \land t = T(k) \land 0 \leq k < n \land n - k = V$\}\\
+	$z := z + t;$\\
+	\>	\{$z = S(k+1) \land t = T(k) \land 0 \leq k < n \land n - k = V$\}\\
+	\>	\>	$(*$ $0 \leq k < n \Rightarrow T(k+1) = T(k)$; substitution $*)$\\
+	\>	\{$z = S(k+1) \land t = T(k+1) \land 0 \leq k < n \land n - k = V$\}\\
+	\>	\>	$(*$ calculus $*)$\\
+	\>	\{$z = S(k+1) \land t = T(k+1) \land 0 \leq k+1 \leq n \land n - (k+1) < V$\}\\
+	$k := k + 1;$\\
+	\>	\{$z = S(k) \land t = T(k) \land 0 \leq k \leq n \land n - k < V$\}\\
+	\>	\>	$(*$ definitions of $J$ and vf $*)$\\
+	\>	\{$J \land vf < V$\}
+	\end{tabbing}
+	
+	\item[5]
+	\begin{tabbing}
+	xx\=xx\=xx\=\kill
+	\textbf{const} $n$,$a: \mathbb{N}:$ array$[0..n)$ of $\mathbb{N}$ \hspace{0.5in} \{$\forall i \in [0..n): a[i] \in \mathbb{N}$\}\\
+	\textbf{var} $z,k: \mathbb{N}$\\
+	\>	\{$P:$ \textbf{true}\}\\
+	$z := 0;$\\
+	$k := 0;$\\
+	$t := 0;$\\
+	\>	\{$J: z = S(k) \land t = T(k) \land 0 \leq k \leq n$\}\\
+	\>	\>	$(*$ vf = $n - k$ $*)$\\
+	\textbf{while} $k \neq n$ \textbf{do}\\
+	\>	$z := z + t;$\\
+	\>	$k := k + 1;$\\
+	\textbf{end}\\
+	\>	\{$Q: z = \#\{(i,j)|0 \leq i \leq j < n \land a=\sum (f(h)|h:i \leq h < j)\}$\}
+	\end{tabbing}	
+	\end{enumerate}
+	\end{document}
+

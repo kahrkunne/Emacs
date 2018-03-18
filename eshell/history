@@ -1,0 +1,128 @@
+rm *tar*
+ls
+mv tenhouid.txt Pictures
+rm *.txt
+rm *.pdf
+rm *.avi
+rm *.odt
+rm *.xlsx
+ls
+rm *.jar
+rm *.mp3 
+rm *.lisp
+rm *.img
+rm *.msi
+rm *.log
+rm *.hs
+rm torrents*
+ls
+rm *.zip
+rm *.gz
+rm -rf pylint*
+rm -rf qTox*
+ls
+ls | wc -l
+cd Videos/Anime/
+ls
+eshell-display-predicate-help 
+vst-bridge
+ls
+touch kek
+echo *kek*
+echo kek > /dev/eshell
+echo "\nlmao kek" > /dev/eshell
+echo "lmao kek" '\n' > /dev/eshell
+echo "lmao kek\n" > /dev/eshell
+cat /dev/kill
+eshell-parse-command "echo kek"
+ls
+*ls
+ls
+time ls
+time *ls
+date
+time date
+time *date
+cd ~
+cd Downloads/
+mkdir kek
+cd kek
+ls
+rm -rf *
+mv ../Torrents Batch.zip .
+mv ../Torrents\ Batch.zip .
+ls
+unzip Torrents\ Batch.zip 
+ls
+ls
+jobs
+ls
+for var in $(ls) {echo $var}
+for var in {ls} {echo $var}
+for var in {ls} {echo {upcase $var}}
+for var in {ls} {mv $var {upcase $var}}
+ls
+cd ..
+ls
+rm -rf kek
+clear
+clear
+clear
+clear
+ls | grep zip
+mkdir kek
+cd kek
+mv ../Torrents\ Batch.zip .
+unzip Torrents\ Batch.zip 
+mkdir -p ~/Music/TOC
+cd ~/Music
+ls
+ls | grep O
+ls TOC
+nil
+clear
+man clear
+python3 -m pip install Flask
+sudo python3 -m pip install Flask
+echo "kek"
+echo "$PS1"
+cd ~
+ls
+clear
+
+clear
+
+echo "ejfiajefiaje" > /tmp/cl-notifyd/FIFO
+echo "kek" > /tmp/cl-notifyd/FIFO 
+cd ~
+rm .stumpwmrc.fasl
+cd .emacs.d
+git add org-init.org
+ls
+cat .git/index.lock 
+rm .git/index.lock
+git add org-init.org
+git ls
+git log
+ls
+git remove
+git rm
+git ls-files
+git ls-files | less
+git rm appearance.el
+git rm editor-config.el
+git rm functions-and-keybindings.el
+git rm notes.org
+git rm packages.el
+git ls-files
+cat init.el
+git add init.el
+cat init.el
+ls
+git add init.el
+git commit -m "Migrated Emacs configuration to org-babel"
+git push
+git config --global user.email "kahr.kunne@gmail.com"
+git config --global user.name "Kahr Kunne"
+git commit -m "Migrated Emacs configuration to org-babel"
+git push

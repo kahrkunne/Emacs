@@ -1,0 +1,164 @@
+from calendar import timegm
+import pytz
+from datetime import datetime
+from datetime import date
+from collections import defaultdict
+
+import tornado
+import sqlalchemy
+from sqlalchemy import func
+from tornado.web import HTTPError
+
+from . import Page
+from ..models import User, Anime, AnimeEntry
+
+from .templates.animelist import animelist
+
+class AnimeList(Page):
+    template = animelist
+
+    def get(self, username, item, json_out):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if not user:
+            raise HTTPError(404)
+
+        if item:
+            alist = [x for x in user.animelist if x.anime_id == int(item)]
+        else:
+            alist = user.animelist
+
+        if json_out:
+            json_output = {}
+            for entry in alist:
+                json_output[entry.anime_id] = {'score': entry.score,
+                                               'start_date': timegm(entry.start_date.timetuple())
+                                               if entry.start_date else 0,
+                                               'end_date': timegm(entry.end_date.timetuple())
+                                               if entry.end_date else 0,
+                                               'num_episodes': entry.num_episodes,
+                                               'num_rewatches': entry.num_rewatches,
+                                               'comments': entry.comments,
+                                               'status': entry.status,
+                                               'username': username,
+                                               'anime_id': entry.anime_id}
+
+            self.write(json_output)
+        else:
+            animelist = {0: [], 1: [], 2: [], 3: [], 4: []}
+            for entry in alist:
+                animelist[entry.status].append({'score': entry.score,
+                                                'start_date': timegm(entry.start_date.timetuple())
+                                                if entry.start_date else 0,
+                                                'end_date': timegm(entry.end_date.timetuple())
+                                                if entry.end_date else 0,
+                                                'num_episodes': entry.num_episodes,
+                                                'num_rewatches': entry.num_rewatches,
+                                                'comments': entry.comments,
+                                                'total_episodes': entry.anime.num_episodes,
+                                                'kind': entry.anime.kind,
+                                                'name': entry.anime.name,
+                                                'username': username,
+                                                'anime_id': entry.anime.uid,
+                                                'status': entry.status})
+
+            self.t.animelist = animelist
+            self.write(self.render())
+
+    def put(self, username, item, json_out):
+        try:
+            user = self.db.query(User).filter_by(name=username.lower()).first()
+        except:
+            raise HTTPError(404)
+
+        try:
+            real_username = self.get_secure_cookie('username').decode('utf-8')
+            assert real_username == username
+        except:
+            raise HTTPError(401)
+
+        try:
+            our_ids = [x[0] for x in self.db.query(AnimeEntry.anime_id).filter_by(user_id=user.uid).all()]
+
+            if item:
+                entries = [{'anime_id': int(item),
+                            'score': self.get_argument('score'),
+                            'start_date': self.get_argument('start_date'),
+                            'end_date': self.get_argument('end_date'),
+                            'num_rewatches': self.get_argument('num_rewatches'),
+                            'num_episodes': self.get_argument('num_episodes'),
+                            'status': self.get_argument('status'),
+                            'comments': self.get_argument('comments')}]
+            else:
+                entries = self.get_argument('entries')
+
+            for uentry in entries:
+                anime = self.db.query(Anime).filter_by(uid=int(uentry['anime_id'])).first()
+                score = round(float(uentry['score']), 2)
+                start_date = datetime.fromtimestamp(int(uentry['start_date']), pytz.UTC)
+                end_date = datetime.fromtimestamp(int(uentry['end_date']), pytz.UTC)
+                num_rewatches = int(uentry['num_rewatches'])
+                num_episodes = int(uentry['num_episodes'])
+                status = int(uentry['status'])
+                comments = uentry['comments']
+
+                if timegm(start_date.timetuple()) == 0:
+                    start_date = None
+
+                if timegm(end_date.timetuple()) == 0:
+                    end_date = None
+
+                entry = AnimeEntry(user_id=user.uid,
+                                   anime=anime,
+                                   score=score,
+                                   start_date=start_date,
+                                   end_date=end_date,
+                                   num_episodes=num_episodes,
+                                   num_rewatches=num_rewatches,
+                                   comments=comments,
+                                   status=status)
+
+                if anime.uid in our_ids:
+                    old_entry = self.db.query(AnimeEntry).filter_by(anime_id=anime.uid).first()
+                    entry.uid = old_entry.uid
+                    self.db.delete(old_entry)
+
+                self.db.add(entry)
+                self.db.commit()
+
+                self.write({'user_id': user.uid,
+                            'anime_id': anime.uid,
+                            'score': score,
+                            'start_date': timegm(start_date.timetuple()) if start_date else None,
+                            'end_date': timegm(end_date.timetuple()) if end_date else None,
+                            'num_episodes': num_episodes,
+                            'num_rewatches': num_rewatches,
+                            'comments': comments,
+                            'status': status})
+        except:
+            raise HTTPError(400)
+
+    def delete(self, username, item, json_out):
+        try:
+            user = self.db.query(User).filter_by(name=username.lower()).first()
+            if item:
+                entries = [self.db.query(AnimeEntry).filter_by(anime_id=int(item), user_id=user.uid).first()]
+                assert entries[0]
+        except:
+            raise HTTPError(404)
+
+        try:
+            real_username = self.get_secure_cookie('username').decode('utf-8')
+            assert real_username == username
+        except:
+            raise HTTPError(401)
+
+        try:
+            if not item:
+                entries = self.db.query(AnimeEntry).filter_by(user_id=user.uid)
+
+            for entry in entries:
+                self.db.delete(entry)
+
+            self.db.commit()
+        except:
+            raise HTTPError(400)

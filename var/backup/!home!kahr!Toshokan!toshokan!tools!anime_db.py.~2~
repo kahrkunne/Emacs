@@ -1,0 +1,221 @@
+"""Utilities for dealing with the anime database."""
+from dateutil.parser import parse as parse_date
+import json
+
+from config import db
+from debug import log
+
+from bs4 import BeautifulSoup
+from sqlalchemy import (create_engine, Column, Integer, String, Date, Sequence,)
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import (database_exists, create_database)
+from lxml import html as lh
+
+Base = declarative_base()
+
+class User(Base):
+    """A user entry."""
+    __tablename__ = 'users'
+
+    name = Column(String, unique=True, primary_key=True)
+    last_online = Column(Date)
+    gender = Column(Integer) # 0, 1, 2 for male/female/autism
+    birthday = Column(Date)
+    location = Column(String)
+    joined = Column(Date)
+    nposts = Column(Integer)
+    nreviews = Column(Integer)
+    nrecs = Column(Integer)
+    nbposts = Column(Integer)
+    nclubs = Column(Integer)
+
+class ListEntry(Base):
+    """An entry in an anime list."""
+    __tablename__ = 'list_entries'
+
+    uid = Column(Integer, Sequence('list_uid_seq'), primary_key=True)
+    user = Column(String)
+    title = Column(String)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+
+
+def generate_session(Table):
+    """Given a table class Table, return a database session."""
+    engine = create_engine('{}://{}:{}@{}/{}'.format(db['engine'], db['user'], db['password'],
+                                                     db['domain'], db['database']))
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    Table.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+def add_user(session, user_page, user_id='<UNKNOWN>'):
+    """Add a user to the database.
+    Takes a database session, a HTML MAL user page and optionally an identifier for the user."""
+    # Custom version of int() which treats None specially
+    def int_(a):
+        if a is None:
+            None
+        else:
+            int(a)
+
+    soup = BeautifulSoup(user_page, 'html.parser')
+
+    try:
+        name = soup.find("span", class_="di-ib po-r").text.split('\'')[0].strip().split(' ')[2][:-1]
+    except:
+        log('(anime_db.add_user) ERROR finding name for user: {}!'.format(user_id), 1)
+        return None
+
+    if session.query(User).filter_by(name=name).first():
+        log('(anime_db.add_user) NOTICE user exists in database: {}, SKIPPING!'.format(name), 4)
+        return None
+
+    left_titles = [x.text for x in soup.findAll("span", class_='user-status-title')]
+    left_data = [x.text for x in soup.findAll("span", class_='user-status-data')]
+    left_info = dict(zip(left_titles, left_data))
+    for s in ['Last Online', 'Gender', 'Birthday', 'Location', 'Joined',
+              'Forum Posts', 'Reviews', 'Recommendations', 'Blog Posts', 'Clubs']:
+        if s not in left_info:
+            left_info[s] = None
+
+    # Last online date. This will fail to parse if it's of the format "5 minutes ago" or similar.
+    try:
+        last_online = parse_date(left_info['Last Online'])
+    except:
+        log('(anime_db.add_user) ERROR could not determine last online date for user: {}'.format(name), 2)
+        last_online = None
+
+    # Gender. As of current, not sure why this would fail.
+    try:
+        gender = {'Male':0, 'Female':1, 'Non-Binary':2, None:None}[left_info['Gender']]
+    except:
+        log('(anime_db.add_user) ERROR could not determine gender of user: {}'.format(name), 1)
+        return None
+
+    # Birthday. Not sure why this would fail.
+    # XXX This looks horrible, but is actually correct; we don't want to log if the user has no birthday.
+    if left_info['Birthday']:
+        try:
+            birthday = parse_date(left_info['Birthday'])
+        except:
+            log('(anime_db.add_user) ERROR could not parse birthday of user: {}'.format(name), 2)
+            birthday = None
+    else:
+        birthday = None
+
+    location = left_info['Location']
+
+    if left_info['Joined']:
+        joined = parse_date(left_info['Joined'])
+    else:
+        joined = None
+
+    nposts = int_(left_info['Forum Posts'])
+    nreviews = int_(left_info['Reviews'])
+    nrecs = int_(left_info['Recommendations'])
+    nbposts = int_(left_info['Blog Posts'])
+    nclubs = int_(left_info['Clubs'])
+
+    user = User(name=name, last_online=last_online, gender=gender,
+                birthday=birthday, location=location, joined=joined,
+                nposts=nposts, nreviews=nreviews, nrecs=nrecs,
+                nbposts=nbposts, nclubs=nclubs)
+
+    # This function changes state of session;
+    # Remember, python is pass-by-reference!
+    session.add(user)
+
+    log('(anime_db.add_user) SUCCESS added user: {}'.format(name), 4)
+    return session
+
+def add_list(session, list_page, list_id='<UNKNOWN>'):
+    """Adds an anime list to the database."""
+    try:
+        page = lh.fromstring(list_page)
+        name = page.xpath("//title")[0].text.split("\'")[0][2:]
+    except:
+        log('(anime_db.add_list) ERROR reading list: {}'.format(list_id), 1)
+        return None
+
+    # Attempt new format list first
+    try:
+        raw_data = page.xpath("//table[@class='list-table']")[0].get('data-items').replace("\\\\", "\\")
+        log('(anime_db.add_list) NOTICE new format list: {}'.format(name), 4)
+        try:
+            data = json.loads(raw_data)
+        except:
+            log('(anime_db.add_list) ERROR failed to parse new format list: {}'.format(name), 1)
+            return None
+    except: # Old format list
+        log('(anime_db.add_list) NOTICE old format list: {}'.format(name), 4)
+        # XXX The following code is really ugly, but there's no obvious better way.
+        # XXX Father, please forgive me for these magic number array indices.
+        # Explanation of following variables:
+        # curstate: What table (Watching, Completed etc) we're currently in.
+        # prev_valid: Was the previous table a valid anime entry?
+        # len_invalid: Number of invalid tables we've encountered consecutively.
+        # entries: All anime entries so far.
+        # tables: all tables in the list page.
+        # cats: dictionary matching curstate numbers to categories (Watching, Completed etc)
+        curstate = 0
+        prev_valid = True
+        len_invalid = 0
+
+        entries = []
+
+        tables = page.xpath("//table")
+        cats = {0 : tables[2][0][0][0][0].text}
+        for t in tables[4:]: # First three tables are never anime entries
+            try:
+                title = t[0][1][1][0].text
+                prev_valid = True
+                len_invalid = 0
+
+                # Remove all whitespace and "\\n"
+                score = "".join(t[0][2].text.split()).replace("\\n","")
+                if cats[curstate] in ["Watching", "On-Hold", "Dropped", "Plan to Watch"]:
+                    # Of the format "8/12"; the 8 is its own seperate object.
+                    num_completed = t[0][4][0].text
+                else:
+                    # Just a single number, which parses with \\n and whitespaces
+                    num_completed = "".join(t[0][4].text.split()).replace("\\n","")
+
+                entries.append({'anime_title':title,
+                                'status':{'Watching':1,
+                                          'Completed':2,
+                                          'On-Hold':3,
+                                          'Dropped':4,
+                                          'Plan to Watch':6}[cats[curstate]],
+                                'score':score,
+                                'num_watched_episodes':num_completed})
+            except: # We hit an invalid table.
+                if prev_valid: curstate += 1 # Previous anime table has ended, so we're in the next anime table now.
+                if len_invalid == 1:
+                    # If this is the second invalid table, this one contains the name of the new anime table
+                    cats[curstate] = t[0][0][0][0].text
+                prev_valid = False
+                len_invalid += 1
+            # We've now processed the data to the same format as we would for a new style list.
+            data = entries
+
+    for anime in data:
+        title = anime['anime_title']
+        status = anime['status']
+        num_watched = anime['num_watched_episodes']
+        score = anime['score']
+        if score != int:
+            score = 0
+        # FIXME Not sure what would cause this; could be a bug!
+        if type(num_watched) != int:
+            num_watched = 0
+
+        entry = ListEntry(user=name, title=title, status=status,
+                          num_watched=num_watched, score=score)
+
+        # Changes state
+        session.add(entry)
+    return session

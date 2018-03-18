@@ -1,0 +1,283 @@
+#include <stdio.h>  /* getchar, printf */
+#include <stdlib.h> /* NULL, malloc, free */
+#include <string.h> /* strcpy */
+#include <ctype.h>  /* isspace, isdigit, isalpha, isalnum */
+#include <assert.h> /* assert */
+
+#define MAXIDENT 10
+#define MAXINPUT 100
+
+typedef enum TokenType {
+  Number,
+  Identifier,
+  Symbol
+} TokenType;
+
+typedef union Token {
+  int number;
+  char *identifier;
+  char symbol;
+} Token;
+
+typedef struct ListNode *List;
+
+typedef struct ListNode {
+  TokenType tt;
+  Token t;
+  List next;
+} ListNode;
+
+int matchNumber(char *ar, int *ip) {
+  int n = 0;
+  while (isdigit(ar[*ip])) {
+    n = 10*n + (ar[*ip] - '0');
+    (*ip)++;
+  }
+  return n;
+}
+
+char matchCharacter(char *ar, int *ip) {
+  char s = ar[*ip];
+  (*ip)++;
+  return s;
+}
+
+/* In matchIdentifier the length of the string is adapted whenver necessary, as in readInput.
+ */
+
+char *matchIdentifier(char *ar, int *ip) {
+  int j = 0;
+  int strLen = MAXIDENT;
+  char *s = malloc((strLen+1)*sizeof(char));
+  assert( s != NULL );
+  while (isalnum(ar[*ip+j])) {
+    s[j] = ar[*ip+j];
+    j++;
+    if ( j >= strLen ) { /* s is not large enough, its length is doubled */
+      strLen = 2*strLen;
+      s = realloc(s,(strLen+1)*sizeof(char));
+      assert( s != NULL );
+    }
+  }
+  s[j] = '\0';
+  *ip = *ip + j;
+  return s;
+}
+
+List newNode(char *ar, int *ip) { /* precondition: !isspace(a[*ip]) */
+  List node = malloc(sizeof(struct ListNode));
+  assert(node!=NULL);
+  node->next = NULL;
+  if (isdigit(ar[*ip])) {   /* we see a digit, so a number starts here */
+    node->tt = Number;
+    (node->t).number = matchNumber(ar,ip);
+    return node;
+  }
+  if (isalpha(ar[*ip])) { /* we see a letter, so an identifier starts here */
+    node->tt = Identifier;
+    (node->t).identifier = matchIdentifier(ar,ip);
+    return node;
+  }  /* no space, no number, no identifier: we call it a symbol */
+  node->tt = Symbol;
+  (node->t).symbol = matchCharacter(ar,ip);
+  return node;
+}
+
+
+char *readInput() {
+  int strLen = MAXINPUT;
+  int c = getchar();
+  int i = 0;
+  char *s = malloc((strLen+1)*sizeof(char));
+  assert( s != NULL );
+  while ( c != '\n' ) {
+    s[i] = c;
+    i++;
+    if ( i >= strLen ) { /* s is not large enough, its length is doubled */
+      strLen = 2*strLen;
+      s = realloc(s,(strLen+1)*sizeof(char));
+      assert( s != NULL );
+    }
+    c = getchar();
+  }
+  s[i] = '\0';
+  return s;
+}
+
+List tokenList(char *ar) {
+  List lastNode = NULL;
+  List node = NULL;
+  List tl = NULL;
+  int i = 0;
+	int length = strlen(ar);
+  while (i < length) {
+    if (isspace(ar[i])) {   /* spaces are skipped */
+      i++;
+    } else {
+      node = newNode(ar,&i);
+      if (lastNode == NULL) { /* there is no list yet */
+        tl = node;
+      } else {            /* there is already a list; add node at the end */
+        (lastNode)->next = node;
+      }
+      lastNode = node;
+    }
+  }
+  return tl;
+}
+
+int acceptNumber(List *lp) {
+  if (*lp != NULL && (*lp)->tt == Number && (*lp)->t.number >= 0) {
+    *lp = (*lp)->next;
+    return 1;
+  }
+  return 0;
+}
+
+int acceptIdentifier(List *lp) {
+  if (*lp != NULL && (*lp)->tt == Identifier ) {
+    *lp = (*lp)->next;
+    return 1;
+  }
+  return 0;
+}
+
+void freeTokenList(List li) {
+  if (li == NULL) {
+    return;
+  }
+  if (li->tt == Identifier) {
+    free((li->t).identifier);
+  }
+  freeTokenList(li->next);
+  free(li);
+}
+
+int acceptCharacter(List *lp, char c) {
+  if (*lp != NULL && (*lp)->tt == Symbol && ((*lp)->t).symbol == c ) {
+    *lp = (*lp)->next;
+    return 1;
+  }
+  return 0;
+}
+
+int acceptTerm(List *lp) {
+	if(acceptNumber(lp) || acceptIdentifier(lp)){
+		acceptIdentifier(lp); // For the case nat^ -> will do something iff nat identifier
+		if(acceptCharacter(lp, '^')){
+			return acceptNumber(lp);
+		}
+		return 1;
+	}
+	return 0;
+}
+
+int acceptExpression(List *lp) {
+  if ( !acceptTerm(lp) && !(acceptCharacter(lp, '-') && acceptTerm(lp))) {
+    return 0;
+  }
+  while ( acceptCharacter(lp,'+') || acceptCharacter(lp,'-') ) {
+    if ( !acceptTerm(lp) ) {
+      return 0;
+    }
+  } /* no + or -, so we reached the end of the expression */
+  return 1;
+}
+
+int inOneVariable(List li) {
+	char *firstIdentifier = NULL;
+
+	while(li != NULL){
+		if(li->tt == Identifier){
+			if(firstIdentifier == NULL){
+				firstIdentifier = (li->t).identifier;
+			} else if(firstIdentifier[0] != (li->t).identifier[0]){
+				return 0;
+			}
+		}
+		li = li->next;
+	}
+
+	if(firstIdentifier == NULL){
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+int degree(List li){
+	int degree = 0;
+	int tmp;
+
+	while(li != NULL){
+		if(li->tt == Identifier){
+			li = li->next;
+			tmp = 1;
+			if(acceptCharacter(&li,'^')){
+				tmp = li->t.number;
+			}
+			if(tmp > degree){
+				degree = tmp;
+			}
+		} else {
+			li = li->next;
+		}
+	}
+	if (degree == 0) {
+    return 1;
+	} else {
+	  return degree;
+	};
+}
+
+void printList(List li) {
+  while (li != NULL) {
+    switch (li->tt) {
+    case Number:
+      printf("%d ",(li->t).number);
+      break;
+    case Identifier:
+      printf("%s ",(li->t).identifier);
+      break;
+    case Symbol:
+      printf("%c ",(li->t).symbol);
+      break;
+    }
+    li = li->next;
+  }
+  printf("\n");
+}
+
+void recognizeEquation() {
+  char *ar;
+  List tl, tl1;
+  printf("give an equation: ");
+  ar = readInput();
+  while (ar[0] != '!') {
+    tl = tokenList(ar);
+    printList(tl);
+    tl1 = tl;
+
+    if ( acceptExpression(&tl1) && acceptCharacter(&tl1,'=') && acceptExpression(&tl1) && tl1 == NULL ) {
+      printf("this is an equation");
+      if(inOneVariable(tl)){
+        printf(" in 1 variable of degree %d\n", degree(tl));
+      } else {
+        printf(", but not in 1 variable\n");
+      }
+    } else {
+      printf("this is not an equation\n");
+    }
+    free(ar);
+    freeTokenList(tl);
+    printf("\ngive an equation: ");
+    ar = readInput();
+  }
+  free(ar);
+  printf("good bye\n");
+}
+
+int main(int argc, char *argv[]) {
+  recognizeEquation();
+  return 0;
+}

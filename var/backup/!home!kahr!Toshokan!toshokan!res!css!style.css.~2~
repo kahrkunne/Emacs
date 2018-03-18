@@ -1,0 +1,424 @@
+html {
+    display: table;
+    margin: auto;
+}
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 100%;
+    color: black;
+    background-color: #FFFFFF;
+    padding: 0;
+    display: table-cell;
+    vertical-align: middle;
+    width: 1050px;
+}
+div {
+    display: block;
+}
+.info {
+    left-padding: 10px;
+}
+.infobar {
+    margin:0;
+    padding:0;
+    display:flex;
+    justify-content: space-between;
+    color: #F3EFE0;
+    background-color: #deaded;
+    overflow: hidden;
+}
+.infobar span{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: block;
+    color: black;
+    text-decoration: none;
+    font-size: 20px;
+}
+.infobar span #left{
+    display: inline-block;
+}
+.infobar span #right{
+    display: inline-block;
+}
+.topnav {
+    background-color: #77b5fe;
+    overflow: hidden;
+}
+.topnav a {
+    float: left;
+    display: block;
+    color: #F3EFE0;
+    text-align: center;
+    padding: 10px 10px;
+    text-decoration: none;
+    font-size: 20 px;
+}
+.topnav a:hover {
+    background-color: #E6B6DB;
+    color: #7A7A7A;
+}
+.topnav a.active {
+    background-color: #95a5a6;
+    color: #34495e;
+}
+#details h2{
+    margin-top: 0px;
+    padding: 0px;
+    height: 1.2em;
+    border-bottom: 1px solid;
+    padding-bottom: 0px;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+.details-sub {
+    margin-top: 15px;
+}
+.content {
+    padding-left: 0%;
+    padding-right: 0%;
+    text-align: center;
+}
+.text-content {
+    float: left;
+    text-align: left;
+}
+.entrythumb {
+    float:left;
+}
+.entryinfo {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    clear: left;
+}
+.entryinfo span{
+    font-weight: bold;
+}
+.ptitle {
+    font-weight:bold;
+    font-size: 200%;
+}
+.container {
+    display: flex;
+    flex-direction: row;
+}
+div.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+div.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 6px 8px;
+    transition: 0.3s;
+}
+div.tab button:hover {
+    background-color: #ddd;
+}
+div.tab button.active {
+    background-color: #ccc;
+}
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    border: none;
+}
+.leftcol_title {
+    height: 1.6em;
+    border-colour: #bebebe;
+    border-style:solid;
+    border-width: 0 0 1px;
+    font-weight: 700;
+}
+.leftcol {
+    order: 1;
+    flex: 1;
+    flex-basis: auto;
+    min-height: 666px;
+    flex-grow: 0;
+    max-width: 240px;
+    font-size: 85%;
+}
+.rightcol {
+    order: 1;
+    flex: 5;
+}
+
+/*for search box*/
+
+.search-container{
+  width: 300px;
+  vertical-align: middle;
+  white-space: nowrap;
+  position: relative;
+}
+.search-container input#qbox{
+  width: 300px;
+  height: 50px;
+  background: #34495e;
+  border: none;
+  font-size: 10pt;
+  float: left;
+  color: #63717f;
+  padding-left: 45px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  
+  -webkit-transition: background .55s ease;
+  -moz-transition: background .55s ease;
+  -ms-transition: background .55s ease;
+  -o-transition: background .55s ease;
+  transition: background .55s ease;
+}
+
+.search-container .icon{
+  position: absolute;
+  top: 50%;
+  margin-left: 17px;
+  margin-top: 17px;
+  z-index: 1;
+  color: #4f5b66;
+}
+.box{
+  margin: 100px auto;
+  width: 300px;
+  height: 50px;
+  text-align: left;
+}
+
+.search-container input#qbox:hover, .search-container input#qbox:focus, .search-container input#qbox:active{
+    outline:none;
+    background: #ffffff;
+}
+
+/*search results*/
+.search-res a {
+    float: left;
+    text-decoration: none;
+    font-weight:900;
+    display: inline-block;
+    color: #2980b9;
+}
+.search-res a:visited{
+  color: #2980b9;
+}
+.search-res a:hover{
+  color: #00BCD4;
+}
+.search-res div{
+    float: left;
+}
+.search-res div i{
+    display: inline-block;
+    width: 20px;
+    margin-right: 0.25em;
+    text-align: center;
+}
+.search-res{
+    margin-bottom: 10px;
+    padding: 10px;
+    display:table-cell;
+    vertical-align:top;
+    width: 100%;
+    border-bottom: #7f8c8d 1px solid;
+
+}
+.result{
+    display:table;
+}
+.res-image{
+    display:table-cell;
+    width: 54px;
+}
+.res-image img{
+    width: 100px;
+}
+
+/* register BEGIN */
+h2.registerform{
+    text-align:center;
+}
+form.userform, ul.userform, li.userform, input.userform, label.userform {
+  box-sizing: border-box;
+}
+label.userform, input.userform {
+  display: block;
+}
+
+ul.userform {
+  background-color: #FFF;
+  border: 0px;
+  list-style-type: none;
+  margin: 3em auto;
+  margin-bottom:1em;
+  padding: 0;
+  max-width: 350px;
+}
+
+li.userform {
+  border-bottom: 1px solid #d7d7d7;
+  margin-top: -1px;
+  position: relative;
+}
+
+label.userform {
+  font-family: "Helvetica", "Helvetica Neue", "Arial", sans-serif;
+  font-size: 70%;
+  color: rgba(165, 165, 165, 0.88);
+  letter-spacing: 0.03em;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  text-transform: uppercase;
+}
+.active label.userform, input.userform:focus ~ label.userform {
+  color: #FFF;
+  font-weight: bold;
+  letter-spacing: -0.01em;
+}
+
+input.userform, input.userform:focus{
+  font-family: "Helvetica", "Helvetica Neue", "Arial", sans-serif;
+  box-sizing: border-box;
+  background-color: transparent;
+  border: none;
+  color: #626262;
+  font-size: 18px;
+  margin: 9px 0 7px 0;
+  margin: 0;
+  padding: 2em 10px 10px 10px;
+  outline: none;
+  width: 100%;
+}
+
+input.userform:focus {
+  color: #FFF;
+  background-color: #34495e;
+}
+
+label.userform, input.userform{
+  transition: color 0.4s ease, background-color 0.1s ease-in-out;
+}
+input.userform:-webkit-autofill{
+    -webkit-box-shadow: 0 0 0px 1000px #CCCCCC inset;
+}
+input.userform:-webkit-autofill ~ label.userform{
+    -webkit-box-shadow: 0 0 0px 1000px #CCCCCC inset;
+    color:#FFF;
+}
+input.button{
+    border: none;
+    margin:auto auto;
+    font-size:14px;
+    font-weight:bold;
+    width:200px;
+    height:34px;
+    color:#D7D7D7;
+    text-align:center;
+    vertical-align: middle;
+    display:block;
+    background-color:#e67e22;
+    text-decoration:none;
+    cursor:pointer;
+}
+input.button:hover, input.button:active, input.button:focus{
+	background-color: #34495e;
+	color: #FFF;
+}
+label.userform:hover{
+    color:#000;
+}
+h6.userform{
+    color:#A9A9A9;
+    text-align:center;
+}
+h6.userform a{
+    color:#A9A9A9;
+}
+.formtiptxt {outline:none;}
+.formtiptxt strong {line-height:30px;}
+a.formtiptxt:hover {cursor:pointer;} 
+.formtiptxt .formtip{
+    z-index:10;
+    display:none;
+    padding:14px 20px;
+    margin-top:-65px;
+    margin-left:350px;
+    max-width:300px;
+    min-width:250px;
+    line-height:16px;
+    cursor:auto;
+}
+.formtip:hover, .formtiptxt .userform:focus + .formtip{
+    display:inline;
+    position:absolute;
+    color:#111;
+    border:1px solid #DCA;
+    background:#fffAF0;
+}
+/*register END*/
+/*animelist BEGIN*/
+div.alrow{
+    font-size: 14px;
+    width:100%;
+    display:flex;
+    cursor:default;
+    color: #616266;
+    padding: 5px 5px 5px 15px;
+    margin: 0;
+    text-decoration: none;
+}
+div.alrow.clicked, div.alrow.clicked div a,
+div.alrow:hover, div.alrow:active, div.alrow:focus, div.alrow:hover div a, div.alrow:hover div{
+    background-color: #34495e;
+    color: #FFF;
+}
+div.alrow.clicked div a:hover{
+    color: #34495e;
+    background-color: #FFF;
+}
+div.albuttcol{
+    width: 10%;
+    float:right;
+}
+div.alrow div a{
+    width:100%;
+    background-color:#e67e22;
+    display:inline-block;
+    text-align:center;
+    text-decoration: none;
+    /*color: #616266;*/
+    color:#FFF;
+    margin: 0;
+}
+div.alheader{
+    font-size: 14px;
+    width:100%;
+    display:flex;
+    cursor:default;
+    color: #d7d7d7;
+    background-color:#e67e22;
+    padding: 5px 5px 5px 15px;
+    margin: 0;
+    text-decoration: none;
+    font-weight:bold;
+}
+div.alheader div a{
+    color: #d7d7d7;
+    text-decoration: none;
+}
+div.alheader div a:active,div.alheader div a:focus, div.alheader div a:hover,div.alheader div a:hover{
+    color: #34495e;
+    text-decoration: none;
+}
+/* animelist END */
+

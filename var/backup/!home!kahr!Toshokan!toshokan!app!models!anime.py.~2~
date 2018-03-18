@@ -1,0 +1,21 @@
+from sqlalchemy import (Column, Integer, String, Date)
+
+from . import modelfactory
+
+Base = modelfactory.Base
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Anime(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    num_episodes = Column(Integer)
+    kind = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+    source = Column(String)
+    duration = Column(Integer)
+    rating = Column(String)
+    season = Column(String)
+    timeslot = Column(String)

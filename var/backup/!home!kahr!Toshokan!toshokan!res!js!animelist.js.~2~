@@ -1,0 +1,273 @@
+Object.defineProperty(Array.prototype, 'stableSort', {
+    configurable: true,
+    writable: true,
+    value: function stableSort (compareFunction) {
+	'use strict'
+
+	var length = this.length
+	var entries = Array(length)
+	var index
+
+	// wrap values with initial indices
+	for (index = 0; index < length; index++) {
+	    entries[index] = [index, this[index]]
+	}
+
+	// sort with fallback based on initial indices
+	entries.sort(function (a, b) {
+	    var comparison = Number(this(a[1], b[1]))
+	    return comparison || a[0] - b[0]
+	}.bind(compareFunction))
+
+	// re-map original array to stable sorted values
+	for (index = 0; index < length; index++) {
+	    this[index] = entries[index][1]
+	}
+	
+	return this
+    }
+})
+
+function addAnimeEntry(data, successCallback, errorCallback){
+    $.ajax({
+	type: "PUT",
+	url: "/animelist/" + data['username'] + '/' + data['anime_id'],
+	data: {
+	    'username': data['username'],
+	    'score': data['score'],
+	    'start_date': data['start_date'],
+	    'end_date': data['end_date'],
+	    'num_episodes': data['num_episodes'],
+	    'num_rewatches': data['num_rewatches'],
+	    'status': data['status'],
+	    'comments': data['comments']
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getAnimeEntry(username, anime_id, callback){
+    $.ajax({
+	type: "GET",
+	url: "/animelist/" + username + "/" + anime_id + ".json",
+	success: callback
+    });
+}
+
+var currentSort = null;
+
+var reverse = false;
+
+function renderSection(title, alist, cat){
+    if (cat == "Completed"){
+	var plus = ''
+    } else {
+	var plus = '+'
+    }
+
+    var base = $('#animelist-section-template').html();
+    Mustache.parse(base);
+    var section = Mustache.render(base, {
+	title:title,
+	alist:alist,
+	plus:plus
+    });
+
+    $('#animelist').append(section);
+}
+
+var statusToText = {0: 'Plan To Watch',
+		    1: 'Completed',
+		    2: 'Watching',
+		    3: 'On Hold',
+		    4: 'Dropped'}
+
+var textToStatus = {}
+for (var key in statusToText){
+    textToStatus[statusToText[key]] = parseInt(key);
+}
+
+function renderAnimeList(sortkind, sort=true, noReverse=false){
+    if (!noReverse) {
+	if (currentSort == sortkind){
+	    reverse = !reverse;
+	} else {
+	    reverse = false;
+	}
+    }
+
+    $('#animelist').empty();
+
+    var order = [0, 2, 1, 3, 4]
+
+    for (var index in [0, 2, 1, 3, 4]){
+	var kind = order[index]
+	if(animelist[kind].length){
+	    if(sort){
+		sortAnimeList(sortkind, animelist[kind])
+		if (currentSort == sortkind && reverse){
+		    animelist[kind].reverse();
+		}
+	    }
+	    renderSection(statusToText[kind], animelist[kind], statusToText[kind]);
+	}
+    }
+
+
+    currentSort = sortkind;
+
+    $('.sort-progress').each(function(){$(this).click(function(){renderAnimeList('progress')})});
+    $('.sort-score').each(function(){$(this).click(function(){renderAnimeList('score')})});
+    $('.sort-type').each(function(){$(this).click(function(){renderAnimeList('type')})});
+    $('.sort-title').each(function(){$(this).click(function(){renderAnimeList('title')})});
+
+    for (var key1 in animelist){
+	for (var key2 in animelist[key1]){
+	    (function(key_a, key_b){
+		$('.plus1-' + animelist[key_a][key_b]['anime_id']).click(
+		    function(){
+			var entry = animelist[key_a][key_b]
+			entry['num_episodes'] += 1
+			if(entry['status'] == 0){
+			    entry['status'] = 2;
+			    animelist[2].push(entry);
+			    animelist[0].pop(entry);
+			}
+			if(entry['num_episodes'] == entry['total_episodes']){
+			    animelist[entry['status']].pop(entry);
+			    animelist[1].push(entry);
+			    entry['status'] = 1;
+			}
+			addAnimeEntry(entry);
+			renderAnimeList(sortkind, false);
+		    }
+		);
+
+		$('.edit-' + animelist[key_a][key_b]['anime_id']).click(
+		    function(){
+			$('#animelist-edit-save-button').off('click');
+			var timeOffset = new Date().getTimezoneOffset()*60*1000
+			var entry = animelist[key_a][key_b]
+			var start_date = new Date(entry['start_date']*1000 - timeOffset)
+			var end_date = new Date(entry['end_date']*1000 - timeOffset)
+
+			function format_date(date){
+			    if(date.getTime() == 0 - timeOffset){
+				return ''
+			    }
+
+			    return ("0" + date.getDate()).slice(-2) + "/" +
+				("0" + (date.getMonth() + 1)).slice(-2) + "/" +
+				date.getFullYear()
+			}
+
+			function stringToUnixUTC(dateStr) {
+			    var parts = dateStr.split("/");
+			    var date = new Date(parts[2], parts[1] - 1, parts[0])
+			    if(date == 'Invalid Date'){
+				return 0
+			    } else {
+				return (date.getTime() / 1000) + timeOffset
+			    }
+			}
+
+			function remove(array, element) {
+			    const index = array.indexOf(element);
+			    array.splice(index, 1);
+			}
+
+			
+			$('#animelist-edit-start-date').val(format_date(start_date));
+			$('#animelist-edit-end-date').val(format_date(end_date));
+			$('#animelist-edit-status').val(statusToText[entry['status']]);
+			$('#animelist-edit-num-episodes').val(entry['num_episodes']);
+			$('#animelist-edit-score').val(entry['score']);
+			$('#animelist-edit-num-rewatches').val(entry['num_rewatches']);
+			$('#animelist-edit-comments').val(entry['comments']);
+
+			$('#edit-modal').modal({backdrop: 'static'});
+
+			$('#animelist-edit-save-button').click(
+			    function(){
+				newEntry = Object.assign({}, entry)
+				newEntry['start_date'] = stringToUnixUTC($('#animelist-edit-start-date').val())
+				newEntry['end_date'] = stringToUnixUTC($('#animelist-edit-end-date').val())
+				newEntry['status'] = textToStatus[$('#animelist-edit-status').val()]
+				newEntry['num_episodes'] = parseInt($('#animelist-edit-num-episodes').val())
+				newEntry['score'] = parseInt($('#animelist-edit-score').val())
+				newEntry['num_rewatches'] = parseInt($('#animelist-edit-num-rewatches').val())
+				newEntry['comments'] = $('#animelist-edit-comments').val()
+
+				if(newEntry['status'] == textToStatus['Completed']){
+				    newEntry['num_episodes'] = newEntry['total_episodes']
+				}
+
+				addAnimeEntry(newEntry, function(){
+				    remove(animelist[entry['status']], entry);
+				    animelist[newEntry['status']].push(newEntry);
+				    renderAnimeList(sortkind, true, true);
+				    hideAlert();
+				    return
+				}, putAlert);
+				$('#edit-modal').modal('hide')
+				
+			    }
+			);
+		    }
+		);
+	    })(key1,key2);
+	}
+    }
+}
+
+function sortAnimeList(kind, animelist){
+    function compareScore(a, b){
+	return b['score'] - a['score']
+    }
+    function compareProgress(a, b){
+	return (b['num_episodes']/b['total_episodes']) - (a['num_episodes']/a['total_episodes']) 
+    }
+    function compareTitle(a, b){
+	return a['name'].localeCompare(b['name'])
+    }
+    function compareType(a, b){
+	return a['kind'].localeCompare(b['kind'])
+    }
+
+    if (kind == 'score'){
+	animelist.stableSort(compareScore);
+    } else if (kind == 'progress'){
+	animelist.stableSort(compareProgress);
+    } else if (kind == 'title'){
+	animelist.stableSort(compareTitle)
+    }  else if (kind == 'type'){
+	animelist.stableSort(compareType)
+    }
+}
+
+var datepickerSettings = {
+    format: 'dd/mm/yyyy',
+    autoclose: true,
+    disableTouchKeyboard: true,
+    endDate: new Date()
+}
+
+function setupAnimeListPage(sortkind){
+    if(animelist){
+	renderAnimeList(sortkind);
+    }
+    $('#animelist-edit-start-date').datepicker(datepickerSettings);
+    $('#animelist-edit-end-date').datepicker(datepickerSettings);
+    $('#alert-invalid-input-close-button').click(function(){
+	$('#animelist-alert-invalid-input').hide('fade')
+    });
+}
+
+function putAlert(){
+    $('#animelist-alert-invalid-input').show('fade')
+}
+
+function hideAlert(){
+    $('#animelist-alert-invalid-input').hide('fade')
+}

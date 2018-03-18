@@ -1,0 +1,113 @@
+#from .layout import layout
+
+#extends layout
+#def main
+
+<div class="row">
+    <div class="col-lg-3">
+	<div class="mangapage-leftcol infopage-col">
+	    <div class="entrythumb">
+		<img class="img-fluid" src="http://via.placeholder.com/1500x1500">
+	    </div>
+
+	    <div class="leftcol_info"><span>$anime.name</span></div>
+	    <br>
+	    <div class="leftcol_info"><span>Type: </span>$anime.kind<br></div>
+	    <div class="leftcol_info"><span>Status: </span>$anime.status<br></div>
+	    <div class="leftcol_info"><span>Episodes: </span>$anime.num_episodes<br></div>
+	    <div class="leftcol_info"><span>Season: </span>$anime.season<br></div>
+	    <div class="leftcol_info"><span>Studios: </span>${', '.join($studios)}<br></div>
+	    <div class="leftcol_info"><span>Studios: </span>${', '.join($genres)}<br></div>
+	    
+	    <div class="leftcol_info"><span>Score: </span>PLACEHOLDER<br></div>
+	    <div class="leftcol_info"><span>Members: </span>PLACEHOLDER<br></div>
+	</div>
+    </div>
+
+    <div class="col">
+	<div class="animepage-rightcol">
+	    <ul class="nav nav-pills">
+		<li class="nav-item">
+		    <a class="nav-link active" data-toggle="tab" role="tab" href="#description">Description</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#characters">Characters</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#people">Staff</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#info">Info</a>
+		</li>
+
+	    </ul>
+	    <div class="tab-content">
+		<div class="tab-pane active" id="description" role="tabpanel">
+		    $anime.description.replace("\n", "<br />")
+		</div>
+
+		<div class="tab-pane" id="characters" role="tabpanel">
+		    #for va in [x for x in $vas if x[3] == 'Japanese']:
+			<div class="anime-va-role">
+			    <div class="row">
+				<div class="col-1">
+				    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+				</div>
+				<div class="col-11">
+				    <a href="/character/$va[1].uid">$va[1].name</a><br>
+				    <a href="/person/$va[0].uid">$va[0].name</a>
+				</div>
+			    </div>
+			</div>
+		    #end for
+		</div>
+
+		<div class="tab-pane" id="people" role="tabpanel">
+		    #for person in $otherpeople:
+			<div class="anime-person">
+			    <div class="row">
+				<div class="col-1">
+				    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+				</div>
+				<div class="col-11">
+				    <a href="/person/$person[0].uid">$person[0].name</a><br>
+				    $person[1]
+				</div>
+			    </div>
+			</div>
+		    #end for
+		</div>
+
+		<div class="tab-pane" id="info" role="tabpanel">
+		    <span>Aired: </span>$anime.start_date to $anime.end_date<br>
+		    <span>Licensors: </span>${', '.join($licensors)}<br>
+		    <span>Ranked: </span>PLACEHOLDER<br>
+		    <span>Producers: </span>${', '.join($producers)}<br>
+		    <span>Other Names: </span><br>$anime.synonyms.replace(";", "<br />")<br>
+
+		    <br />
+		    <br />
+		    #for song in $songs:
+			$song[1]: $song[0].name
+			<br />
+		    #end for
+		    <br>
+
+		    <table class="table anime-rel table-sm borderless">
+			<tbody>
+			    #for k in $rel_names:
+				#if $rel_names[$k]:
+				    <tr>
+					<th><span>$k</span></td>
+					    <td>$rel_names[$k]<br></td>
+				    </tr>
+				#end if
+			    #end for
+			</tbody>
+		    </table>
+
+
+		</div>
+	    </div>
+	</div>
+#end def

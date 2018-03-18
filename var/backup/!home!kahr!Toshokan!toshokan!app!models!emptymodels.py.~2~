@@ -1,0 +1,21 @@
+from . import modelfactory
+
+Base = modelfactory.Base
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Genre(Base, metaclass=DiscreteModelFactory):
+    pass
+class Studio(Base, metaclass=DiscreteModelFactory):
+    pass
+class Producer(Base, metaclass=DiscreteModelFactory):
+    pass
+class Licensor(Base, metaclass=DiscreteModelFactory):
+    pass
+class Song(Base, metaclass=DiscreteModelFactory):
+    pass
+class VARole(Base, metaclass=DiscreteModelFactory):
+    pass
+class Serialization(Base, metaclass=DiscreteModelFactory):
+    pass
+class User(Base, metaclass=DiscreteModelFactory):
+    pass

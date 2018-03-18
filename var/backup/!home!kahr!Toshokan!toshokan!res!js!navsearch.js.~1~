@@ -1,0 +1,13 @@
+function display_results(res){
+    $('#results.div').remove();
+    results = JSON.parse(res)['response']
+    if (!results){return;}
+    for (result in results['docs']){
+	var title = entry['kind'];
+	$('#results').append(row);
+    }
+}
+function meme(){
+    var url = backend['solr_url']+'/select?wt=json&q='+$('#qbox')[0].value;
+    $.get(url, '', display_results)
+}

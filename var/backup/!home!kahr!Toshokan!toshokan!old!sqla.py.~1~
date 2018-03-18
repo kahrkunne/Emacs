@@ -1,0 +1,159 @@
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Date, Float
+from sqlalchemy import Sequence
+from sqlalchemy.orm import sessionmaker
+
+import pickle
+from lxml import objectify
+import datetime
+import random
+
+import itertools
+import operator
+Base = declarative_base()
+engine = create_engine('postgresql://@localhost:5432/toshokan', echo=True)
+Session = sessionmaker(bind=engine)
+
+class Anime(Base):
+    __tablename__ = 'anime'
+
+    uid = Column(Integer, Sequence('anime_id_seq'), primary_key=True)
+    mal_id = Column(Integer, unique=True)
+    title = Column(String)
+    title_eng = Column(String)
+    synonyms = Column(String)
+    episodes = Column(Integer)
+    mal_score = Column(Float)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    synopsis = Column(String)
+    special_tags = Column(String)
+
+    def __repr__(self):
+        return "<User(uid='%s', title='%s', mal_id='%s')>" % (self.uid, self.title, self.mal_id)
+
+Base.metadata.create_all(engine)
+session = Session()
+def most_common(L):
+  # get an iterable of (item, iterable) pairs
+  SL = sorted((x, i) for i, x in enumerate(L))
+  # print 'SL:', SL
+  groups = itertools.groupby(SL, key=operator.itemgetter(0))
+  # auxiliary function to get "quality" for an item
+  def _auxfun(g):
+    item, iterable = g
+    count = 0
+    min_index = len(L)
+    for _, where in iterable:
+      count += 1
+      min_index = min(min_index, where)
+    # print 'item %r, count %r, minind %r' % (item, count, min_index)
+    return count, -min_index
+  # pick the highest-count/earliest item
+  return max(groups, key=_auxfun)[0]
+
+def load_pick(path):
+    with open(path, "rb") as f:
+        anime_pickle = pickle.load(f)
+    errors = 0
+    random.shuffle(anime_pickle)
+    a_obj = []
+    c=0
+    for xml in anime_pickle:
+        for cxml in str(xml).split("<entry>")[1:]:
+            try:
+                c+=1
+                a_obj.append(objectify.fromstring('<ent>'+'<entry>'+cxml.replace("</anime>",'')+'</ent>'))
+            except:
+                errors += 1
+        print(errors)
+
+    uniq = set([str(x.entry.title) for x in a_obj])
+    print(c)
+    count = 0
+    duplis = 0
+    for anime in a_obj:
+
+        special_tags = ''
+
+        start_str = str(anime.entry.start_date)
+        end_str = str(anime.entry.end_date)
+
+        if start_str == '0000-00-00':
+            start = None #datetime.datetime.strptime('1933-01-30', "%Y-%m-%d").date()
+            special_tags += ' missing_start_date'
+        else:
+            try:
+                start = datetime.datetime.strptime(start_str, "%Y-%m-%d").date()
+            except:
+                year = start_str[:4]
+                if start_str[5:7] == '00':
+                    special_tags += ' missing_start_month'
+                    month =1
+                else:
+                    month = start_str[5:7]
+                if start_str[8:] == '00':
+                    special_tags += ' missing_start_day'
+                    day=1
+                else:
+                    day=start_str[8:]
+                start = datetime.date(year=int(year), month=int(month), day=int(day))
+
+        if end_str == '0000-00-00':
+            end = None #datetime.datetime.strptime('1933-01-30', "%Y-%m-%d").date()
+            special_tags += ' missing_end_date'
+        else:
+            try:
+                end = datetime.datetime.strptime(end_str, "%Y-%m-%d").date()
+            except:
+                year = end_str[:4]
+                if end_str[5:7] == '00':
+                    special_tags += ' missing_end_month'
+                    month =1
+                else:
+                    month = end_str[5:7]
+                if end_str[8:] == '00':
+                    special_tags += ' missing_end_day'
+                    day=1
+                else:
+                    day=end_str[8:]
+                end = datetime.date(year=int(year), month=int(month), day=int(day))
+
+        title_english = str(anime.entry.english).strip()
+        synonyms = str(anime.entry.synonyms).strip()
+        anime_parameters = {
+            'title':str(anime.entry.title),
+            'title_eng':str(title_english),
+            'mal_id':str(anime.entry.id),
+            'synonyms':str(synonyms),
+            'episodes':str(anime.entry.episodes),
+            'mal_score':str(anime.entry.score),
+            'a_type':str(anime.entry.type),
+            'status':str(anime.entry.status),
+            'start_date':start,
+            'end_date':end,
+            'synopsis':str(anime.entry.synopsis),
+            'special_tags' : special_tags
+            }
+        if session.query(Anime).filter_by(mal_id = int(anime.entry.id)).first() == None:
+            session.merge(Anime(**anime_parameters))
+            count +=1
+            session.commit()
+        else:
+            print("duplicate "+ str(anime.entry.id))
+            duplis +=1
+        #try:
+        #    session.merge(Anime(**anime_parameters))
+        #    count +=1
+        #    session.commit()
+        #except:
+        #    print("adding error!"+str(anime.entry.id))
+
+    print(session.query(Anime).first())
+    print("count "+str(count) +' '+ str(len(a_obj)) +' '+ str(len(anime_pickle))+' '+ str(errors))
+    print(duplis)
+    return uniq
+load_pick("final_dump")

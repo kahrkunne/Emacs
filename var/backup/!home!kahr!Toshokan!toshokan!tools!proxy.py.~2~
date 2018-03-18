@@ -1,0 +1,8 @@
+"""Tools for dealing with proxies."""
+import random
+
+from proxy_list import proxies
+
+def generate_proxy():
+    while True:
+        yield(random.choice(proxies))

@@ -1,0 +1,11 @@
+#include <stdio.h> 
+
+int main(int argc, char *argv[])
+{
+  int a, b;
+  for ((a = 5) && (b = 6); a < 10 && b < 10; (a++) && (b++)) {
+    printf("%d", a);
+    printf("%d", b);
+  }
+  return 0;
+}

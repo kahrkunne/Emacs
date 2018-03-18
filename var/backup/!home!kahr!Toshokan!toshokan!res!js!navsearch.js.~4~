@@ -1,0 +1,44 @@
+function display_navsearch_results(res){
+    $('.results').empty();
+    results = JSON.parse(res)['response']
+    if (!results){
+	return;
+    }
+
+    if(results['numFound'] == 0){
+	$('.results').append('<div class="nsearch-result">No results.</div>');
+    }
+
+    var base = $('#nsresult').html();
+    Mustache.parse(base);
+
+    for (result in results['docs']){
+	var entry = results['docs'][result]
+	console.log(entry)
+	var title = entry['title'];
+	var url = '/anime/'+entry['id']+'/'+slugify(entry['title']);
+	var row = Mustache.render(base, {
+	    url:url,
+	    title:title,
+	    image:"http://via.placeholder.com/40x40",
+	    info: [{'icon': backend['icons']['a_type'][entry['type']]},
+		   {'icon': backend['icons']['status'][entry['status']]},
+		   {'icon': backend['icons']['season'][entry['season']].split(' ')[0]}]
+	});
+	$('.results').append(row);
+    }
+}
+function search(){
+    var url = backend['solr_url']+'/select?wt=json&q='+$('#qbox')[0].value;
+    $.get(url, '', display_navsearch_results);
+}
+
+var timer;
+$(document).on('keyup', '#qbox', function(){
+    timer && clearTimeout(timer);
+    timer = setTimeout(search, 50);
+});
+$(document).on('click', '#qbox', function(){
+    timer && clearTimeout(timer);
+    timer = setTimeout(search, 10);
+});

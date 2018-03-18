@@ -1,0 +1,16 @@
+import pickle as p
+
+from cryptography.fernet import Fernet
+
+def load_conf(password):
+    f_key = password.encode()
+    crypt = Fernet(f_key)
+    with open("config.cf", 'rb') as f:
+        conf = p.loads(crypt.decrypt(f.read()))
+    return conf
+
+def save_conf(password, conf):
+    f_key = password.encode()
+    crypt = Fernet(f_key)
+    with open("config.cf", 'wb') as f:
+        f.write(crypt.encrypt(p.dumps(conf)))

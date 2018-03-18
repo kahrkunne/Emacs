@@ -1,0 +1,9 @@
+#!/usr/bin/python
+import sys
+
+from scipy.misc import imread
+from scipy.linalg import norm
+from scipy import sum, average
+
+f1, f2 = imread(sys.argv[1]), imread(sys.argv[2])
+diff = f1 - f2

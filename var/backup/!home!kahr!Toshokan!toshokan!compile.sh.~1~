@@ -1,0 +1,3 @@
+cd templates/
+cheetah compile *
+mv *.py ../app/pages/templates/

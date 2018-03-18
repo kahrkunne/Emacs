@@ -1,0 +1,63 @@
+import modelfactory
+
+from sqlalchemy import (Column, Integer, String, Date)
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Anime(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    num_episodes = Column(Integer)
+    kind = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+    source = Column(String)
+    duration = Column(Integer)
+    rating = Column(String)
+    season = Column(String)
+    timeslot = Column(String)
+
+class Manga(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    volumes = Column(Integer)
+    chapters = Column(Integer)
+    kind = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+
+class Genre(Base, metaclass=DiscreteModelFactory):
+    pass
+class Studio(Base, metaclass=DiscreteModelFactory):
+    pass
+class Producer(Base, metaclass=DiscreteModelFactory):
+    pass
+class Licensor(Base, metaclass=DiscreteModelFactory):
+    pass
+class Episode(Base, metaclass=DiscreteModelFactory):
+    number = Column(Integer)
+    airdate = Column(Date)
+    name_jp = Column(String)
+class Character(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer)
+class Song(Base, metaclass=DiscreteModelFactory):
+    pass
+class Person(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    given_name = Column(String)
+    family_name = Column(String)
+    birthday = Column(String)
+    alt_names = Column(String)
+    flags = Column(String)
+class VARole(Base, metaclass=DiscreteModelFactory):
+    pass
+class Serialization(Base, metaclass=DiscreteModelFactory):
+    pass
+
+class User(Base, metaclass=DiscreteModelFactory):
+    pass

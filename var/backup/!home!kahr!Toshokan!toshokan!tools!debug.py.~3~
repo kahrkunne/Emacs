@@ -1,0 +1,9 @@
+from config import log_level, log_file_p, log_file
+
+def log(message, level):
+    message = '[{}] {}'.format(level, message)
+    if level <= log_level:
+        print(message)
+        if log_file_p:
+            with open(log_file, 'a') as f:
+                f.write(message)

@@ -1,0 +1,11 @@
+from .company import Base, Column, Integer, Sequence, String
+
+class Company(Base):
+    __tablename__ = 'tshk_company'
+    uid = Column(Integer, Sequence('company_id_seq'), primary_key=True)
+
+    name = Column(String)
+    description = Column(String)
+
+    def __repr__(self):
+        return "<Company(uid={}, name={})>".format(self.uid, self.name)

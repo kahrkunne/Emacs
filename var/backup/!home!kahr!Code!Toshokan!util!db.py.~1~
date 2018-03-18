@@ -1,0 +1,95 @@
+from dateutil.parser import parse as parse_date
+import json
+import datetime
+
+from config import db
+from debug import log
+
+from bs4 import BeautifulSoup
+from sqlalchemy import (create_engine, Column, Integer, String, Date, Sequence, Float, DateTime, Index, ForeignKey)
+from sqlalchemy.sql import func
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import (database_exists, create_database)
+from lxml import html as lh
+
+Base = declarative_base()
+
+class User(Base):
+    """A user entry."""
+    __tablename__ = 'users'
+
+    uid = Column(Integer, Sequence('user_id_seq'), primary_key=True, autoincrement=True)
+    name = Column(String, unique=True)
+
+    joined = Column(DateTime(timezone=True), default=func.now())
+    animelist = relationship("AnimeEntry", backref="user")
+
+    def __repr__(self):
+        return "<User(uid='%s', name='%s')>" % (self.uid, self.name)
+
+class Anime(Base):
+    """An anime."""
+    __tablename__ = 'anime'
+
+    uid = Column(Integer, Sequence('anime_id_seq'), primary_key=True)
+    mal_id = Column(Integer, unique=True)
+    title = Column(String)
+    title_eng = Column(String)
+    synonyms = Column(String)
+    episodes = Column(Integer)
+    mal_score = Column(Float)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    synopsis = Column(String)
+    flags = Column(String)
+    # TODO producers licensors studios source genres duration rating season synonyms ops eds rel_anime
+    def __repr__(self):
+        return "<Anime(uid='%s', title='%s')>" % (self.uid, self.title)
+
+class ProducerEntry(Base):
+    """A producer entry, which matches a producer to an anime."""
+    __tablename__ = 'producer_entries'
+
+    uid = Column(Integer, Sequence('prodentry_id_seq'), primary_key=True)
+    anime_id = Column(Integer, ForeignKey("anime.uid"),nullable=False)
+    producer_id = Column(Integer, ForeignKey("producer.uid"), nullable=False)
+
+    def __repr__(self):
+        return "<ProducerEntry(uid='%s', anime_id='%s', producer_id='%s')" % (self.uid, self.anime_id, self.producer_id)
+    
+class Producer(Base):
+    """An anime producer"""
+    uid = Column(Integer, Sequence('prod_id_seq'), primary_key=True)
+    name = Column(String)
+
+class AnimeEntry(Base):
+    """An entry in an anime list."""
+    __tablename__ = 'list_entries_anime'
+
+    uid = Column(Integer, Sequence('anime_list_entry_id_seq'), primary_key=True, autoincrement=True)
+    anime_id = Column(Integer, ForeignKey("anime.uid"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.uid"), nullable=False)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+    added = Column(DateTime(timezone=True), default=func.now())
+
+    def __repr__(self):
+        return "<AnimeEntry(uid='%s', title='%s', user='%s')>" % (self.uid, self.anime_id, self.user_id)
+
+Index('anime_entry_qualifier', AnimeEntry.user_id, AnimeEntry.anime_id)
+
+
+def generate_session(Table):
+    """Given a table class Table, return a database session."""
+    engine = create_engine('{}://{}:{}@{}/{}'.format(db['engine'], db['user'], db['password'],
+                                                     db['domain'], db['database']))
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    Table.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+

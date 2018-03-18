@@ -1,0 +1,19 @@
+import pysolr
+import tornado
+
+import json
+
+from . import Page
+from ..models import Anime
+
+from .templates.search import search
+
+class Search(Page):
+    template = search
+    @tornado.web.addslash
+    def get(self):
+        solr = pysolr.Solr(self.conf['solr']['url'], timeout=10)
+        self.t.query = self.get_argument('q',default=None)
+        self.t.results = solr.search(self.t.query) if self.t.query else None
+        self.t.backend["solr_url"] = self.conf['solr']['url']
+        self.write(self.render())

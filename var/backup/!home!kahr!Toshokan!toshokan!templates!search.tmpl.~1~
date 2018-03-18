@@ -1,0 +1,90 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def main
+<script src="/static/js/mustache.min.js"> </script>
+<script src="/static/js/instants.js"></script>
+<script id="iresult" type="x-tmpl-mustache" language="text">
+    <div class="result">
+        <div class="res-image"><img src="{{image}}"></div>
+        <div class="search-res">
+            <a href="{{url}}">{{title}}</a>
+            <br>
+            <br>
+            <div title="{{status}}">
+                <i class="fa {{status_icon}}"></i> {{status}}
+            </div>
+            <br>
+            <div title="{{type}}">
+                <i class="fa {{type_icon}}"></i> {{type}}
+            </div>
+            <br>
+            <div title="Episodes">
+                <i class="fa fa-play"></i> {{episodes}}
+            </div>
+            <br>
+            <div title="{{season}}">
+                <i class="fa {{season_icon}}"></i> {{year}}
+            </div>
+        </div>
+    </div>
+</script>
+<h1>Search</h1>
+
+<form method="get" action="/search/">
+    <div class="box">
+        <div class="search-container">
+            <span class="icon"><i class="fa fa-search"></i></span>
+            <input id="qbox" autocomplete="off" name="q" type="search" value="$query" placeholder="Search...">
+        </div>
+    </div>
+</form>
+#if $results:
+    <h1>Results</h1>
+    <article id="results">
+        #for result in $results
+            <div class="result">
+                <div class="res-image"><img src="/static/img/placeholder.jpg"></div>
+                <div class="search-res">
+                    <a href="$url('anime', $result.id, $slug($result.title))">$result.title</a>
+                    <br>
+                    <br>
+                    <div title="$result.status">
+                        <i class="fa $air_status_icons[$result.status]"></i> $result.status
+                    </div>
+                    <br>
+                    <div title="$result.type">
+                        <i class="fa $a_type_icons[$result.type]"></i> $result.type
+                    </div>
+                    <br>
+                    <div title="Episodes">
+                        <i class="fa fa-play"></i> $result.episodes
+                    </div>
+                    <br>
+                    #if $result.get("start_date"):
+                        #set $year = $result.start_date[0:4]
+                        #set $month = $int($result.start_date[5:7])
+                        #if $result.get('flags') and "missing_start_month" in $result.flags:
+                            #set $month = 0
+                        #end if
+                    #else:
+                        #set $year = "Unknown"
+                        #set $month = 0
+                    #end if
+                    
+                    #set $season = $get_season($month)
+                    <div title="$season">
+                        <i class="fa $season_icons[$season]"></i>
+                        $year
+                    </div>
+                </div>
+            </div>
+        #end for
+    </article>
+#else:
+    <h1>Results</h1>
+    <article id="results"></article>
+#end if
+#end def

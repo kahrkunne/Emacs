@@ -1,0 +1,37 @@
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey
+
+from .model import Base, Column, String, Integer, Sequence, Boolean
+
+class Image(Base):
+    __tablename__ = 'tshk_image'
+    uid = Column(Integer, Sequence('tshk_img_id_seq'), primary_key=True)
+    image = Column(String)
+    main = Column(Boolean)
+
+    anime_id = Column(Integer, ForeignKey('tshk_anime.uid'))
+    anime = relationship('Anime', foreign_keys=[anime_id], lazy='joined')
+
+    manga_id = Column(Integer, ForeignKey('tshk_manga.uid'))
+    manga = relationship('Manga', foreign_keys=[manga_id], lazy='joined')
+
+    character_id = Column(Integer, ForeignKey('tshk_character.uid'))
+    character = relationship('Character', foreign_keys=[character_id], lazy='joined')
+
+    person_id = Column(Integer, ForeignKey('tshk_person.uid'))
+    person = relationship('Person', foreign_keys=[person_id], lazy='joined')
+
+    episode_id = Column(Integer, ForeignKey('tshk_episode.uid'))
+    episode = relationship('Episode', foreign_keys=[episode_id], lazy='joined')
+
+    genre_id = Column(Integer, ForeignKey('tshk_genre.uid'))
+    genre = relationship('Genre', foreign_keys=[genre_id], lazy='joined')
+
+    song_id = Column(Integer, ForeignKey('tshk_song.uid'))
+    song = relationship('Song', foreign_keys=[song_id], lazy='joined')
+
+    company_id = Column(Integer, ForeignKey('tshk_company.uid'))
+    company = relationship('Company', foreign_keys=[company_id], lazy='joined')
+
+    user_id = Column(Integer, ForeignKey('tshk_user.uid'))
+    user = relationship('User', foreign_keys=[user_id], lazy='joined')

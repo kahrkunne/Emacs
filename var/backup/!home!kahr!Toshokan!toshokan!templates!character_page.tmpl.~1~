@@ -1,0 +1,8 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def leftcol_info
+<div class="leftcol_info"><span>$person.name</span></div>
+
+#end def

@@ -1,0 +1,62 @@
+#!/usr/bin/python
+"""Library for downloading, processing and importing MAL data"""
+from urllib import request
+import pickle
+from debug import log
+import os
+from bs4 import BeautifulSoup
+
+def fetch_anime_page(ai, proxy=None):
+    def find_leftbox(soup, txt):
+        """Find the data in the left area of the MAL page"""
+        try:
+            # XXX Hard to understand.
+            text = [a for a in soup.findAll('span') if a.text == (txt + ':')][0].parent.text.split("\n")[2]
+            final = [a.strip() for a in text.split(',')]
+            return(final)
+        # FIXME Bare except.
+        except:
+            return([])
+
+    log(4, 'I', "Fetching anime page for ID: {}".format(ai))
+    url = "https://myanimelist.net/anime/{}".format(ai)
+
+    req = request.Request(url)
+    req.set_proxy(proxy, 'http')
+    with request.urlopen(req) as r:
+        html = r.read()
+    soup = BeautifulSoup(html, 'html.parser')
+
+    entry = {}
+    entry['mal_id'] = ai
+    try:
+        entry['image_link'] = soup.find('img', class_='ac')['src']
+    # XXX Not sure why this is a TypeError.
+    except TypeError:
+        entry['image_link'] = ''
+    entry['producers'] = find_leftbox(soup, "Producers")
+    entry['licensors'] = find_leftbox(soup, "Licensors")
+    entry['studios'] = find_leftbox(soup, "Studios")
+    entry['source'] = find_leftbox(soup, "Source")
+    entry['genres'] = find_leftbox(soup, "Genres")
+    entry['duration'] = find_leftbox(soup, "Duration")
+    entry['rating'] = find_leftbox(soup, "Rating")
+    entry['season'] = find_leftbox(soup, "Premiered")
+    entry['synopsis'] = soup.find("span", itemprop="description").text
+    entry['synonyms'] = [x.text.strip() for x in soup.findAll("div", class_='spaceit_pad')
+                         if x.find("span", class_="dark_text")]
+
+    try:
+        # Of form [relation:, show1,show2..., relation:, show1,show2...]
+        l = soup.find('table', class_='anime_detail_related_anime').findAll('td', class_='borderClass')
+        rel_anime = {}
+        for x in range(0,len(l),2):
+            rel_anime[l[x].text[:-1]] = l[x + 1].text.split(',')
+        entry['rel_anime'] = rel_anime
+    # XXX Don't remember what causes this exception.
+    except AttributeError:
+        entry['rel_anime'] = {}
+    eds = soup.find('div', class_='theme-songs js-theme-songs ending').findAll('span')
+    entry['ed'] = [ed.text for ed in eds]
+    ops = soup.find('div', class_='theme-songs js-theme-songs opnening').findAll('span')
+    entry['op'] = [op.text for op in ops]

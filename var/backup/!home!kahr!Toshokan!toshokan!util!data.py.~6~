@@ -1,0 +1,630 @@
+#!/usr/bin/python
+"""Library for downloading, processing and importing MAL data"""
+import json
+import sys
+import functools
+import untangle
+from urllib.parse import urlsplit, urlunsplit, quote
+import sys
+sys.path.append('../app')
+from urllib import request
+import pickle
+import debug
+from debug import log
+import os
+from bs4 import BeautifulSoup
+from models import Anime, Person, Character, Genre, Manga, Company, Song, link, OldAnimeEntry, Image
+from datetime import datetime
+from sqlalchemy import (Column, Integer, String, Sequence, ForeignKey)
+from sqlalchemy.orm import relationship
+import parsedatetime as pdt
+import re
+from pytimeparse.timeparse import timeparse
+from tornado.httpclient import AsyncHTTPClient
+import tornado
+from proxy import generate_proxy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from lxml import html as lh
+import pickle
+
+proxies = generate_proxy()
+
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+http_client = AsyncHTTPClient()
+http_client.max_clients = 10
+http_client.request_timeout = 5
+
+io_loop = tornado.ioloop.IOLoop.current()
+io_loop.handle_callback_exception = lambda *args: None
+
+sys.path.append('..')
+
+debug.log_level = 3
+calendar = pdt.Calendar()
+
+if 'failed_pages' not in globals():
+    failed_pages = []
+
+def find_by_mal_id(session, cls, mal_id):
+    return session.query(cls).filter_by(mal_id=mal_id).first()
+
+try:
+    if not globals()['anime_id_dict']:
+        anime_id_dict = {}
+except:
+    anime_id_dict = {}
+
+try:
+    if not globals()['user_id_dict']:
+        user_id_dict = {}
+except:
+    user_id_dict = {}
+
+
+def setup_user_id_dict():
+    for x in range(4):
+        user_id_dict[x] = uname_from_mal_id(x)
+
+def setup_anime_id_dict(session):
+    for i in range(40000):
+        try:
+            anime_id_dict[i] = find_by_mal_id(session, Anime, i).uid
+        except:
+            anime_id_dict[i] = None
+
+def find_leftbox(soup, txt):
+    """Find the data in the left area of the MAL page"""
+    try:
+        # XXX Hard to understand.
+        text = [a for a in soup.findAll('span') if a.text == (txt + ':')][0].parent.text
+        k = [b.strip().split(',') for b in text.split(':')][1]
+        #final = [a.strip() for a in [b.split(',') for b in text.split('\n')][2]]
+        return(k)
+    # FIXME Bare except.
+    except:
+        return([])
+
+def fetch_page(uid, kind, proxy=None, extra=''):
+    log(4, 'I', "Fetching {} page for ID: {}".format(kind, uid))
+    url = "https://myanimelist.net/{}/{}/{}".format(kind, uid, extra)
+
+    req = request.Request(url)
+    if proxy:
+        req.set_proxy(proxy, 'http')
+    with request.urlopen(req) as r:
+        html = r.read()
+
+    soup = BeautifulSoup(html, 'html.parser')
+    return soup
+
+def uname_from_mal_id(mid):
+    try:
+        url = "https://myanimelist.net/comments.php?id={}".format(mid)
+        req = request.Request(url)
+        with request.urlopen(req) as r:
+            html = r.read()
+
+        name = lh.fromstring(html).find(".//title").text.strip().split(' ')[0].split("'")[0]
+        return name
+    except:
+        return None
+
+def fetch_anime(uid, proxy=None):
+    # TODO: error handling, everything else seems to be in order.
+    a = Anime()
+
+    soup = fetch_page(uid, 'anime', proxy)
+
+    a.mal_id = uid
+    aired = ' '.join(find_leftbox(soup, "Aired")).split(' to ')
+    a.start_date = calendar.parseDT(aired[0], sourceTime=datetime.min)[0]
+    try:
+        a.end_date = calendar.parseDT(aired[1], sourceTime=datetime.min)[0]
+    except:
+        a.end_date = None
+
+    timeslot = find_leftbox(soup, "Broadcast")
+    num_episodes = find_leftbox(soup, "Episodes")
+    kind = find_leftbox(soup, "Type")
+    status = find_leftbox(soup, "Status")
+
+    source = find_leftbox(soup, "Source")
+    duration = find_leftbox(soup, "Duration")
+    rating = find_leftbox(soup, "Rating")
+    season = find_leftbox(soup, "Premiered")
+
+    a.timeslot = timeslot[0] if timeslot else None
+    a.kind = kind[0] if kind else None
+    a.status = status[0] if status else None
+    a.num_episodes = int(num_episodes[0]) if num_episodes and num_episodes[0] != 'Unknown' else None
+    a.source = source[0] if source else None
+    a.duration = timeparse(duration[0].replace('.','').replace('per ep','')) if duration else None
+    a.rating = rating[0] if rating else None
+    a.season = season[0] if season else None
+
+    desc = soup.find("span", itemprop="description")
+    a.description = desc.text if desc else None
+    a.synonyms = ';'.join([x.text.strip() for x in soup.findAll("div", class_='spaceit_pad')
+                           if x.find("span", class_="dark_text")])
+    a.name = soup.find('span', itemprop='name').text
+
+    return a
+
+def fetch_person(uid, proxy=None):
+    p = Person()
+    p.flags = ''
+
+    soup = fetch_page(uid, 'people', proxy)
+
+    desc = [x for x in soup.find('td', width='225', class_='borderClass').text.split('\n') if x][2:]
+
+    family_name = None
+    given_name = None
+    names = None
+
+    for thing in desc:
+        # Yes, this is horrible. Bite me.
+        if 'Given name' in thing:
+            given_name = thing.split(':')[1].strip()
+        if 'Family name' in thing:
+            family_name = thing.split('Family name: ')[1].split('Alternate')[0].split('Birthday')[0].split('Website')[0].split('Member')[0].split('More')[0]
+        if 'Birthday' in thing:
+            tmp_thing = re.sub(r'.*Birthday', 'Birthday', thing)
+            birthday = tmp_thing.split('Website')[0].split('Member')[0].split('More')[0]
+        if 'Alternate names' in thing:
+            names = re.sub(r'.*Alternate names: ', '', thing)
+            names = names.split('Birthday')[0].split('Website')[0].split('Member')[0].split('More')[0]
+
+    p.mal_id = uid
+
+    p.name = soup.find('h1', class_='h1').text
+    p.description = soup.find('div', class_='people-informantion-more js-people-informantion-more').text
+    p.given_name = given_name
+    p.family_name = family_name
+    p.alt_names = names
+
+    if birthday == 'Unknown':
+        p.birthday = None
+    else:
+        nbirthday = calendar.parseDT(birthday, sourceTime=datetime.min)[0]
+        p.birthday = nbirthday
+        f = 'birthday:'
+        if nbirthday.year == 1:
+            f += '0'
+        else:
+            f += '1'
+
+        if nbirthday.month == 1 and 'Jan' not in birthday:
+            f += '0'
+        else:
+            f += '1'
+
+        if nbirthday.day == 1 and birthday[0] != 1:
+            f += '0'
+        else:
+            f += '1'
+            p.flags += f + ';'
+
+    if not p.flags:
+        p.flags = None
+    return p
+
+def fetch_character(uid, proxy=None):
+    c = Character()
+    soup = fetch_page(uid, 'character', proxy)
+
+    if soup.findAll('div', class_='badresult'):
+        # Invalid uid
+        return
+
+    # Kill myself
+    d = soup.findAll('td', valign='top', style='padding-left: 5px;')[0]
+    spoilers = [x.text for x in d.findAll('div', class_='spoiler')]
+    description = '\n'.join(d.text.split('\n')[14:])
+    header = soup.findAll('div', class_='normal_header', style='height: 15px;')[0].text
+    description = str(description.split(header)[1].split('Voice')[0])
+    for s in spoilers:
+        description = description.replace(s, '[spoiler]{}[/spoiler]'.format(s))
+        description = description.replace('\r', '')
+
+    c.description = description
+    c.name = re.sub(' +', ' ', soup.find('h1', class_='h1').text.strip())
+    c.mal_id = uid
+    return c
+
+def fetch_manga(uid, proxy=None):
+    m = Manga()
+    m.flags = ''
+    soup = fetch_page(uid, 'manga', proxy)
+
+    kind = find_leftbox(soup, "Type")
+    volumes = find_leftbox(soup, 'Volumes')
+    chapters = find_leftbox(soup, 'Chapters')
+    published = find_leftbox(soup, "Published")
+    published = ''.join(published).replace('  ', ' ').split(' to ') if published else None
+    description = soup.find("span", itemprop="description")
+    synonyms = soup.findAll("div", class_='spaceit_pad')
+
+    m.kind = kind[0] if kind else None
+    try:
+        m.volumes = int(volumes[0]) if volumes else None
+    except:
+        m.volumes = None
+
+    try:
+        m.chapters = int(chapters[0]) if chapters else None
+    except:
+        m.chapters = None
+
+    try:
+        m.start_date = calendar.parseDT(published[0], sourceTime=datetime.min)[0]
+        if m.start_date.year == 1:
+            m.start_date = m.start_date.replace(year=int(published[0]))
+            m.flags += 'start_date:100;'
+    except:
+        if published and published[0] != '?' and published[0] != 'Not available':
+            log(2, 'E', 'Unparseable start date: "{}", for manga {}'.format(published[0], uid))
+            m.start_date = None
+
+    try:
+        m.end_date = calendar.parseDT(published[1], sourceTime=datetime.min)[0]
+        if m.end_date.year == 1:
+            m.end_date = m.end_date.replace(year=int(published[1]))
+            m.flags += 'end_date:100;'
+    except:
+        if len(published) >= 2 and published[1] != '?':
+            log(0, 'E', 'Unparseable end date: "{}", for manga {}'.format(published[1], uid))
+            m.end_date = None
+
+    m.description = description.text if description else None
+    m.synonyms = ';'.join([x.text.strip() for x in synonyms
+                           if x.find("span", class_="dark_text")]) if synonyms else None
+    m.name = soup.find('span', itemprop='name').text
+
+    m.mal_id = uid
+
+    if not m.flags:
+        m.flags = None
+
+    return m
+
+
+def iri2uri(iri):
+    """
+    Convert an IRI to a URI (Python 3).
+    """
+    uri = ''
+    if isinstance(iri, str):
+        (scheme, netloc, path, query, fragment) = urlsplit(iri)
+        scheme = quote(scheme)
+        netloc = netloc.encode('idna').decode('utf-8')
+        path = quote(path)
+        query = quote(query)
+        fragment = quote(fragment)
+        uri = urlunsplit((scheme, netloc, path, query, fragment))
+
+    return uri
+
+def link_page(uid, session, kind, proxy=None):
+
+    if kind == 'anime':
+        uscls = Anime
+    else:
+        uscls = Manga
+
+    soup = fetch_page(uid, kind, proxy)
+    us = find_by_mal_id(session, uscls, uid)
+    if not us:
+        failed_pages.append(uid)
+        log(2, 'E', 'Failed to link {} uid {}: {} not in our database!'.format(kind, uid, kind))
+        return
+
+    # "pc" for person/character, which is the part that starts here
+    pc_link = 'https://myanimelist.net' + [x for x in soup.findAll('a')
+                                           if x.text == 'More characters'][0]['href']
+    pc_link = iri2uri(pc_link)
+    pc_req = request.Request(pc_link)
+    if proxy:
+        pc_req.set_proxy(proxy, 'http')
+    with request.urlopen(pc_req) as r:
+        pc_html = r.read()
+
+    pc_soup = BeautifulSoup(pc_html, 'html.parser')
+
+    if kind == 'manga':
+        pc_units = pc_soup.findAll('table', border='0', cellpadding='0', cellspacing='0', width='100%')[1:]
+    else:
+        pc_units = pc_soup.findAll('table', border='0', cellpadding='0', cellspacing='0', width='100%')[2:]
+
+    our_field = '{}_id'.format(kind)
+    our_desc = '{}_desc'.format(kind)
+    for pc_unit in pc_units:
+        info = [x for x in pc_unit.text.split('\n') if x]
+        if len(info) >= 4:
+            char_label = info[1]
+            links = pc_unit.findAll('a')
+            character_id = int([x for x in links if 'character' in x['href']][0]['href'].split('/')[4])
+            character = find_by_mal_id(session, Character, character_id)
+            person_ids = [int(x['href'].split('/')[4]) for x in links if 'people' in x['href']]
+            newpids = []
+            for pid in person_ids:
+                if pid not in newpids:
+                    newpids.append(pid)
+            for pid in newpids:
+                info = info[2:]
+                person = find_by_mal_id(session, Person, pid)
+                if not character or not person:
+                    failed_pages.append(uid)
+                    if not character:
+                        log(2, 'E', 'Failed to link {} uid {}: character {} not in our database!'.format(kind, uid, character_id))
+                    else:
+                        log(2, 'E', 'Failed to link {} uid {}: person {} not in our database!'.format(kind, uid, pid))
+                    return
+
+                link(session, [(our_field, us.uid), ('character_id', character.uid), ('person_id', person.uid),
+                               (our_desc, char_label), ('character_desc', char_label), ('person_desc', info[1]),
+                               ('main_kind', kind), ('main_id', us.uid)])
+        elif '/people/' in pc_unit.findAll('a')[1]['href']:
+            if not info:
+                info = [None, None]
+                person = find_by_mal_id(session, Person, int(pc_unit.findAll('a')[1]['href'].split('/')[4]))
+            if not person:
+                failed_pages.append(uid)
+                log(2, 'E', 'Failed to link {} uid {}: person {} not in our db!'.format(kind, uid, pc_unit.findAll('a')[1]['href'].split('/')[4]))
+                return
+            link(session, [(our_field, us.uid), ('person_id', person.uid), (our_desc, info[1]), ('person_desc', info[1]),
+                           ('main_kind', kind), ('main_id', us.uid)])
+        else:
+            if not info:
+                info = [None, None]
+                character = find_by_mal_id(session, Character, int(pc_unit.findAll('a')[1]['href'].split('/')[4]))
+            if not character:
+                failed_pages.append(uid)
+                log(2, 'E', 'Failed to link {} uid {}: character {} not in our db!'.format(kind, uid, pc_unit.findAll('a')[1]['href'].split('/')[4]))
+                return
+            link(session, [(our_field, us.uid), ('character_id', character.uid),
+                           (our_desc, info[1]), ('character_desc', info[1]), ('main_kind', kind), ('main_id', us.uid)])
+
+    # OP(s) and ED(s)
+    songs = soup.findAll('div', class_='di-tc va-t ')
+    for x in range(len(songs)):
+        raw = songs[x]
+        nsongs = raw.text.strip().split('\n')[3].split('#')
+        for song in nsongs:
+            if song:
+                try:
+                    split = song.split(': ')
+                    if len(split) != 2:
+                        raise
+                    number = split[0]
+                    song = split[1]
+                except:
+                    number = ''
+                    skind = 'OP' if x == 0 else 'ED'
+                    songobj = Song(name=song, description=skind + number)
+                    session.add(songobj)
+                    session.commit()
+                    link(session, [(our_field, us.uid), ('song_id', songobj.uid),
+                                   (our_desc, skind + number), ('song_desc', skind + number),
+                                   ('main_kind', kind), ('main_id', us.uid)])
+
+    # Studios, producers, licensors, genres, etc
+    for cat in ['Producers', 'Licensors', 'Studios', 'Genres', 'Authors', 'Serialization']:
+        try:
+            g = [x for x in soup.findAll('td', class_='borderClass', width='225')[0].div.findAll('div') if cat in x.text][0]
+        except:
+            continue
+
+        if 'add some' in g.text or 'read more' in g.text or 'discussions' in g.text:
+            continue
+
+        l = []
+        for x in g.findAll('a'):
+            try:
+                if 'featured' not in x['href']:
+                    l.append(x)
+            except:
+                continue
+
+        ids = []
+        try:
+            for i in [x['href'].split('/')[3] for x in l]:
+                try:
+                    ids.append(int(i))
+                except:
+                    continue
+        except:
+                pass
+
+        if cat == 'Authors':
+            if not l:
+                continue
+
+            cls = Person
+            d = l[0].parent.text.split('\n')[1].split('),')
+            newd = []
+            for x in range(len(d)):
+                newd.append(d[x].replace(l[x].text,''))
+                newd = [x.strip().replace('(','').replace(')','') for x in newd]
+
+            for x in range(len(d)):
+                p = None
+                uid_ = int(l[x]['href'].split('/')[2])
+                p = find_by_mal_id(session, Person, uid_)
+                if not p:
+                    failed_pages.append(uid)
+                    log(2, 'E', 'Failed to link {} uid {}: person {} not in our db!'.format(kind, uid, uid_))
+                    return
+
+                desc = newd[x]
+                link(session, [(our_field, us.uid), ('person_id', p.uid), ('person_desc', desc), (our_desc, desc),
+                               ('main_kind', kind), ('main_id', us.uid)])
+                session.commit()
+
+        elif cat == 'Genres':
+            cls = Genre
+        else:
+            cls = Company
+
+        their_field = '{}_id'.format(cls.__name__.lower())
+        their_desc = '{}_desc'.format(cls.__name__.lower())
+
+        for x in range(len(ids)):
+            uid_ = ids[x]
+            obj = find_by_mal_id(session, cls, uid_)
+            if not obj:
+                obj = cls(name=g.findAll('a')[x].text, mal_id=uid_)
+                session.add(obj)
+                session.commit()
+            if cls == Company:
+                link(session, [(our_field, us.uid), (their_field, obj.uid), (our_desc, cat[:-1]), (their_desc, cat[:-1]),
+                               ('main_kind', kind), ('main_id', us.uid)])
+            else:
+                link(session, [(our_field, us.uid), (their_field, obj.uid), ('main_kind', kind), ('main_id', us.uid)])
+
+    # Related stuff
+    try:
+        rel_anime = soup.find('table', class_='anime_detail_related_anime').findAll('td')
+    except:
+        rel_anime = []
+    for x in range(len(rel_anime)):
+        if x % 2 == 1 or not rel_anime:
+            continue
+
+        label = rel_anime[x].text[:-1]
+        for url in rel_anime[x+1].findAll('a'):
+            split_url = url['href'].split('/')
+
+            try:
+                u = int(split_url[2])
+            except:
+                continue
+
+            if split_url[1] == 'anime':
+                obj = find_by_mal_id(session, Anime, u)
+            else:
+                # Everything that's not an anime is a manga, even if it's not
+                obj = find_by_mal_id(session, Manga, u)
+            if not obj:
+                failed_pages.append(uid)
+                log(2, 'E', 'Failed to link {} uid {}: {} uid {} not in our database!'.format(kind, uid, split_url[1], u))
+                return
+            their_field = '{}_id'.format(obj.__class__.__name__.lower())
+            if their_field != our_field:
+                their_desc = '{}_desc'.format(obj.__class__.__name__.lower())
+            else:
+                their_field = '{}_self_id'.format(obj.__class__.__name__.lower())
+                their_desc = '{}_self_desc'.format(obj.__class__.__name__.lower())
+                link(session, [(our_field, us.uid), (our_desc, label), (their_field, obj.uid), (their_desc, label),
+                               ('main_kind', kind), ('main_id', us.uid)])
+
+def fetch_all(sess, kind, start=0, end=40000, skiplist=[], it=[]):
+    counter = 0
+    failed = []
+    if not it:
+        it = range(start, end)
+    for x in it:
+        counter += 1
+        try:
+            if counter % 100 == 0:
+                log(3, 'I', 'Committing {} number {} to database!'.format(kind, x))
+                sess.commit()
+            if x in skiplist:
+                continue
+            if kind == 'anime':
+                obj = fetch_anime(x)
+            elif kind == 'character':
+                obj = fetch_character(x)
+            elif kind == 'manga':
+                obj = fetch_manga(x)
+            elif kind == 'person':
+                obj = fetch_person(x)
+            if obj:
+                sess.add(obj)
+        except Exception as e:
+            if(str(e) != 'HTTP Error 404: Not Found'):
+                log(2, 'E', "EXCEPTION {} for id {}".format(e, x))
+                if str(e) == 'HTTP Error 429: Too Many Requests':
+                    failed.append(x)
+                    continue
+                sess.commit()
+                return (x, failed)
+
+def link_all(sess, kind, start=1, end=50000, skiplist=[], it=[]):
+    counter = 0
+    failed = []
+    failed_pages = []
+    if not it:
+        it = range(start, end)
+    for x in it:
+        counter += 1
+        try:
+            if counter % 100 == 0:
+                log(3, 'I', 'Linking {} number {}'.format(kind, x))
+                sess.commit()
+            if x in skiplist:
+                continue
+            link_page(x, sess, kind)
+        except Exception as e:
+            if(str(e) != 'HTTP Error 404: Not Found'):
+                log(2, 'E', "EXCEPTION {} for id {}".format(e, x))
+                failed.append(x)
+                failed_pages.append(x)
+                continue
+
+def add_list(session, data, name):
+    """Adds an anime list to the database."""
+    for anime in data:
+        status = anime['status']
+        num_watched = anime['num_watched_episodes']
+        score = anime['score']
+        aid = anime['anime_id']
+        if type(score) != int:
+            score = 0
+            # FIXME Not sure what would cause this; could be a bug!
+        if type(num_watched) != int:
+            num_watched = 0
+
+        entry = OldAnimeEntry(status=status, num_watched=num_watched, score=score,
+                              anime_id=anime_id_dict[aid], name=name)
+
+
+        # Changes state
+        session.add(entry)
+    return session
+
+def setup():
+    e = create_engine('postgresql://kahr:makama9makama9@localhost/toshokan')
+    s = sessionmaker(bind=e)()
+    return e, s
+
+def get_pictures(kind, uid, session):
+    if kind == 'anime':
+        try:
+            c = 0
+            soup = fetch_page(uid, kind, extra='foo/pics', proxy=None)
+            main_img_url = soup.find('img', class_='ac')['src']
+            disk_loc = '/home/kahr/Toshokan/toshokan/res/img/{}_{}{}'.format(uid, c, os.path.splitext(main_img_url)[1])
+            c += 1
+            request.urlretrieve(main_img_url, disk_loc)
+            session.add(Image(image=disk_loc, anime_id=uid, main=True))
+            session.commit()
+
+            imgs = soup.findAll('img')
+            for img in imgs:
+                url = img['src']
+                if url != main_img_url:
+                    disk_loc = '/home/kahr/Toshokan/toshokan/res/img/{}_{}{}'.format(uid,
+                                                                                     c,
+                                                                                     os.path.splitext(url)[1]
+                                                                                     .split('?')[0])
+                    c += 1
+                    request.urlretrieve(url, disk_loc)
+                    session.add(Image(image=disk_loc, anime_id=uid, main=False))
+
+            session.commit()
+
+        except Exception as e:
+            if(str(e) != 'HTTP Error 404: Not Found'):
+                log(2, 'E', "EXCEPTION {} for id {}".format(e, uid))

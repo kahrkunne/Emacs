@@ -1,0 +1,5 @@
+directory = /home/kahr/Videos/Anime/backlog
+session = /home/kahr/rtorrent/session
+scgi_local = ~/.rtorrent-rpc.socket
+xmlrpc_dialect = i8
+encoding_list = UTF-8

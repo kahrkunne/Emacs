@@ -1,0 +1,95 @@
+from sqlalchemy import (Column, Integer, Sequence, ForeignKey, DateTime, String, Index, create_engine, Date, Float)
+from sqlalchemy.sql import func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+Base = declarative_base()
+
+real_engine = create_engine('postgresql+psycopg2://smith:Memes123RKFhp@system.cf:5432/toshokan')
+real_Session = sessionmaker(bind=real_engine)
+real_session = real_Session()
+
+db = {'engine': 'postgresql+psycopg2', 'user': 'kahr', 'password': 'makama9makama9',
+      'domain': 'localhost', 'database': 'toshokan'}
+
+engine = create_engine('{}://{}:{}@{}/{}'.format(db['engine'], db['user'], db['password'],
+                                                 db['domain'], db['database']))
+Session = sessionmaker(bind=engine)
+session = Session()
+
+class AnimeEntry(Base):
+    __tablename__ = 'list_entries_anime'
+
+    uid = Column(Integer, Sequence('anime_list_entry_id_seq'), primary_key=True, autoincrement=True)
+    anime_id = Column(Integer, ForeignKey("anime.uid"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.uid"), nullable=False)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+    flags = Column(String)
+    added = Column(DateTime(timezone=True), default=func.now())
+
+    def __repr__(self):
+        return "<AnimeEntry(uid='%s', title='%s', user='%s')>" % (self.uid, self.anime.uid, self.user.uid)
+
+Index('anime_entry_qualifier', AnimeEntry.user_id, AnimeEntry.anime_id)
+
+class ListEntry(Base):
+    """An entry in an anime list."""
+    __tablename__ = 'list_entries'
+
+    uid = Column(Integer, Sequence('list_uid_seq'), primary_key=True)
+    user = Column(String)
+    title = Column(String)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+
+class User(Base):
+    """A user entry."""
+    __tablename__ = 'users'
+
+    uid = Column(Integer, Sequence('user_uid_seq'), primary_key=True)
+    name = Column(String, unique=True)
+    joined = Column(Date)
+
+class Anime(Base):
+    __tablename__ = 'anime'
+
+    uid = Column(Integer, Sequence('anime_id_seq'), primary_key=True)
+    mal_id = Column(Integer, unique=True)
+    title = Column(String)
+    title_eng = Column(String)
+    synonyms = Column(String)
+    episodes = Column(Integer)
+    mal_score = Column(Float)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    synopsis = Column(String)
+    flags = Column(String)
+    added = Column(DateTime(timezone=True), default=func.now())
+
+counter = 0
+entries = []
+
+def entries():
+    def get_next_entry_set():
+        pass
+
+def p():
+    global counter
+    for entry in entries:
+        user_id = real_session.query(User.uid).filter_by(name=entry.user).first()
+        anime_id = real_session.query(Anime.uid).filter_by(title=entry.title).first()
+        if not anime_id:
+            print(entry.anime)
+            continue
+        if counter % 1000 == 0:
+            print('Processed {} entries!'.format(counter))
+        if counter % 10000 == 0:
+            real_session.commit()
+        counter += 1
+        real_session.add(AnimeEntry(anime_id=anime_id, user_id=user_id, status=entry.status,
+                                    num_watched=entry.num_watched, score=entry.score))

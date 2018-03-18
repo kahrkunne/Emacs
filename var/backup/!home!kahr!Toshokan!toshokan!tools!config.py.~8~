@@ -1,0 +1,31 @@
+"""Configuration for anime database-related modules."""
+# Explanation of loglevels:
+# 1: Breaking errors
+# 2: Nonbreaking errors
+# 3: Infrequent diagnostics
+# 4: Frequent diagnostics
+log_level = 3
+log_file_p = False
+log_file = "/home/kahr/Toshokan/toshokan/tools/log.txt"
+
+db = {}
+db['engine'] = 'postgresql+psycopg2'
+db['user'] = 'kahr'
+db['password'] = 'makama9makama9'
+db['domain'] = 'localhost'
+db['database'] = 'list_db'
+
+max_clients = 3
+request_timeout = 10
+comments_page_delay = 0.01
+profile_delay = 0.01
+fetch_set = 26
+fetch_interval = 250000
+profile_fail_delay = 1
+profile_max_retries = 20
+profile_max_proxy_retries = 1
+debug_io_loop = False
+
+save_profile_link = True
+profile_link_save_interval = 1000
+profile_link_file = "/home/kahr/Toshokan/toshokan/tools/profile_links"

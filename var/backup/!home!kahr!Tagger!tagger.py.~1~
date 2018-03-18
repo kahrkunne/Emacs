@@ -1,0 +1,29 @@
+import os
+
+from sqlalchemy import (create_engine, Integer, String, DateTime, Sequence,
+                        Column, ForeignKey)
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+file_engine = create_engine('sqlite:///files.db')
+tag_engine = create_engine('sqlite:///tags.db')
+
+Base = declarative_base()
+
+class IndexedFile(Base):
+    __tablename__ = 'files'
+    uid = Column(Integer, Sequence('file_id_seq'), primary_key=True)
+
+    path = Column(String)
+    
+    def __repr__(self):
+        return "<IndexedFile {}: {}>".format(self.uid, os.path.basename(self.path))
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    uid = Column(Integer, Sequence('tag_id_seq'), primary_key=True)
+
+    indexed_file_id = Column(Integer, ForeignKey('files.uid'))
+    tag  = Column(String)
+
+    indexed_file = relationship('IndexedFile')

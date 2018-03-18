@@ -1,0 +1,24 @@
+\documentclass[12pt]{article}
+\usepackage{array,hhline}
+
+\newdimen\fitchone   \fitchone =  18em  % alignment of justifications
+\newdimen\fitchtwo   \fitchtwo = 1.2em  % adapt alignment for nested proofs
+\newdimen\fitchthree \fitchthree = 1ex  % distance between vertical lines
+
+\newcommand{\fitch}[2]{
+  \advance \fitchone by -\fitchtwo
+  \hspace*{\fitchthree}
+  \begin{tabular}[t]{ | p{0mm}@{} p{\fitchone}@{} l }
+    #1 \\
+    \cline{1-1}\\[-2ex]
+    #2 \\ 
+  \end{tabular}
+  \vspace{0mm} % added for slides
+}
+
+\begin{document}
+\begin{center}
+  Introduction to Logic (CS) Homework assignment 1\\
+  S3435342, mentor group CS2
+\end{center}
+\hrule

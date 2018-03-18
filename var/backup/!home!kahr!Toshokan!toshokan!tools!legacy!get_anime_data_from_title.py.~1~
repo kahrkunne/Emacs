@@ -1,0 +1,29 @@
+#!/usr/bin/python
+import requests
+from time import sleep
+import pickle
+
+mal_name = "kahrkunne"
+mal_pass = "makama9makama9"
+
+with open("anime_titles", 'rb') as f:
+    anime = pickle.load(f)
+anime_info = []
+
+print("Starting!")
+for x in range(len(anime_info) + 1,len(anime)):
+    anime_data = requests.get("https://myanimelist.net/api/anime/search.xml?q=" + anime[x],
+                              auth=requests.auth.HTTPBasicAuth(mal_name, mal_pass))
+    anime_info.append(anime_data.content)
+    if (x % 200) == 0:
+        with open('dump', 'wb') as f:
+            pickle.dump(anime_info, f)
+        print("Fetched anime: " + anime[x])
+    if (x % 2) == 0:
+        sleep(1)
+
+with open('final_dump', 'wb') as f:
+    pickle.dump(anime_info, f)
+
+with open('animelist', 'wb') as f:
+    pickle.dump(anime, f)

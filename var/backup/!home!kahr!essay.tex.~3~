@@ -1,0 +1,46 @@
+\documentclass[12p]{article}
+\date{September 29, 2017}
+\author{Kahr Kunne}
+\title{insert title here}
+\usepackage{multicol}
+\usepackage[margin=0.5in]{geometry}
+\pagenumbering{gobble}
+
+\begin{document}
+\maketitle
+
+\begin{multicols}{2}[
+    University-Industry partnership has been very effective in securing funding for universities, which in turn is beneficial to the scientific process. However, it is important that we remain careful, as there are some significant risks to these partnerships. Overall, such partnerships are a good thing, but it's important that we are aware of these risks. It's important that we get this right, because this impacts all of academia.]
+
+  A 2014 article[1]\nocite{1} published by the IEEE Computer Society talks about how the University of Akron Research Foundation works together with the industry to commericalize university technology. First, the article gives a short history of university-affiliated research foundations, many of which originated in the 1920s and 1930s. It then talks about how the UARF works together with the industry. The foundation does this in many ways, including sharing resources with the industry, providing services to industry contacts in exchange for pro bono work, and supporting entrepeneurs. Overall, the article is very positive over these developments and university-industry partnerships in general. And that positivity is not without a cause; between 2001 and 2012, UA has more than doubled their research expenditures. 
+  
+Overall, I share the authors' enthuasiams over these developments; this seems like a good way for universities to secure funding, and the numbers are on their side. However, I find the article to be a bit one-sided, and that it doesn't consider some of the key disadvantages to university-industry partnerships. The article does consider some of the disadvantages for business, but it does not consider how university-industry partnerships could be problematic for universities as well. It also fails to tackle the broader socialital and ethical implications of such partnerships. 
+
+First is the issue of goals. For a partnership to be successful, all parties involved must broadly have the same goals. Fundamentally, however, industry and academia want different things. Universities exist to do science and gather information; they do not care about immediate practical application as much. Industry, on the other hand, only cares about making a profit, which means they only care about short term practical applications. A lot of the time, these goals align, because a lot of science is immediately useful. Sometimes, however, academia is interested in things which are totally irrelevant for business; things which are interesting from a scientific perspective, but that do not have an (obvious) practical use.
+
+Now, imagine what would happen if universities had particularly strong industry ties, to the extent where most of the research the university does is industry-sponsored. Universities will not be encouraged to only research things which can lead to an immediate profit for business. In other words, research starts to behave like a greedy algorithm. In the long term, this could hold science back, which would have a negative impact on all of humanity. Also, it is not easy to see that this is happening, because we can't predict how the world would've been if we'd ``taken the other route'', if university research was \emph{not} primarily driven by industry funds. In such a scenario, it would appear as if the industry funding was a positive thing, while it was actually harmful. For this reason alone it is important that we keep independent universities in existence, just so that we can compare the performance of independent and industry-funded universities over the long term.
+
+Industry funding gives a strong incentive to researchers to work in the interests of the company which is funding them. In the worst case scenario, discoveries which would normally become available to the general public would now be immediately patented and commercialized by a company. Not only would this be bad for the general public, which now doesn't get access to these discoveries, this would also be bad for the market; patents, by design, grant a limited form of monopoly. One can imagine how the biggest companies could become the sole funders of many of the biggest universities, constantly getting new patents and becoming harder and harder to compete with. It is therefore critical that we do not allow companies to ``buy'' scientific advancements. One of the most obvious ways to deal with this would be to reform intellectual property law. After all, intellectual property law is by design anticompetitive; it exists to create a limited form of monopoly.
+
+These concerns are important to keep in mind, but they are not unsolvable. As long as universities are aware of the risk, and are willing to stick to their ideals, I believe the benefits outweigh the disadvantages. No matter how you go about it, universities need money. Either way, they're going to be dependent on someone, whether it is the government or the industry. And all the above disadvantages can be taken care of by regulation. In fact, some of such regulation already exists; the article mentions that \emph{for example that in Ohio, universities have state-dictated ownership of any inventions made by university employees or using significant university resources}. Another thing which needs to be regulated is disclosure; the general public should be able to know whether universities are receiving industry funding.
+
+As far as tackling these risks is concerned, the most important thing is to be aware. The idea of industry-university partnerships is definitely exciting, so it's easy to fall into the trap of unconditionally supporting the idea. The article in question seems to be falling into that trap as well. But if we want these partnerships to succeed, we need to be realistic. It pays to get things right the first time, and with something as important as science, we can't afford to make any big mistakes.
+
+With these objections out of the way and both our feet firmly on the ground, let's talk about the benefits of closer collaboration between universities and the industry. The first and most obvious benefit is that more money will be available for research. While not everything can be solved with just money, this would be a good step towards even faster scientific progress. As I've mentioned before, we've already seen real-life results in this area; recall that UA has more than doubled their research expenditures within a decade. A positive side effect of this increase in funding is that universities will require less public money. This translates to a significant reduction in government expenditures, which enables, for example, tax cuts. 
+
+Another benefit is that industry funding can offer universities a sense of focus or direction. It's easy for academics to get a bit disconnected with what's needed in the real world. The industry, on the other hand, is very much concerned with what people's demands are; meeting those demands is how they make their money after all. While this can be a downside, as I've described above, it can also be an immense upside. It can give academia a new perspective on what they should be researching. TODO FINISH
+
+
+Something as broad as industry funding influences all of academia. Some fields are influenced more than others, however: things which can be more easily commercialized are more likely to receive industry funding. In computing science, for example, the study of programming languages is not affected very much, because there is next to no market for selling programming languages. Something like computer vision, on the other hand, will be affected quite a lot, because it represents a relatively new technology which is a lot more marketable. 
+
+\end{multicols}
+\begin{thebibliography}
+\bibitem{1}
+  Ball, E. N.; Preston, K. G.,
+  \textit{University Commercialization Models: The University of Akron},
+  IEEE Computer 47(8),
+  28-16, 2014
+
+\end{thebibliography}
+
+\end{document}

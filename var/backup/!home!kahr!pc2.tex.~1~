@@ -1,0 +1,46 @@
+\documentclass{article}
+\usepackage{amssymb}
+\newcommand{\idiv}{\mbox{\bf ~div~}} 
+\newcommand{\imod}{\mbox{\bf ~mod~}} 
+\newcommand{\band}{~\wedge~} 
+\newcommand{\bor}{~\vee~} 
+\newcommand{\true}{\mbox{\bf ~true~}} 
+\newcommand{\false}{\mbox{\bf ~false~}} 
+\newcommand{\IF}{\mbox{\bf if~}} 
+\newcommand{\THEN}{\mbox{\bf ~then~}}
+\newcommand{\ELSE}{\mbox{\bf else~}}
+\newcommand{\END}{\mbox{\bf end}}
+\newcommand{\WHILE}{\mbox{\bf while~}}
+\newcommand{\DO}{\mbox{\bf ~do}}
+\newcommand{\FOR}{\mbox{\bf for~}}
+\newcommand{\TO}{\mbox{\bf ~to}}
+\newcommand{\SKIP}{\mbox{\bf ~skip}}
+\newcommand{\CONST}{\mbox{\bf const~}}
+\newcommand{\ARRAY}{\mbox{\bf ~array~}}
+\newcommand{\OF}{\mbox{\bf ~of~}}
+\newcommand{\VAR}{\mbox{\bf var~}}
+\newcommand{\vf}{\mbox{\sf vf}}
+\newcommand{\ord}{\mbox{\sf ord}}
+\newcommand{\imax}{\mbox{\bf ~max~}}
+\newcommand{\imin}{\mbox{\bf ~min~}}
+\newcommand{\Max}{\mbox{\sf Max}}
+\newcommand{\Min}{\mbox{\sf Min}} 
+
+\begin{document}
+\title{CompSci, Program Correctness, Homework 2}
+\author{Kahr Kunne, S3435342, Group 2}
+\maketitle
+
+\section*{Problem 1}
+\begin{tabbing}
+x\=xx\=xxx\=xxxx\=\kill
+\>$\{P: X \geq 0 \band (P = X + 3 \bor p = -X) \band p^2 + q = Y\}$\\
+$\IF p \lq 0 \THEN$\\
+\>\>$\{P \band p \lq 0 \}$\\ 
+\>\>\>(* definition of P and logic *)\\
+\>\>$\{p^2 + q = Y \band p = -X\}$\\
+\>$p := -p$\\
+\>\>$\{p^2 + q = Y \band p = X\}$\\
+\end{tabbing}
+
+\end{document}

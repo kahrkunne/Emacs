@@ -1,0 +1,24 @@
+function addAnime(username){
+    $.ajax({
+	type: "POST",
+	url: "/animelist/" + user,
+	data: {
+	    'username': username,
+	    'anime_id': anime_id,
+	    'score': score,
+	    'start_date': start_date,
+	    'end_date': end_date,
+	    'num_rewatches': num_rewatches,
+	    'num_episodes': num_episodes,
+	    'status': status,
+	    'comments': comments
+	},
+	success: function(data)
+	{
+	    console.log(data)
+	},
+	error: function(XMLHttpRequest, textStatus, errorThrown){
+	    console.log(errorThrown)
+	}
+    });
+}

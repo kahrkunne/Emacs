@@ -1,0 +1,103 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def head
+<script src="/static/js/animelist.js"></script>
+#end def
+
+#def leftcol_info
+<span>$anime.name</span>
+<br>
+<span>Type: </span>$anime.kind<br>
+<span>Status: </span>$anime.status<br>
+<span>Episodes: </span>$anime.num_episodes<br>
+<span>Season: </span>$anime.season<br>
+<span>Studios: </span>${', '.join($data['studios'])}<br>
+<span>Studios: </span>${', '.join($data['genres'])}<br>
+
+<span>Score: </span>PLACEHOLDER<br>
+<span>Members: </span>PLACEHOLDER<br>
+#end def
+
+#def info_tabs
+<li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" role="tab" href="#description">Description</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#characters">Characters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#people">Staff</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#info">Info</a>
+</li>
+#end def
+
+#def info_tab_content
+<div class="tab-pane active" id="description" role="tabpanel">
+    $anime.description.replace("\n", "<br />")
+</div>
+
+<div class="tab-pane" id="characters" role="tabpanel">
+    #for va in [x for x in $data['vas'] if x[3] == 'Japanese']:
+	<div class="anime-va-role">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="/static/img/50x50.png">
+		</div>
+		<div class="col-11">
+		    <a href="/character/$va[1].uid">$va[1].name</a><br>
+		    <a href="/person/$va[0].uid">$va[0].name</a>
+		</div>
+	    </div>
+	</div>
+    #end for
+</div>
+
+<div class="tab-pane" id="people" role="tabpanel">
+    #for person in $data['otherpeople']:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="/static/img/50x50.png">
+		</div>
+		<div class="col-11">
+		    <a href="/person/$person[0].uid">$person[0].name</a><br>
+		    $person[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+</div>
+
+<div class="tab-pane" id="info" role="tabpanel">
+    <span>Aired: </span>$anime.start_date to $anime.end_date<br>
+    <span>Licensors: </span>${', '.join($data['licensors'])}<br>
+    <span>Ranked: </span>PLACEHOLDER<br>
+    <span>Producers: </span>${', '.join($data['producers'])}<br>
+    <span>Other Names: </span><br>$anime.synonyms.replace(";", "<br />")<br>
+
+    <br />
+    <br />
+    #for song in $data['songs']:
+	$song[1]: $song[0].name
+	<br />
+    #end for
+    <br>
+
+    <table class="table infopage-rel table-sm borderless">
+	<tbody>
+	    #for k in $data['rels']:
+		#if $data['rels'][$k]:
+		    <tr>
+			<th><span>$k</span></td>
+			    <td>${', '.join(['<a href="/{}/{}">{}</a>'.format(x.__class__.__name__.lower(), x.uid, x.name) for x in $data['rels'][$k]])}<br></td>
+		    </tr>
+		#end if
+	    #end for
+	</tbody>
+    </table>
+</div>
+#end def

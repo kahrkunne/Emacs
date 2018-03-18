@@ -1,0 +1,52 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   app/pages/templates/anime_page.py
+#	modified:   app/pages/templates/layout.py
+#	modified:   app/pages/templates/search.py
+#	modified:   res/css/style.css
+#	modified:   templates/anime_page.tmpl
+#
+# Changes not staged for commit:
+#	modified:   tools/anime_db.py
+#	modified:   tools/fetch.py
+#
+# Untracked files:
+#	tests/
+#	tools/.#add_users.py
+#	tools/__init__.py
+#	tools/legacy/
+#	tools/profile_links1
+#	tools/profile_links10
+#	tools/profile_links11
+#	tools/profile_links12
+#	tools/profile_links13
+#	tools/profile_links14
+#	tools/profile_links15
+#	tools/profile_links16
+#	tools/profile_links17
+#	tools/profile_links18
+#	tools/profile_links19
+#	tools/profile_links2
+#	tools/profile_links20
+#	tools/profile_links21
+#	tools/profile_links22
+#	tools/profile_links23
+#	tools/profile_links24
+#	tools/profile_links25
+#	tools/profile_links26
+#	tools/profile_links3
+#	tools/profile_links4
+#	tools/profile_links5
+#	tools/profile_links6
+#	tools/profile_links7
+#	tools/profile_links8
+#	tools/profile_links9
+#	tools/proxy.py
+#	tools/proxy_list.py
+#	tools/test.py
+#

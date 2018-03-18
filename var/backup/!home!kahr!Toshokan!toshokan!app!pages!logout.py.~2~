@@ -1,0 +1,18 @@
+import tornado
+
+from . import Page
+from .templates.logout import logout
+
+class Logout(Page):
+    template = logout
+    @tornado.web.addslash
+    def get(self):
+        self.write(self.render())
+        self.clear_cookie("user_id")
+        self.clear_cookie("username")
+        self.clear_cookie("dbname")
+        ref = self.request.headers.get('Referer')
+        if ref:
+            self.redirect(self.get_argument("next", ref))
+        else:
+            self.redirect(self.get_argument("next", "/"))

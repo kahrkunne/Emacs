@@ -1,0 +1,9 @@
+from . import Page
+
+from .templates.animelist import dashboard
+
+class Dashboard(Page):
+    template = dashboard
+
+    def get(self, username):
+        self.write(self.render())

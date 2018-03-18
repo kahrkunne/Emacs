@@ -1,0 +1,146 @@
+#!/usr/bin/python
+import sys
+import os
+import pathlib
+import shutil
+
+from sqlalchemy import (create_engine, Integer, String, DateTime, Sequence,
+                        Column, ForeignKey, Index, UniqueConstraint)
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import IntegrityError
+
+Base = declarative_base()
+
+class IndexedFile(Base):
+    __tablename__ = 'files'
+    uid = Column(Integer, Sequence('file_id_seq'), primary_key=True)
+
+    path = Column(String, unique=True)
+
+    def __repr__(self):
+        return "<IndexedFile {}: {}>".format(self.uid, os.path.basename(self.path))
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    uid = Column(Integer, Sequence('tag_id_seq'), primary_key=True)
+
+    indexed_file_id = Column(Integer, ForeignKey('files.uid'))
+    tag = Column(String)
+
+    indexed_file = relationship('IndexedFile', backref='tags')
+
+    __table_args__ = (
+        Index(
+            'ix_tag_file',
+            'indexed_file_id', 'tag',
+            unique=True,),
+    )
+
+    def __repr__(self):
+        return "<Tag for {}: '{}'>".format(self.indexed_file_id, self.tag)
+
+def add_files(paths):
+    files = []
+    for path in paths:
+        f = IndexedFile(path=path)
+        try:
+            session.add(f)
+            session.commit()
+            extension = pathlib.Path(path).suffix
+            for tag in ['all', 'extension:' + (extension[1:]
+                                               if extension
+                                               else 'none')]:
+                if tag:
+                    session.add(Tag(indexed_file_id=f.uid, tag=tag))
+        except IntegrityError:
+            session.rollback()
+            f = session.query(IndexedFile).filter_by(path=path).first()
+
+        files.append(f)
+
+    return files
+
+def add_tags(indexed_file, tags):
+    assert tags, '(ERROR) No tags given'
+
+    for tag in tags:
+        assert tag[0] != '-', '(ERROR) Tag can\'t start with "-"'
+        assert ' ' not in tag, "(ERROR) Space can't be in tag"
+
+        t = Tag(indexed_file_id=indexed_file.uid, tag=tag)
+        try:
+            session.add(t)
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            print('(WARNING) Tag "{}" already in database'.format(tag))
+
+def get_files(tags):
+    out = []
+    negtags = []
+    for tag in tags:
+        if tag[0] == '-':
+            negtags.append(tag[1:])
+            continue
+
+        out += [x.indexed_file for x in session.query(Tag).filter_by(tag=tag).all()]
+
+    newout = []
+
+    for negtag in negtags:
+        for f in out:
+            if negtag not in [x.tag for x in f.tags]:
+                newout.append(f)
+
+    if newout:
+        return newout
+    else:
+        return out
+
+if __name__ == "__main__":
+    engine = create_engine('sqlite:///{}/data.db'.format(os.path.abspath(os.path.dirname(sys.argv[0]))))
+    session = sessionmaker(bind=engine)()
+
+    if sys.argv[1] == 'setup':
+        Base.metadata.create_all(engine)
+    elif sys.argv[1] == 'print':
+        files = get_files(sys.argv[2:])
+        print('\n'.join([t.path for t in files]))
+    elif sys.argv[1] == 'add':
+        arg_files = None
+        paths = []
+        tags = []
+
+        for arg in sys.argv[2:]:
+            if arg == '--files' or arg == '-f':
+                arg_files = True
+                continue
+            elif arg == '--tags' or arg == '-t':
+                arg_files = False
+                continue
+
+            if arg_files is None:
+                print('(Error) Unknown argument {}'.format(arg))
+                sys.exit()
+
+            if arg_files:
+                paths.append(os.path.abspath(arg))
+            else:
+                tags.append(arg)
+
+        files = add_files(paths)
+        for f in files:
+            add_tags(f, tags)
+    elif sys.argv[1] == 'link':
+        path = os.path.abspath(os.path.expanduser(sys.argv[2]))
+        if not os.path.exists(path):
+            os.makedirs(path)
+        for f in os.listdir(path):
+            p = os.path.join(path, f)
+            if os.path.islink(p):
+                os.unlink(p)
+
+        files = get_files(sys.argv[3:])
+        for f in files:
+            os.symlink(f.path, os.path.join(path, os.path.basename(f.path)))

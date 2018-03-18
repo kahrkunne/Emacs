@@ -1,0 +1,1 @@
+(setq kkc-lookup-cache '(kkc-lookup-cache-2 (12431 (10 "$A:M(B" "$(GoG(B" "$(Gt?(B" "$(Gfc(B" "$ASp(B" "$A0Q(B" "$AYA(B" "$ANR(B" "$ANa(B" "$(I4^(B" "$(Gf8(B" "$AhK(B" "$AEC(B")) (12371 t (12398 (10 "$A4K$N(B" "$AK9$N(B" "$A4K(B" "$AD}$N(B" "$(GZ:$A$N(B" "$(GKt$A$N(B" "$A4K$N(B" "$ADs$N(B" "$A;l$N(B" "$A@4$N(B" "$B9~$A$N(B")))))

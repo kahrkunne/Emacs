@@ -1,0 +1,73 @@
+from sqlalchemy import ForeignKey
+from sqlalchemy.sql import text
+
+from .model import Base, Column, Integer, String, Sequence
+
+class Link(Base):
+    __tablename__ = 'tshk_link'
+    uid = Column(Integer, Sequence('link_id_seq'), primary_key=True)
+
+    anime_id = Column(Integer, ForeignKey('tshk_anime.uid'))
+    anime_desc = Column(String)
+
+    manga_id = Column(Integer, ForeignKey('tshk_manga.uid'))
+    manga_desc = Column(String)
+
+    character_id = Column(Integer, ForeignKey('tshk_character.uid'))
+    character_desc = Column(String)
+
+    person_id = Column(Integer, ForeignKey('tshk_person.uid'))
+    person_desc = Column(String)
+
+    episode_id = Column(Integer, ForeignKey('tshk_episode.uid'))
+    episode_desc = Column(String)
+
+    genre_id = Column(Integer, ForeignKey('tshk_genre.uid'))
+    genre_desc = Column(String)
+
+    song_id = Column(Integer, ForeignKey('tshk_song.uid'))
+    song_desc = Column(String)
+
+    company_id = Column(Integer, ForeignKey('tshk_company.uid'))
+    company_desc = Column(String)
+
+    user_id = Column(Integer, ForeignKey('tshk_user.uid'))
+    user_desc = Column(String)
+
+    def __repr__(self):
+        out = ''
+        out += '<Link(uid={}, '.format(self.uid)
+        valid_ids = []
+        for x in dir(self):
+            try:
+                if '_id' in x and getattr(self, x):
+                    valid_ids.append(x)
+            except:
+                pass
+        for id_ in valid_ids:
+            out += '{}={}, '.format(id_, getattr(self, id_))
+        out = out[:-2]
+        out += ')>'
+
+        return out
+
+def link(sess, data):
+    l = Link()
+    for s in data:
+        setattr(l, s[0], s[1])
+    sess.add(l)
+    sess.commit()
+
+def get_linked(sess, objs, other=[]):
+    qstr = ''
+    for obj in objs:
+        n = '{}_id'.format(obj.__class__.__name__.lower())
+        qstr += '{}={} and '.format(n, obj.uid)
+    for thing in other:
+        # This test never fails right now
+        if isinstance(thing[1], str):
+            qstr += "{}='{}' and ".format(thing[0], thing[1])
+        else:
+            qstr += '{}={} and '.format(thing[0], thing[1])
+    qstr = text(qstr[:-5])
+    return sess.query(Link).filter(qstr).all()

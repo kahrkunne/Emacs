@@ -1,0 +1,120 @@
+import inspect
+from sqlalchemy import (Column, Integer, String, Date, Sequence, Float, ForeignKey, Interval, create_engine)
+from sqlalchemy.orm import relationship, sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from config import db
+
+engine = create_engine('{}://{}:{}@{}/{}'.format(db['engine'], db['user'], db['password'],
+                                                 db['domain'], db['database']))
+Base = declarative_base()
+Base.metadata.create_all(engine)
+sess = sessionmaker(bind=engine)()
+
+_discrete_models = []
+
+def gen_link(model1, model2):
+    if inspect.isclass(model1):
+        first, second = model1.__name__, model2.__name__
+    elif isinstance(model1, str):
+        first, second = model1, model2
+    else:
+        first, second = model1.__class__.__name__, model2.__class__.__name__
+
+    class_name = first + second + 'Link'
+    table_name = 'link_{}_{}'.format(first, second).lower()
+    d = dict()
+    d.setdefault('__table_args__', {'extend_existing': True})
+    d.setdefault('__tablename__', table_name)
+    d.setdefault('uid', Column(Integer, Sequence(class_name + '_id_seq'), primary_key=True))
+    d.setdefault('target', Column(Integer, ForeignKey('{}.uid'.format(second).lower()), nullable=False))
+    d.setdefault('source', Column(Integer, ForeignKey('{}.uid'.format(first).lower()), nullable=False))
+    d.setdefault('_targetrel', relationship(second, foreign_keys=d['target']))
+    d.setdefault('description', Column(String))
+    d.setdefault('__repr__', lambda self, _name=class_name:
+                 "<{}(uid={}, source={}, target={})>".format(_name, self.uid, self.source, self.target))
+    return type(class_name, (Base,), d)
+
+class DiscreteModelFactory(DeclarativeMeta):
+    def __new__(cls, class_name, parents, d):
+        d.setdefault('__tablename__', class_name.lower())
+        d.setdefault('uid', Column(Integer, Sequence(class_name + '_id_seq'), primary_key=True))
+        d.setdefault('name', Column(String))
+        d.setdefault('description', Column(String))
+        d.setdefault('__repr__', lambda self: "<{}(uid={}, name='{}')>".format(class_name, self.uid, self.name))
+        for model in _discrete_models + [None]:
+            # Self-linking for first class defined, as _discrete_models will be empty
+            if model:
+                m_name = model.__name__
+            else:
+                m_name = class_name
+
+            if '_forbidden_edges' in d and m_name in d['_forbidden_edges']:
+                continue
+
+            for us, them in [(class_name, m_name), (m_name, class_name), (class_name, class_name)]:
+                @property
+                def _tmp(self, _us=us, _them=them):
+                    session = Session.object_session(self)
+                    link_class = gen_link(_us, _them)
+                    links = session.query(link_class).filter(link_class.source == self.uid).all()
+                    out = []
+                    for l in links:
+                        out.append((l._targetrel, l.description))
+                    return out
+                if us == class_name:
+                    # Set our attribute
+                    d.setdefault(them.lower() + 's', _tmp)
+                else:
+                    setattr(model, them.lower() + 's', _tmp)
+
+        model = type(class_name, parents, d)
+        _discrete_models.append(model)
+        return model
+
+def link(obj1, obj2, session, d1=None, d2=None):
+    if not d2:
+        d2 = d1
+    link1 = gen_link(obj1, obj2)(source=obj1.uid, target=obj2.uid, description=d1)
+    link2 = gen_link(obj2, obj1)(source=obj2.uid, target=obj1.uid, description=d2)
+    session.add(link1)
+    session.add(link2)
+    sess.commit()
+
+class Anime(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    name_eng = Column(String)
+    synonyms = Column(String)
+    num_episodes = Column(Integer)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+    source = Column(String)
+    duration = Column(Interval)
+    rating = Column(String)
+    season = Column(String)
+    timeslot = Column(String)
+
+class Genre(Base, metaclass=DiscreteModelFactory):
+    pass
+class Studio(Base, metaclass=DiscreteModelFactory):
+    pass
+class Producer(Base, metaclass=DiscreteModelFactory):
+    pass
+class Licensor(Base, metaclass=DiscreteModelFactory):
+    pass
+class Episode(Base, metaclass=DiscreteModelFactory):
+    number = Column(Integer)
+    airdate = Column(Date)
+    name_jp = Column(String)
+class Character(Base, metaclass=DiscreteModelFactory):
+    pass
+class Song(Base, metaclass=DiscreteModelFactory):
+    pass
+class Person(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    given_name = Column(String)
+    family_name = Column(String)
+    birthday = Column(String)
+    alt_names = Column(String)

@@ -1,0 +1,105 @@
+#!/usr/bin/python
+import os
+import pickle
+import time
+import functools
+
+from urllib import request
+from bs4 import BeautifulSoup
+
+import tornado
+from tornado.httpclient import AsyncHTTPClient
+from tornado import gen
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+http_client = AsyncHTTPClient()
+http_client.max_clients = 3
+http_client.request_timeout = 20
+user_links = []
+page_links = []
+
+def fetch_search_pages(gender, pages):
+    failed = []
+    for x in pages:
+        url = 'https://myanimelist.net/users.php?q=&loc=&agelow=0&agehigh=0&g={}&show={}'.format(gender, str(x * 24))
+        if (x % 250 == 0):
+            print('Fetching page number: ' + str(x))
+        try:
+            request.urlretrieve(url, 'search_pages/{}/{}'.format(gender, str(x)))
+        except:
+            print('Failed to download ' + str(x))
+            failed.append(x)
+            continue
+    if failed:
+        fetch_search_pages(gender, failed)
+
+def fetch_user_page_links(gender):
+    print('Starting user page link fetch!')
+    links = []
+    for page in os.listdir('search_pages/{}'.format(gender)):
+        with open('search_pages/{}/{}'.format(gender,page), 'r') as f:
+            data = f.read()
+        soup = BeautifulSoup(data, 'html.parser')
+        users = soup.findAll('div', style='margin-bottom: 7px;')
+        cur_links = ['https://myanimelist.net' + user.a['href'] for user in users]
+        links = links + cur_links
+    with open('f', 'wb') as f:
+        pickle.dump(links, f)
+    return links
+
+rip = []
+def handle_response_users(response):
+    if response.error:
+        print('(user) ERROR: {}'.format(response.error))
+    else:
+        data = response.body
+        f = response.effective_url.split('/')[-1]
+        d = 'tmp/users/' + f[:2] + 'zzzajwefiojawfzz/'
+        os.makedirs(d, exist_ok=True)
+        with open(d + f, 'w') as f:
+            f.write(str(data))
+
+def handle_response_lists(response):
+    if response.error:
+        print('(list) ERROR: {}'.format(response.error))
+    else:
+        data = response.body
+        f = response.effective_url.split('/')[-1]
+        d = 'tmp/lists/' + f[:2] + 'zzawjiefoajwfeazzz/'
+        os.makedirs(d, exist_ok=True)
+        with open(d + f, 'w') as f:
+            f.write(str(data))
+
+def fetch_user_pages():
+    files1 = []
+    for r, d, f in os.walk('/home/kahr/Toshokan/toshokan/tools/tmp/users/'):
+        for fx in f:
+            files1.append('https://myanimelist.net/profile/' + fx)
+    files2 = []
+    for r, d, f in os.walk('/home/kahr/Toshokan/toshokan/tools/tmp/lists/'):
+        for fx in f:
+            files2.append('https://myanimelist.net/animelist/' + fx)
+    with open('f', 'rb') as f:
+        links = pickle.load(f)
+    print('Starting now!')
+    io_loop = tornado.ioloop.IOLoop.current()
+    def loop_links():
+        for x in range(len(links)):
+            try:
+                user_url = links[x]
+                io_loop.call_later(0.07, functools.partial(http_client.fetch, user_url, handle_response_users))
+            except:
+                pass
+            try:
+                page_url = 'https://myanimelist.net/animelist/' + links[x].split('/')[-1]
+                io_loop.call_later(0.07, functools.partial(http_client.fetch, page_url, handle_response_lists))
+            except:
+                print('Page fetch failed for index {}, link {}'.format(str(x), page_url))
+                pass
+    print('Beginning!')
+    loop_links()
+    print('Beginning 4 real')
+    io_loop.handle_callback_exception = lambda *args: None
+    io_loop.start()
+
+if __name__ == "__main__":
+    fetch_user_pages()

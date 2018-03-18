@@ -1,0 +1,61 @@
+function navlogin(e){
+    e.preventDefault();
+
+    $.ajax({
+	type: "POST",
+	url: "/login/",
+	data: $('#navlogin').serialize(),
+	success: function(data)
+	{
+	    user = data
+	    console.log(user)
+	    if(user['user_id']){
+		setLoggedIn();
+	    }
+	},
+
+	error: function(XMLHttpRequest, textStatus, errorThrown)
+	{
+	    alert('nah nigga')
+	}
+    });
+}
+
+function logout(e){
+    e.preventDefault();
+
+    $.ajax({
+	type: "POST",
+	url: "/logout/",
+	success: function(data)
+	{
+	    user = {'id':null, 'name':null, 'dname':null}
+	}
+    });
+    setLoggedOut();
+}
+
+function setLoggedIn(){
+    var base = $('#acc-logged-in').html();
+    Mustache.parse(base);
+    var d = Mustache.render(base, {
+	img:'http://via.placeholder.com/40x40'
+    });
+    $('.acc-area').empty().append(d);
+
+    $(document).ready(function() {
+	$("#navlogout").submit(logout);
+    });
+}
+
+function setLoggedOut(){
+    var base = $('#acc-logged-out').html();
+    Mustache.parse(base);
+    var d = Mustache.render(base, {
+    });
+    $('.acc-area').empty().append(d);
+
+    $(document).ready(function() {
+	$("#navlogin").submit(navlogin);
+    });
+}

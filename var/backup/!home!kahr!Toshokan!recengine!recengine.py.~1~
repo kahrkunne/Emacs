@@ -1,0 +1,16 @@
+from redis import Redis
+from pottery import RedisDict
+import json
+
+redis = Redis.from_url('http://localhost:6379')
+toshokan = RedisDict(redis=redis, key='toshokan')
+
+def setup():
+    alists = []
+    for user in toshokan:
+        alists[user] = []
+        for entry in json.loads(user):
+            if entry[1] == 2:
+                alists[user].append((entry[0], entry[2], entry[3]))
+    return alists
+

@@ -1,0 +1,10 @@
+from . import modelfactory
+
+from sqlalchemy import (Column, Integer, String, Date)
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Character(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer)

@@ -1,0 +1,53 @@
+import statistics
+import copy
+
+def scale_anime_list(anime_list):
+    """Scale the ratings in a list of AnimeEntrys.
+    Returns a list of AnimeEntrys.
+    """
+
+    def sort_list(anime_list):
+        """ Sort anime_list by score """
+        return sorted(anime_list, key=lambda entry: entry.score)
+
+    def remove_outliers(anime_list):
+        """Remove outliers with low scores from anime_list"""
+        avg_score = sum(entry.score for entry in anime_list) / float(len(anime_list))
+        stdev = statistics.stdev(entry.score for entry in anime_list)
+        # TODO: integrate with config
+        allowed_dev = 1.8 * stdev
+        anime_list = [anime for anime in anime_list
+                      if anime.score > avg_score - allowed_dev]
+        return sort_list(anime_list)
+
+    def scale(anime_list):
+        """ Scale anime_list scores from 0 to 1.0 """
+        lowest = min(x.score for x in anime_list)
+        highest = max(x.score for x in anime_list)
+        # Operating is impossible if all scores are the same
+        if lowest == highest:
+            return [None] * len(anime_list)
+        # The amount the ratios between scores will scale when scaling from 0 to 1.0
+        scale_factor = 1 / (highest - lowest)
+
+        # Copy to bypass pass-by-reference behaviour
+        new_list = copy.deepcopy(anime_list)
+        new_list[0].score = 0
+
+        for index in range(1, len(anime_list)):
+            new_gap = scale_factor * (anime_list[index].score - anime_list[index - 1].score)
+            new_list[index].score = new_list[index - 1].score + new_gap
+        return new_list
+
+    anime_list = [entry for entry in anime_list if entry is not None]
+    return(scale(remove_outliers(anime_list)))
+
+def compare_anime_lists(alist1, alist2):
+    """Compare the similarity between two anime lists.
+    Returns a float between 0 and 1.0"""
+    alist1_ = scale_anime_list(alist1).sort(key=lambda x: x.uid)
+    alist2_ = scale_anime_list(alist2).sort(key=lambda x: x.uid)
+    alist1 = [anime for anime in alist1_ if anime.uid in (anime.id for anime in alist2_)]
+    alist2 = [anime for anime in alist2_ if anime.uid in (anime.id for anime in alist1_)]
+    diffs = [abs(a1.score - a2.score) for a1 in alist1 for a2 in alist2]
+    return diffs

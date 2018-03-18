@@ -1,0 +1,16 @@
+$(document).ready(function() {
+    $("#myform").submit(function() { // intercepts the submit event
+	$.ajax({ // make an AJAX request
+	    type: "POST",
+	    url: "B", // it's the URL of your component B
+	    data: $("#myform").serialize(), // serializes the form's elements
+	    success: function(data)
+	    {
+		// show the data you got from B in result div
+		$("#result").html(data);
+	    }
+	});
+	e.preventDefault(); // avoid to execute the actual submit of the form
+    });
+
+});

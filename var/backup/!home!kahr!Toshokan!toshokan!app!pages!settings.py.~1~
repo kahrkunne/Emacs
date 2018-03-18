@@ -1,0 +1,15 @@
+from . import Page
+from ..models import User
+
+from tornado.web import HTTPError
+
+from .templates.settings import settings
+
+class Settings(Page):
+    template = settings
+
+    def get(self, username, item):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if not user:
+            raise HTTPError(404)
+

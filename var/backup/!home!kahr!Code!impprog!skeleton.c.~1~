@@ -1,0 +1,17 @@
+/* file: TODO file*/
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: TODO version */
+/* Description:
+ * TODO description
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int main(int argc, char *argv[])
+{
+  /*TODO code*/
+  return 0;
+}
+

@@ -1,0 +1,28 @@
+import time
+import inspect
+import os.path
+
+from config import (log_level, log_file_p, log_file, print_log_p,
+                    log_level_p, log_date_p, log_caller_p, log_kind_p)
+
+def log(message, level, kind):
+    calframe = inspect.getouterframes(inspect.currentframe(), 2)
+    module = os.path.splitext(os.path.basename(calframe[1][1]))[0]
+    function = calframe[1][3]
+    cur_time = time.strftime("%d/%m %H:%M:%S")
+    if log_kind_p:
+        kind = {'I':'INFO',
+                'E':'ERROR',}[kind]
+        message = '{{{}}} '.format(kind) + message
+    if log_date_p:
+        message = '<{}> '.format(cur_time) + message
+    if log_caller_p:
+        message = '({}.{}) '.format(module, function) + message
+    if log_level_p:
+        message = '[{}] '.format(level) + message
+    if level <= log_level:
+        if print_log_p
+            print(message)
+        if log_file_p:
+            with open(log_file, 'a') as f:
+                f.write(message)

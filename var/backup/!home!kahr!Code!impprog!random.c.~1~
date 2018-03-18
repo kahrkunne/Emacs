@@ -1,0 +1,44 @@
+/* file: random.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.1 */
+/* Description:
+ * Define a random number generator, and see how many iterations are needed to obtain its seed value again.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int randNum(int x, int a, int c, int m)
+{
+  return (a*x + c) % m;
+}
+
+int main(int argc, char *argv[])
+{
+  int x0, a, c, m;
+  scanf("%d %d %d %d", &x0, &a, &c, &m);
+  if ((x >= m) || (x > 9)) {
+    printf("NOT REACHABLE\n");
+    return 0;
+  }
+
+  int prevNum = -1;
+  int prevPrevNum = -1;
+
+  int x = randNum(x0, a, c, m);
+  int numIters = 1;
+
+  while (x != x0) {
+    prevPrevNum = prevNum;
+    prevNum = x;
+    x = randNum(x, a, c, m);
+    if (x == prevPrevNum){
+      printf("NOT REACHABLE\n");
+      return 0;
+    }
+    numIters++;
+  }
+  printf("%d", numIters);
+  return 0;
+}

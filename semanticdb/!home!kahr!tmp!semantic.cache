@@ -1,0 +1,47 @@
+;; Object tmp/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "tmp/"
+  :tables
+  (list
+    (semanticdb-table "pretty.py"
+      :major-mode 'python-mode
+      :tags 
+        '( ("PIL" include nil nil [20 41])
+            ("random" include nil nil [42 55])
+            ("math" include nil nil [56 67])
+            ("dstnc" function (:arguments 
+              ( ("p1" variable nil (reparse-symbol function_parameters) [79 81])
+                ("p2" variable nil (reparse-symbol function_parameters) [83 85])
+                ("width" variable nil (reparse-symbol function_parameters) [87 92]))              ) nil [69 243])
+            ("v2s" function (:arguments 
+              ( ("x" variable nil (reparse-symbol function_parameters) [252 253])
+                ("y" variable nil (reparse-symbol function_parameters) [254 255])
+                ("width" variable nil (reparse-symbol function_parameters) [256 261]))              ) nil [244 287])
+            ("gen_circle" function (:arguments 
+              ( ("width" variable nil (reparse-symbol function_parameters) [303 308])
+                ("height" variable nil (reparse-symbol function_parameters) [310 316])
+                ("r" variable nil (reparse-symbol function_parameters) [318 319])
+                ("pt" variable nil (reparse-symbol function_parameters) [321 323])
+                ("img_lst" variable nil (reparse-symbol function_parameters) [325 332]))              ) nil [288 463])
+            ("width" variable nil nil [464 475])
+            ("height" variable nil nil [476 488])
+            ("img_lst" variable nil nil [489 501])
+            ("for" code nil nil [502 566])
+            ("img" variable nil nil [566 604])
+            ("r" variable nil nil [605 632])
+            ("x" variable nil nil [633 666])
+            ("y" variable nil nil [667 701])
+            ("i" variable nil nil [702 707])
+            ("wi" variable nil nil [708 715])
+            ("pts" variable nil nil [716 724])
+            ("while" code nil nil [725 1507])
+            ("img" code nil nil [1512 1532])
+            ("img" code nil nil [1533 1566]))          
+      :file "pretty.py"
+      :pointmax 1567
+      :fsize 1566
+      :lastmodtime '(22308 57405 740874 74000)
+      :unmatched-syntax nil))
+  :file "!home!kahr!tmp!semantic.cache"
+  :semantic-tag-version "2.0"
+  :semanticdb-version "2.2")

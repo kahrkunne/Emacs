@@ -1,0 +1,49 @@
+import inspect
+
+from sqlalchemy import (Column, Integer, String, Sequence, ForeignKey)
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+def gen_link(model1, model2):
+    if inspect.isclass(model1):
+        first, second = model1.__name__, model2.__name__
+    elif isinstance(model1, str):
+        first, second = model1, model2
+    else:
+        first, second = model1.__class__.__name__, model2.__class__.__name__
+
+    class_name = first + second + 'Link'
+    table_name = 'link_{}_{}'.format(first, second).lower()
+    d = dict()
+    d.setdefault('__table_args__', {'extend_existing': True})
+    d.setdefault('__tablename__', table_name)
+    d.setdefault('uid', Column(Integer, Sequence(class_name + '_id_seq'), primary_key=True))
+    d.setdefault('target', Column(Integer, ForeignKey('{}.uid'.format(second).lower()), nullable=False))
+    d.setdefault('source', Column(Integer, ForeignKey('{}.uid'.format(first).lower()), nullable=False))
+    d.setdefault('_targetrel', relationship(second, foreign_keys=d['target']))
+    d.setdefault('description', Column(String))
+    d.setdefault('__repr__', lambda self, _name=class_name:
+                 "<{}(uid={}, source={}, target={})>".format(_name, self.uid, self.source, self.target))
+    return type(class_name, (Base,), d)
+
+
+def link(session, obj1, obj2, d1=None, d2=None):
+    if not (session and obj1 and obj2):
+        return
+    if not d2:
+        d2 = d1
+    link1 = gen_link(obj1, obj2)(source=obj1.uid, target=obj2.uid, description=d1)
+    link2 = gen_link(obj2, obj1)(source=obj2.uid, target=obj1.uid, description=d2)
+    session.add(link1)
+    session.add(link2)
+    session.commit()
+
+#def setup_db(session, engine):
+#    for model1 in _discrete_models:
+#        for model2 in _discrete_models:
+#            gen_link(model1(), model2())()
+#            gen_link(model2(), model1())()
+#
+#    Base.metadata.create_all(engine)

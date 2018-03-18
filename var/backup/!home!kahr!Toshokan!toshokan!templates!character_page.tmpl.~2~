@@ -1,0 +1,58 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def leftcol_info
+<span>$character.name</span><br>
+#end def
+
+#def info_tabs
+<li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" role="tab" href="#appearances">Appearances</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#details">Details</a>
+</li>
+#end def
+
+#def info_tab_content
+<div class="tab-pane active" id="appearances" role="tabpanel">
+    #for varole in $varoles:
+	<div class="anime-va-role">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/character/$varole[1].uid">$varole[1].name</a><br>
+		    <a href="/anime/$varole[0].uid">$varole[0].name</a>
+		</div>
+	    </div>
+	</div>
+    #end for
+
+    #if $otherpeople:
+	<span>Staff roles:</span><br>
+    #end if
+    #for anime in $otherpeople:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/anime/$anime[0].uid">$anime[0].name</a><br>
+		    $anime[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+
+</div>
+
+<div class="tab-pane" id="details" role="tabpanel">
+    <span>Alternative names:</span> $person.alt_names<br>
+    <span>Other:</span><br>
+    $person.description.replace("\n", "<br />")
+</div>
+#end def

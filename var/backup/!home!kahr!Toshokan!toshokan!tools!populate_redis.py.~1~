@@ -1,0 +1,26 @@
+from redis import Redis
+from pottery import RedisDict
+import json
+
+from anime_db import generate_session, User
+
+redis = Redis.from_url('http://localhost:6379')
+toshokan = RedisDict(redis=redis, key='toshokan')
+
+session = generate_session(User)
+users = session.query(User).yield_per(500000)
+
+def process():
+    c = 0
+    for u in users:
+        if c % 10000 == 0:
+            print('PROCESSED {} USERS'.format(c))
+        c += 1
+        al_db = u.animelist
+        if len(al_db) == 0:
+            continue
+        name = u.name
+        al = []
+        for a in al_db:
+            al.append((a.anime_id, a.status, a.num_watched, a.score))
+        toshokan[name] = json.dumps(al)

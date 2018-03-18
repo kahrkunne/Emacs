@@ -1,0 +1,63 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def leftcol_info
+<span>$person.name</span>
+<span>Given name:</span> $person.given_name
+<span>Family name:</span> $person.family_name
+<span>Birthday:</span> $person.birthday TODO: flags
+#end def
+
+#def info_tabs
+<li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" role="tab" href="#description">Description</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#positions">Staff positions</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#details">Details</a>
+</li>
+#end def
+
+#def info_tab_content
+<div class="tab-pane" id="description" role="tabpanel">
+    $person.description
+</div>
+
+<div class="tab-pane" id="positions" role="tabpanel">
+    #for varole in $varoles:
+	<div class="anime-va-role">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/character/$varole[1].uid">$va[1].name</a><br>
+		    <a href="/person/$varole[0].uid">$va[0].name</a>
+		</div>
+	    </div>
+	</div>
+    #end for
+
+    #for person in $otherpeople:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/person/$person[0].uid">$person[0].name</a><br>
+		    $person[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+
+</div>
+
+<div class="tab-pane" id="details" role="tabpanel">
+    <span>Alternative names:</span> $person.alt_names
+</div>
+#end def

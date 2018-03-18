@@ -1,0 +1,31 @@
+"""Utilities for fetching data from MAL."""
+import functools
+
+import tornado
+from tornado.httpclient import AsyncHTTPClient
+
+from config import comments_page_delay, max_clients, request_timeout
+from debug import log
+
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+http_client = AsyncHTTPClient()
+http_client.max_clients = max_clients
+http_client.request_timeout = request_timeout
+
+global wew
+wew = 'kek'
+
+def get_user_profile_link(uid, proxy):
+    """Get a link to MAL user profile from user id."""
+    def handle_response(response):
+        if response.error:
+            log('(fetch.get_user_profile_link.handle_response) ERROR fetching uid: {}; returned: {}'
+                .format(uid, response.error), 1)
+        else:
+            wew = response.body
+
+    io_loop = tornado.ioloop.IOLoop.current()
+    comments_url = "https://myanimelist.net/comments.php?id=" + str(uid)
+
+    io_loop.call_later(comments_page_delay, functools.partial(http_client.fetch, comments_url, handle_response,
+                                                              proxy_host=proxy['host'], proxy_port=proxy['port']))

@@ -1,0 +1,5 @@
+vo=opengl-hq:tscale=mitchell:temporal-dither:blend-subtitles:pbo:target-prim=bt.709:target-trc=bt.1886:gamma-auto:icc-profile-auto:3dlut-size=256x256x256
+video-sync=display-resample
+
+alang=jp,jpn
+slang=eng

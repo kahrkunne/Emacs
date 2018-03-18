@@ -1,0 +1,67 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def section($alist, $name, $no_total_eps=False)
+<h2 style="text-align:center;">$name</h1>
+    <div class="alheader">
+        <div style="width: 30%;float:left;"><a href="">Title</a></div>
+        <div style="width: 8%;float:right;"><a href="">Progress</a></div>
+        <div style="width: 5%;float:left;"><a href="">Score</a></div>
+        <div style="width: 8%;float:right;"><a href="">Type</a></div>
+        <div style="width: 15%;float:left;"><a href="">Started Date</a></div>
+        <div style="width: 15%;float:left;"><a href="">Finished Date</a></div>
+        <div style="width: 19%;float:right; text-align:center"><a href=""></a></div>
+    </div>
+
+    #for $entry in $alist
+        #if not $no_total_eps
+            #set $total_eps = "/"+$str($entry.anime.episodes)
+        #else
+            #set $total_eps = ""
+        #end if
+        <div class="alrow">
+            <div style="width: 30%;float:left;">$entry.anime.title</div>
+            <div style="width: 8%;float:left;">$entry.num_watched$total_eps</div>
+            <div style="width: 5%;float:left;">$entry.score</div>
+            <div style="width: 8%;float:left;">$entry.anime.a_type</div>
+            <div style="width: 15%;float:left;">$entry.anime.start_date</div>
+            <div style="width: 15%;float:left;">$entry.anime.end_date</div>
+            <div class="albuttcol"><a href="$url('anime', $entry.anime.uid, $slug($entry.anime.title))">Info</a></div>
+        </div>
+    #end for
+#end def
+
+#def main
+#if not $varExists('list')
+    #set $alist = {"c":[],"w":[],"p":[],"h":[],"d":[], "none":True}
+#end if
+
+<h1 style="text-align:center;">Anime List</h1>
+#if $alist["w"]
+    $section($alist["w"], "Currently Watching")
+#end if
+
+#if $alist["c"]
+    $section($alist["c"], "Completed", True)
+#end if
+
+#if $alist["h"]
+    $section($alist["h"], "On-Hold")
+#end if
+
+#if $alist["d"]
+    $section($alist["d"], "Dropped")
+#end if
+
+#if $alist["p"]
+    $section($alist["p"], "Plan To Watch")
+#end if
+
+#if $alist["none"]:
+    No anime found in your list :^(
+#end if
+
+
+#end def

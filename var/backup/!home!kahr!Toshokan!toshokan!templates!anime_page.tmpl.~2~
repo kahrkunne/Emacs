@@ -1,0 +1,88 @@
+
+#from .layout import layout
+
+#extends layout
+#def main
+
+<div class="infobar">
+    <span id="left"> $anime.title</span>
+    <span id="right">
+	<div class="tab">
+	    <button class="tablinks active" onclick="showContent(event, 'details')">details</button>
+	    <button class="tablinks" onclick="showContent(event, 'staff')">staff</button>
+	</div>
+    </span>
+</div>
+<div class="container">
+    <div class="leftcol">
+	<div>
+	    <div class="entrythumb">
+		<img class="entrythumb" src="/static/img/placeholder.jpg">
+	    </div>
+	    <br>
+	    <div class="entryinfo">
+		<div class="leftcol_title">
+		    <h2>Information</h2>
+		</div>
+		<span>Type: </span>$anime.a_type<br>
+		<span>Episodes: </span>$anime.episodes<br>
+		<span>Status: </span>$anime.status<br>
+		<span>Aired: </span>$anime.start_date - $anime.end_date<br>
+		<span>Season: </span>PLACEHOLDER<br>
+		<span>Studio: </span>PLACEHOLDER<br>
+		<span>Other Names: </span>$anime.synonyms<br>    
+		<div class="leftcol_title">
+		    <h2>Statistics</h2>
+		</div>
+		<span>Score: </span>$anime.mal_score<br>
+		<span>Ranked: </span>PLACEHOLDER<br>
+		<span>Members: </span>PLACEHOLDER<br>
+	    </div>
+	</div>
+    </div>
+    <div class="rightcol">
+	<div class="text-content">
+	    <div id="details" class="tabcontent">
+		<h2>Summary</h2>
+		$anime.synopsis
+		<div class="details-sub" id="details">
+		    <h2>Related Anime</h2>
+		    PLACEHOLDER. Put related anime here!<br>
+		    TODO: idk what to do with this if there's no related anime.
+		</div>
+	    </div>
+
+	    <div id="staff" class="tabcontent">
+		PLACEHOLDER. Put staff details here! (we still have to steal those from MAL)
+	    </div>
+	</div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<script>
+ function showContent(evt, contentName) {
+     // Declare all variables
+     var i, tabcontent, tablinks;
+
+     // Get all elements with class="tabcontent" and hide them
+     tabcontent = document.getElementsByClassName("tabcontent");
+     for (i = 0; i < tabcontent.length; i++) {
+	 tabcontent[i].style.display = "none";
+     }
+
+     // Get all elements with class="tablinks" and remove the class "active"
+     tablinks = document.getElementsByClassName("tablinks");
+     for (i = 0; i < tablinks.length; i++) {
+	 tablinks[i].className = tablinks[i].className.replace(" active", "");
+     }
+
+     // Show the current tab, and add an "active" class to the button that opened the tab
+     document.getElementById(contentName).style.display = "block";
+     evt.currentTarget.className += " active";
+ }
+ // Set details tab active by default
+ document.getElementById("details").style.display="block";
+</script>
+#end def

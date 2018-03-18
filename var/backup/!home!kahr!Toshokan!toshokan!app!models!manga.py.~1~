@@ -1,0 +1,17 @@
+from . import modelfactory
+
+from sqlalchemy import (Column, Integer, String, Date)
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+DiscreteModelFactory = modelfactory.DiscreteModelFactory
+
+class Manga(Base, metaclass=DiscreteModelFactory):
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    volumes = Column(Integer)
+    chapters = Column(Integer)
+    kind = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)

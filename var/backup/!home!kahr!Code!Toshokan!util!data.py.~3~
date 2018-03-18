@@ -1,0 +1,103 @@
+#!/usr/bin/python
+"""Library for downloading, processing and importing MAL data"""
+from urllib import request
+import pickle
+from debug import log
+import os
+from bs4 import BeautifulSoup
+from db import Anime, Person
+from datetime import datetime
+import parsedatetime as pdt
+
+def fetch_anime(ai, proxy=None):
+    # TODO: error handling, everything else seems to be in order.
+    def find_leftbox(soup, txt):
+        """Find the data in the left area of the MAL page"""
+        try:
+            # XXX Hard to understand.
+            text = [a for a in soup.findAll('span') if a.text == (txt + ':')][0].parent.text.split("\n")[2]
+            final = [a.strip() for a in text.split(',')]
+            return(final)
+        # FIXME Bare except.
+        except:
+            return([])
+
+    a = Anime()
+
+    log(4, 'I', "Fetching anime page for ID: {}".format(ai))
+    url = "https://myanimelist.net/anime/{}".format(ai)
+
+    req = request.Request(url)
+    if proxy:
+        req.set_proxy(proxy, 'http')
+    with request.urlopen(req) as r:
+        html = r.read()
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    a.mal_id = ai
+    aired = ' '.join(find_leftbox(soup, "Aired")).split(' to ')
+    a.start_date = pdt.Calendar().parseDT(aired[0], sourceTime=datetime.min)[0]
+    try:
+        a.end_date = pdt.Calendar().parseDT(aired[1], sourceTime=datetime.min)[0]
+    except:
+        a.end_date = a.start_date
+    a.timeslot = find_leftbox(soup, "Broadcast")[0]
+    a.a_type = find_leftbox(soup, "Type")[0]
+    a.status = find_leftbox(soup, "Status")[0]
+    a.num_episodes = int(find_leftbox(soup, "Episodes")[0])
+    a.source = find_leftbox(soup, "Source")[0]
+    a.duration = pdt.Calendar().parseDT(find_leftbox(soup, "Duration")[0], sourceTime=datetime.min)[0] - datetime.min
+    a.rating = find_leftbox(soup, "Rating")[0]
+    a.season = find_leftbox(soup, "Premiered")[0]
+    a.description = soup.find("span", itemprop="description").text
+    a.synonyms = ';'.join([x.text.strip() for x in soup.findAll("div", class_='spaceit_pad')
+                           if x.find("span", class_="dark_text")])
+    a.name = soup.find('span', itemprop='name').text
+
+    return a
+
+def fetch_person(pi, proxy=None):
+    def find_leftbox(soup, txt):
+        """Find the data in the left area of the MAL page"""
+        try:
+            # XXX Hard to understand.
+            text = ' '.join([a for a in soup.findAll('span') if a.text == (txt + ':')][0].parent.text.split(" ")[1:])
+            final = [a.strip() for a in text.split(',')]
+            return(final)
+        # FIXME Bare except.
+        except:
+            return([])
+
+    p = Person()
+
+    log(4, 'I', "Fetching person page for ID: {}".format(pi))
+    url = "https://myanimelist.net/people/{}".format(pi)
+
+    req = request.Request(url)
+    if proxy:
+        req.set_proxy(proxy, 'http')
+    with request.urlopen(req) as r:
+        html = r.read()
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    p.mal_id = pi
+    p.given_name = find_leftbox(soup, 'Given name')[0]
+    p.family_name = find_leftbox(soup, 'Family name')[0]
+    p.name = soup.find('h1', class_='h1').text
+    p.description = soup.find('div', class_='people-informantion-more js-people-informantion-more').text
+
+    birthday = ', '.join(find_leftbox(soup, 'Birthday'))
+    if birthday == 'Unknown':
+        p.birthday = None
+    elif len(birthday) == 4:
+        p.birthday = '{}-00-00'.format(birthday)
+    else:
+        new_birthday = pdt.Calendar().parseDT(birthday, sourceTime=datetime.min)[0]
+        year = '0000' if new_birthday.year == 1 else str(new_birthday.year)
+        month = '00' if new_birthday.month == 1 and 'Jan' not in birthday else format(new_birthday.month, '02d')
+        day = '00' if new_birthday.day == 1 and birthday[0] != 1 else format(new_birthday.day, '02d')
+        p.birthday = '{}-{}-{}'.format(year, month, day)
+
+    return p

@@ -1,0 +1,49 @@
+#from .layout import layout
+
+#extends layout
+#def main
+
+<div class="row">
+    <div class="col-lg-3">
+	<div class="animepage-leftcol">
+	    <div class="entrythumb">
+		<img class="img-fluid" src="http://via.placeholder.com/1500x1500">
+	    </div>
+
+	    <span>Name: </span>$anime.name<br>
+	    <span>Type: </span>$anime.kind<br>
+	    <span>Episodes: </span>$anime.num_episodes<br>
+	    <span>Status: </span>$anime.status<br>
+	    <span>Aired: </span>$anime.start_date - $anime.end_date<br>
+	    <span>Season: </span>$anime.season<br>
+	    <span>Studio: </span>PLACEHOLDER<br>
+	    <span>Other Names: </span><br>$anime.synonyms.replace(";", "<br />")<br>    
+	    <span>Score: </span>PLACEHOLDER<br>
+	    <span>Ranked: </span>PLACEHOLDER<br>
+	    <span>Members: </span>PLACEHOLDER<br>
+	</div>
+    </div>
+
+    <div class="col">
+	<div class="animepage-rightcol">
+	    <ul class="nav nav-pills">
+		<li class="nav-item">
+		    <a class="nav-link active" data-toggle="tab" role="tab" href="#description">Description</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#people">Something</a>
+		</li>
+	    </ul>
+	    <div class="tab-content">
+		<div class="tab-pane active" id="description" role="tabpanel">
+		    $anime.description.replace("\n", "<br />")
+		</div>
+		<div class="tab-pane" id="people" role="tabpanel">
+		    PLACEHOLDER
+		</div>
+	    </div>
+	</div>
+    </div>
+</div>
+
+#end def

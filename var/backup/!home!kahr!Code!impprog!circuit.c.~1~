@@ -1,0 +1,25 @@
+/* file: circuit.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.01 */
+/* Description:
+ * Compute the shortest circuit
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+  int n;
+  scanf("%d", &n);
+  int **d = (int **) malloc(n * sizeof(int *));
+  for (int i = 0; i < n; ++i) {
+    d[i] = (int *) malloc (n * sizeof(int));
+  }
+
+  int tmp, i = 0, c = 0;
+
+  scanf("%d", &tmp);
+
+  return 0;
+}

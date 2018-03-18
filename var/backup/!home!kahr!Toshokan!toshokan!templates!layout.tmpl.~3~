@@ -1,0 +1,131 @@
+#import json
+
+#from ..page import BaseTemplate
+#extends BaseTemplate
+#implements respond
+
+#if not $varExists('email')
+    #set email = ""
+#end if
+#if not $varExists('errors')
+    #set errors = ""
+#end if
+
+
+<!doctype html>
+<HTML lang="en">
+    <HEAD>
+	<TITLE>Toshokan</TITLE>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+	<link rel="stylesheet" href="/static/css/style.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
+	<script src="https://use.fontawesome.com/6e0448e881.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script>var backend = $json.dumps($backend)</script>
+	<script>var user = $json.dumps($user)</script>
+	<script src="/static/js/navsearch.js"></script>
+	<script src="/static/js/mustache.min.js"> </script>
+	<script id="nsresult" type="x-tmpl-mustache" language="text">
+	    <div class="nsearch-result">
+		<a href="{{url}}">
+		    <div class="row my-2">
+			<div class="col-2">
+			    <div class="nres-image"><img src="{{image}}"></div>
+			</div>
+			<div class="col-10 justify-content-center align-self-center">
+			    <div class="ns-title text-truncate">{{title}}</div>
+			    <div class="ns-info text-truncate">{{info}}</div>
+			</div>
+		    </div>
+		</a>
+	    </div>
+	</script>
+    </HEAD>
+    <BODY>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	    <a class="navbar-brand" href="#">Navbar</a>
+	    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	    </button>
+
+	    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+		    <li class="nav-item active">
+			<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+		    </li>
+		    <li class="nav-item">
+			<a class="nav-link" href="/anime">Anime</a>
+		    </li>
+		</ul>
+
+
+		<ul class="navbar-nav">
+		    <li class="searchbar">
+			<form class="form-inline my-2 my-lg-0" method="get">
+
+
+			    <div class="dropdown">
+				<input name="q" id="qbox" data-toggle="dropdown" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off" aria-haspopup="true" aria-expanded="false" />
+				<div id="search_results" class="dropdown-menu" role="menu" aria-labelledby="qbox">
+				    <article class="results">
+				    </article>
+				</div>
+			    </div>
+			</form>
+		    </li>
+
+		    <li class="usericon">
+			<div class="acc-area">
+			    #if $user and $user['id'] is not $None
+				<img src="http://via.placeholder.com/40x40" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="account_dropdown">
+				    <a class="dropdown-item" href="#">Action</a>
+				    <a class="dropdown-item" href="#">Another action</a>
+				    <a class="dropdown-item" href="#">Something else here</a>
+				    <div class="dropdown-divider"></div>
+				    <a class="dropdown-item" href="/logout">log out</a>
+				</div>
+			    #else
+				<button class="btn" id="login_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    Log in
+				</button>
+				<div class="dropdown-menu dropdown-menu-right py-1" aria-labelledby="login_dropdown">
+				    <form method="post" class="px-2 py-1" action="/login/">
+					<div class="form-group">
+					    <label for="nv_email" class="my-1">Email address</label>
+					    <input type="email" class="form-control" name="email" id="nv_email" placeholder="Email">
+					</div>
+					<div class="form-group">
+					    <label for="nv_password" id="nv_password" class="my-1">Password</label>
+					    <input type="password" class="form-control" name="password" id="nv_password" placeholder="Password">
+					</div>
+					<div class="form-check">
+					    <label class="form-check-label" for="dropdownCheck">
+						Remember me
+					    </label>
+					    <input type="checkbox" class="form-check-input" id="dropdownCheck">
+					</div>
+					<button type="submit" id="navbar-logout" class="btn btn-primary">Sign in</button>
+				    </form>
+				</div>
+			    #end if
+			</div>
+		    </li>
+		</ul>
+
+	    </div>
+	</nav>
+
+	<div class="container">
+	    <div class="content">
+		#block main
+		Empty.
+	    #end block
+	    </div>
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    </BODY>
+</HTML>

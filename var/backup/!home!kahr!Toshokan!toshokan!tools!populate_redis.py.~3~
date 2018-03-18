@@ -1,0 +1,70 @@
+from redis import Redis
+from pottery import RedisDict
+import json
+
+from anime_db import generate_session, User
+
+redis = Redis.from_url('http://localhost:6379')
+toshokan = RedisDict(redis=redis, key='recengine')
+
+session = generate_session(User)
+
+def page_query(q):
+    offset = 0
+    while True:
+        r = False
+        for elem in q.limit(10000).offset(offset):
+            r = True
+            yield elem
+        offset += 10000
+        if not r:
+            break
+
+users = page_query(session.query(User))
+
+def process():
+    c = 0
+    for u in users:
+        session.flush()
+        if c % 10000 == 0:
+            print('PROCESSED {} USERS'.format(c))
+        c += 1
+        al_db = u.animelist
+        name = u.name
+        if len(al_db) == 0 or name in toshokan:
+            continue
+        al_db = sorted(al_db, key=lambda entry: entry.score)
+        al = []
+        for a in al_db:
+            if a in new_new_a:
+                al.append((a.anime_id, a.status, a.num_watched, a.score))
+        toshokan[u.uid] = json.dumps(al).replace(' ', '')
+        del al_db, name, al
+
+def count_occ():
+    occ = {}
+    scores = {}
+    for u in users:
+        for entry in u.animelist:
+            if entry.score != 0:
+                if entry.anime_id not in occ:
+                    occ[entry.anime_id] = 1
+                else:
+                    occ[entry.anime_id] += 1
+                if entry.anime_id not in scores:
+                    scores[entry.anime_id] = 1
+                else:
+                    scores[entry.anime_id] += entry.score
+    for a in scores:
+        scores[a] = scores[a]/occ[a]
+    return (occ, scores)
+
+def test():
+    c = 0
+    for u in users:
+        session.flush()
+        if c % 1000 == 0:
+            print('something')
+        c += 1
+        name = u.name
+        al_db = u.animelist

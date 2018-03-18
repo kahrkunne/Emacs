@@ -1,0 +1,39 @@
+\documentclass[12p]{article}
+\date{September 29, 2017}
+\author{Kahr Kunne}
+\title{insert title here}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  University-Industry partnership has been very effective in securing funding for universities, which in turn is beneficial to the scientific process. However, it is important that we remain careful about what kind of incentives we give to our researchers.
+\end{abstract}
+
+A 2014 article\cite{article} published by the IEEE Computer Society talks about how the University of Akron Research Foundation works together with the industry to commericalize university technology. The foundation does this in many ways, including sharing resources with the industry, providing services to industry contacts in exchange for pro bono work, and supporting entrepeneurs. Overall, the article is very positive over these developments. And that positivity is not without a cause; between 2001 and 2012, UA has more than doubled their research expenditures.
+
+I share the authors' enthuasiams over these developments; research funding is a difficult issue. However, the article is a bit one-sided, and doesn't consider some of the key disadvantages to university-industry partnerships.
+
+We can't get around the fact that fundamentally, universities and the industry have different goals. Universities exist to do science and gather information, irrespective of practical application. Industry, on the other hand, is concerned with making a profit. Often, these goals align, and the industry can use the knowledge gained by universities in order to create compelling products. The key difference between the two, however, is that the industry only cares about what is profitable right now. A scientific discovery that won't be useful for the next 10 years is useless to the industry, but valuable to universities.
+
+Now, imagine what happens if universities have particularly strong industry ties, to the extent where most of the research the university does is industry-sponsored. Universities will now only research things which can lead to short term profits. Thus, research starts to behave like a greedy algorithm, with all related drawbacks.
+
+Worst of all, the symptoms of this don't manifest for a long time. After all, the kind of research which is no longer being done is the kind of research that won't be useful until years in the future. Thus, for a long time, years or even decades, it might appear as if the stronger industry ties are having a positive effect. TODO FINISH
+
+Secondly, there's the issue of incentive. Industry funding gives a strong incentive to researchers to work in the interests of the company which is funding them. In the worst case scenario, discoveries which would normally become available to the general public would now be immediately patented and commercialized by a company. Not only would this be bad for the general public, which now doesn't get access to these discoveries, this would also be bad for the market; patents, by design, grant a limited form of monopoly. One can imagine how the biggest companies could become the sole funders of many of the biggest universities, constantly getting new patents and becoming harder and harder to compete with. TODO FINISH
+
+These concerns are important to keep in mind, but they are not unsolvable. As long as universities are aware of the risk, and are willing to stick to their ideals, I believe the benefits outweigh the disadvantages. For one, it makes universities less dependent on public money. Yes, companies now have more influence over universities; however, the government now has less influence. SOMETHING SOMETHING TODO FINISH
+
+bottom text
+
+\begin{thebibliography}
+\bibitem{article}
+  Ball, E. N.; Preston, K. G.,
+  \textit{University Commercialization Models: The University of Akron},
+  IEEE Computer 47(8),
+  28-16, 2014
+
+\end{thebibliography}
+
+\end{document}
+

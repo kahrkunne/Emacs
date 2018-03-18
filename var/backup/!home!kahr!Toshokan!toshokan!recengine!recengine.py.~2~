@@ -1,0 +1,137 @@
+import sys
+from collections import defaultdict
+import csv
+
+import numpy as np
+import scipy.sparse as sp
+from lightfm.evaluation import precision_at_k, recall_at_k, auc_score, reciprocal_rank
+
+sys.path.append('/home/kahr/Toshokan/toshokan/app')
+import models
+
+def gen_interaction_csv(session, min_rating=1, implicit=False, filename='interactions.csv'):
+    entries = session.query(models.OldAnimeEntry).yield_per(100000)
+    with open(filename, 'w+') as f:
+        for e in entries:
+            if implicit:
+                score = 1
+            else:
+                score = e.score
+
+            if score < min_rating:
+                continue
+
+            f.write('{},{},{}\n'.format(e.name, e.anime_id, score))
+
+def parse_interaction_csv(filename='interactions.csv', min_rating=1, implicit=False, test=False, use_genres=False):
+    def _build_interaction_matrix(rows, cols, data):
+        mat = sp.lil_matrix((rows, cols), dtype=np.int32)
+
+        for uid, iid, rating in data:
+            if rating >= min_rating:
+                mat[uid, iid] = rating
+
+        return mat.tocoo()
+
+    data = []
+    with open(filename, 'r') as f:
+        for row in csv.reader(f, delimiter=','):
+            data.append((row[0], int(row[1]), int(row[2])))
+
+    usernumbers = {}
+    useritems = defaultdict(list)
+    bigcol = 0
+    count = 0
+    testdata = []
+    traindata = []
+    allitems = []
+    count = 0
+    prevname = ''
+    for e in data:
+        if e[0] != prevname:
+            count += 1
+            prevname = e[0]
+
+        usernumbers.setdefault(e[0], count)
+        useritems[e[0]].append(e[1])
+
+        if e[1] not in allitems:
+            allitems.append(e[1])
+
+        if e[1] > bigcol:
+            bigcol = e[1]
+
+        if implicit:
+            score = 1
+        else:
+            score = e[2]
+
+        if count % 5 == 0 and test:
+            testdata.append((count, e[1], score))
+        else:
+            traindata.append((count, e[1], score))
+
+    bigrow = count + 1
+    bigcol = bigcol + 1 # FIXME why?
+
+    test = _build_interaction_matrix(bigrow, bigcol, testdata)
+    train = _build_interaction_matrix(bigrow, bigcol, traindata)
+
+    return (train, test, usernumbers, useritems)
+
+
+def gen_anime_id_map(session):
+    entries = session.query(models.Anime).yield_per(100000)
+    out = {}
+    for e in entries:
+        out[e.uid] = e.name
+    return out
+
+def get_anime_genres(session, aid):
+    genre_ids = [x[0] for x in session.query(models.Link.genre_id).filter_by(anime_id=aid).all() if x[0]]
+    genre_names = {}
+    for gid in genre_ids:
+        genre_names[gid] = session.query(models.Genre.name).filter_by(uid=gid).first()[0]
+
+    return genre_names
+
+def sample_recommendation_lightfm(model, user_id, num_items, item_features=None, skiplist=[], namemap=None, display=True, disp_count=3):
+
+    item_ids = np.arange(num_items)
+    scores = model.predict(user_id, item_ids, item_features=item_features)
+    top_items = np.argsort(-scores)
+
+    print("User %s" % user_id)
+    print("     Recommended:")
+
+    disp = 0
+    if display:
+        for x in top_items:
+            if disp < disp_count and x not in skiplist:
+                if namemap:
+                    x = namemap[x]
+                print("        %s" % x)
+                disp += 1
+
+    return top_items
+
+def evaluate(model, train, test, pk=5, rk=10, item_features=None):
+    print("[Precision@k] Train precision: %.2f"
+          % precision_at_k(model, train, k=pk, num_threads=8, item_features=item_features).mean())
+    print("[Precision@k] Test precision: %.2f"
+          % precision_at_k(model, test, k=pk, num_threads=8, item_features=item_features).mean())
+
+    print("[Recall@k] Train precision: %.2f"
+          % recall_at_k(model, train, k=rk, num_threads=8, item_features=item_features).mean())
+    print("[Recall@k] Test precision: %.2f"
+          % recall_at_k(model, test, k=rk, num_threads=8, item_features=item_features).mean())
+
+    print("[AUC] Train precision: %.2f"
+          % auc_score(model, train, num_threads=8, item_features=item_features).mean())
+    print("[AUC] Test precision: %.2f"
+          % auc_score(model, test, num_threads=8, item_features=item_features).mean())
+
+    print("[Reciprocal Rank] Train precision: %.2f"
+          % reciprocal_rank(model, train, num_threads=8, item_features=item_features).mean())
+    print("[Reciprocal Rank] Test precision: %.2f"
+          % reciprocal_rank(model, test, num_threads=8, item_features=item_features).mean())

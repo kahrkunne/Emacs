@@ -1,0 +1,64 @@
+* TODOs
+<<<<<<< HEAD
+** DONE Change name
+   - State "DONE"       from "TODO"       [2017-06-10 Sat 21:35]
+     Keeping name at Toshokan
++ "Toshokan" is difficult to remember and spell (for normies)
++ Useless if we ever decide to translate the site to Japanese
+** TODO Data gathering
+*** WAIT Mal user data
+    - State "WAIT"       from "TODO"       [2017-06-10 Sat 21:35] \\
+      Got some of the data, but we're now being throtteled
+*** TODO MAL anime data
+=======
+** CANCELED Change name
+   - State "CANCELED"   from "TODO"       [2017-06-18 Sun 14:09] \\
+     Decided to keep the current name.
++ "Toshokan" is difficult to remember and spell (for normies)
++ Useless if we ever decide to translate the site to Japanese
+** TODO Data gathering
+*** TODO Mal user data
+*** DONE MAL anime data
+    - State "DONE"       from "TODO"       [2017-06-18 Sun 14:09]
+>>>>>>> master
+**** DONE MAL anime API data
+   - State "DONE"       from "TODO"       [2017-04-30 Sun 23:02]
+**** DONE Mal anime page scraping
+     - State "DONE"       from "TODO"       [2017-06-10 Sat 21:36]
+       Completed, but not processed yet.
+**** TODO Process scraped data
+*** TODO MAL manga data
+*** TODO AniDB anime data
+- Sent message requesting database dump
+*** TODO VNDB VN data
+- Sent email requesting database dump
+*** TODO LN data
+**** TODO Determine source for LN data
+** TODO Data processing
+*** TODO Mal user data
+*** TODO MAL anime data
+**** TODO Mal anime API data
+Still waiting on some missing shows; Smith has the data.
+**** TODO Mal anime page data
+*** TODO MAL manga data
+*** TODO AniDB anime data
+*** TODO VNDB VN data
+*** TODO LN data
+** DONE Instant search
+   - State "DONE"       from "TODO"       [2017-04-30 Sun 23:07]
+** TODO Website design
+*** TODO General design template
+Reasv is working on this
+*** TODO Anime page design
+Reasv is working on this
+*** TODO Front page design
+*** TODO User page design
+** TODO User system
+** TODO Recommendation algorithm
+* Ideas
+** Recommendation system
+*** TODO write this up
+* Current plan
+** Fetch all user data
+** Implement full user system/good database
+** Implement recommendation system

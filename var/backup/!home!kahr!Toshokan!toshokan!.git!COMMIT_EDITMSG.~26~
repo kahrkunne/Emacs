@@ -1,0 +1,16 @@
+Finished support for extra attributes in links, removed VARole (deprecated)
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Tue Dec 26 20:16:05 2017 +0100
+#
+# On branch master
+# Your branch is ahead of 'origin/master' by 3 commits.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   app/models/linking.py
+#	modified:   app/models/modelfactory.py
+#	modified:   util/data.py
+#

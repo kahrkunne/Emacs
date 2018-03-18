@@ -1,0 +1,8 @@
+#from .layout import layout
+
+#extends layout
+#def main
+
+<b> hello world </b>
+
+#end def

@@ -1,0 +1,27 @@
+import tornado
+import sqlalchemy
+from sqlalchemy import func
+
+from . import Page
+from ..models import User
+
+from .templates.anime_list import anime_list
+
+class AnimeList(Page):
+    template = anime_list
+
+    def get(self, username):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if user:
+            print(user.animelist)
+            self.t.alist = {}
+            self.t.alist["c"] = [e for e in user.animelist if e.status == 2] #completed
+            self.t.alist["w"] = [e for e in user.animelist if e.status == 1] #watching
+            self.t.alist["p"] = [e for e in user.animelist if e.status == 6] #plan to watch
+            self.t.alist["h"] = [e for e in user.animelist if e.status == 3] #on hold
+            self.t.alist["d"] = [e for e in user.animelist if e.status == 4] #dropped
+            if not user.animelist:
+                self.t.alist["none"] = True
+            else:
+                self.t.alist["none"] = False
+        self.write(self.render())

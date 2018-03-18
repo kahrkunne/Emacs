@@ -1,0 +1,54 @@
+/* file: rings.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.01 */
+/* Description:
+ * Calculate overlapping rings or something
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int overlap(int a[3], int b[3])
+{
+  int radSum = a[2] + b[2];
+  int dist = sqrt(pow((a[0] - b[0]), 2) + pow((a[1] - b[1]), 2));
+  if (dist <= radSum) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+int main(int argc, char *argv[])
+{
+  int numRings, numFree = 0;
+  scanf("%d", &numRings);
+  int rings[numRings][3];
+  for (int i = 0; i < numRings; ++i) {
+    scanf("%d %d %d", &rings[i][0], &rings[i][1], &rings[i][2]);
+  }
+
+  int overlaps[numRings];
+  for (int i = 0; i < numRings; ++i) {
+    overlaps[i] = 0;
+  }
+
+  for (int i = 0; i < numRings - 1; ++i) {
+    for (int j = i + 1; j < numRings; ++j) {
+      if (overlap(rings[i], rings[j])) {
+	overlaps[i] = 1;
+	overlaps[j] = 1;
+      }
+    }
+  }
+
+  for (int i = 0; i < numRings; ++i) {
+    if (overlaps[i] == 0) {
+      numFree++;
+    }
+  }
+
+  printf("%d\n", numFree);
+  return 0;
+}

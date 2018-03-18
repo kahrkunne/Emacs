@@ -1,0 +1,168 @@
+"""Utilities for fetching data from MAL."""
+import functools
+import pickle
+import json
+
+import tornado
+from tornado.httpclient import AsyncHTTPClient
+from lxml import html as lh
+
+import anime_db
+from config import (comments_page_delay, max_clients, request_timeout,
+                    save_profile_link, profile_link_save_interval, profile_link_file,
+                    fetch_set, fetch_interval, profile_delay, profile_fail_delay,
+                    profile_max_retries, profile_max_proxy_retries, debug_io_loop,
+                    max_names, ok_names)
+from debug import log
+from proxy import generate_proxy
+
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+http_client = AsyncHTTPClient()
+http_client.max_clients = max_clients
+http_client.request_timeout = request_timeout
+
+io_loop = tornado.ioloop.IOLoop.current()
+if not debug_io_loop:
+    io_loop.handle_callback_exception = lambda *args: None
+
+user_session = anime_db.generate_session(anime_db.User)
+list_session = anime_db.generate_session(anime_db.ListEntry)
+
+profile_links = []
+processed_ids = []
+
+user_pages = {}
+
+profile_link_counter = 0
+
+proxies = generate_proxy()
+
+fetched_lists = 0
+
+def store_profile_link(link):
+    """Store a link to a user profile.
+    Will always store in a global list `profile_links`; will also store in a file depending on config."""
+    log('storing profile link: {}'.format(link), 4, 'I')
+    global profile_links
+    global profile_link_counter
+
+    profile_links.append(link)
+    profile_link_counter += 1
+
+    if save_profile_link and (profile_link_counter % profile_link_save_interval == 0):
+        log('saving profile links', 3, 'I')
+        with open(profile_link_file + str(fetch_set), 'wb') as f:
+            pickle.dump(profile_links, f)
+
+def get_user_profile_link(uid, proxy):
+    """Get a link to MAL user profile from user id."""
+    def handle_response(response):
+        if response.error:
+            log('fetching uid: {}, returned: {}'.format(uid, response.error), 4, 'E')
+            if response.error == "HTTP 404: Not Found":
+                processed_ids.append(uid)
+        else:
+            data = response.body
+            name = lh.fromstring(data).find(".//title").text.strip().split(' ')[0].split("'")[0]
+            url = "https://myanimelist.net/profile.php?username=" + name
+            processed_ids.append(uid)
+            store_profile_link(url)
+
+    comments_url = "https://myanimelist.net/comments.php?id=" + str(uid)
+    io_loop.call_later(comments_page_delay, functools.partial(http_client.fetch, comments_url, handle_response,
+                                                              proxy_host=proxy['host'], proxy_port=proxy['port']))
+
+def queue_user_profile_link_fetch():
+    """Queue user profile links for fetching."""
+    for x in range((fetch_set - 1) * fetch_interval,fetch_set * fetch_interval):
+        get_user_profile_link(x, {'host': None, 'port': None})
+
+def get_user_profile(url, proxy):
+    """Fetch a user's MAL profile, and store the data in the database."""
+    def handle_response(response):
+        if response.error:
+            log('fetching url: {}; returned: {}'.format(url, response.error), 4, 'E')
+        else:
+            data = response.body
+            anime_db.add_user(user_session, data)
+
+    io_loop.call_later(profile_delay, functools.partial(http_client.fetch, url, handle_response,
+                                                        proxy_host=proxy['host'], proxy_port=proxy['port']))
+
+kek = []
+
+def get_user_list(name, proxy={'host':None, 'port':None}, offset=0, alist=[], delay=None, retries=0, proxy_retries=0):
+    global fetched_lists
+    """Fetch a user's anime list, and store the data in the database."""
+    log('entering function', 4, 'I')
+    if fetched_lists >= ok_names:
+        io_loop.stop()
+        fetched_lists = 0
+        log('finished fetching set', 1, 'I')
+        return
+
+    def handle_response(response):
+        log('entering function', 4, 'I')
+        nonlocal proxy_retries, proxy
+        if response.error:
+            log('fetching user: {}; returned: {}; url: {}'.format(name, response.error, response.effective_url), 4, 'E')
+            if retries == profile_max_retries:
+                log('giving up on user: {}; returned: {}; url: {}'.format(name, response.error, response.effective_url),
+                    4, 'E')
+            else:
+                if proxy_retries == profile_max_proxy_retries:
+                    proxy_retries = -1
+                    proxy = next(proxies)
+                get_user_list(name, proxy=proxy, offset=offset,
+                              alist=alist, delay=profile_fail_delay, retries=(retries + 1),
+                              proxy_retries=(proxy_retries + 1))
+        elif response.body == b'[]':
+            global fetched_lists
+            fetched_lists += 1
+            if fetched_lists % 500 == 0:
+                log('fetched {} lists'.format(fetched_lists), 2, 'I')
+            if fetched_lists % 10000 == 0:
+                log('committing lists', 2, 'I')
+                list_session.commit()
+            log('completed fetch for user: {}'.format(name), 3, 'I')
+            anime_db.add_list(list_session, alist, name)
+        else:
+            log('continuing fetch for user: {}'.format(name), 4, 'I')
+            data = response.body
+            new_alist = alist + json.loads(data)
+            get_user_list(name, proxy, offset=(offset + 300), alist=new_alist)
+
+    url = "https://myanimelist.net/animelist/{}/load.json?status=7&offset={}".format(name, offset)
+    if not delay:
+        delay = profile_delay
+    log('running io_loop.call_later', 4, 'I')
+    io_loop.call_later(delay, functools.partial(http_client.fetch, url, handle_response,
+                                                proxy_host=proxy['host'], proxy_port=proxy['port'],
+                                                validate_cert=False))
+
+def generate_names():
+    def get_user_name_set(n):
+        with open('profile_links{}'.format(n), 'rb') as f:
+            d = pickle.load(f)
+        return [u.split('=')[1] for u in d]
+
+    all_names = []
+    for x in range(3,26):
+        all_names += get_user_name_set(x)
+
+    # shitty hardcode hack
+    all_names = all_names[2460000:]
+
+    while True:
+        ns = all_names[:max_names]
+        all_names = all_names[max_names:]
+        yield(ns)
+
+names = generate_names()
+
+def run():
+    log('starting set fetch!', 1, 'I')
+    for n in next(names):
+        get_user_list(n, proxy=next(proxies))
+    io_loop.start()
+    list_session.commit()

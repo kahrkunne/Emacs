@@ -1,0 +1,33 @@
+import tornado
+from passlib.hash import scrypt
+
+from . import Page
+from ..models import User
+
+from .templates.register import register
+
+class Register(Page):
+    template = register
+    @tornado.web.addslash
+    def get(self):
+        self.write(self.render())
+
+    @tornado.web.addslash
+    def post(self):
+        username = self.get_argument('username', None)
+        email = self.get_argument('email', None)
+        pw = self.get_argument('password', "")
+        pw_c = self.get_argument('password_c', "")
+        try:
+            if (pw == pw_c) and len(pw) <= 256:
+                new_user = User(name=username, display_name=username, email=email, password=scrypt.hash(pw))
+                self.db.add(new_user)
+                self.db.commit()
+                self.redirect(self.get_login_url())
+        except Exception as e:
+            print(e)
+            self.db.rollback()
+            self.t.errors = "Invalid data."
+            self.t.name = username
+            self.t.email = email
+            self.write(self.render())

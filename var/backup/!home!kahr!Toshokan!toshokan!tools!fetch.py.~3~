@@ -1,0 +1,61 @@
+"""Utilities for fetching data from MAL."""
+import functools
+import pickle
+
+import tornado
+from tornado.httpclient import AsyncHTTPClient
+from lxml import html as lh
+
+from config import (comments_page_delay, max_clients, request_timeout,
+                    save_profile_link, profile_link_save_interval, profile_link_file,
+                    fetch_set, fetch_interval)
+from debug import log
+
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+http_client = AsyncHTTPClient()
+http_client.max_clients = max_clients
+http_client.request_timeout = request_timeout
+
+io_loop = tornado.ioloop.IOLoop.current()
+io_loop.handle_callback_exception = lambda *args: None
+
+profile_links = []
+processed_ids = []
+
+profile_link_counter = 0
+
+def store_profile_link(link):
+    log('(fetch.store_profile_link) NOTICE storing profile link: {}'.format(link), 4)
+    global profile_links
+    global profile_link_counter
+
+    profile_links.append(link)
+    profile_link_counter += 1
+
+    if save_profile_link and (profile_link_counter % profile_link_save_interval == 0):
+        log('(fetch.store_profile_link) NOTICE saving profile links!', 3)
+        with open(profile_link_file + str(fetch_set), 'wb') as f:
+            pickle.dump(profile_links, f)
+
+def get_user_profile_link(uid, proxy):
+    """Get a link to MAL user profile from user id."""
+    def handle_response(response):
+        if response.error:
+            log('(fetch.get_user_profile_link.handle_response) ERROR fetching uid: {}; returned: {}'
+                .format(uid, response.error), 4)
+            if response.error == "HTTP 404: Not Found":
+                processed_ids.append(uid)
+        else:
+            data = response.body
+            name = lh.fromstring(data).find(".//title").text.strip().split(' ')[0].split("'")[0]
+            url = "https://myanimelist.net/profile.php?username=" + name
+            processed_ids.append(uid)
+            store_profile_link(url)
+
+    comments_url = "https://myanimelist.net/comments.php?id=" + str(uid)
+    io_loop.call_later(comments_page_delay, functools.partial(http_client.fetch, comments_url, handle_response,
+                                                              proxy_host=proxy['host'], proxy_port=proxy['port']))
+
+def fetch_links():
+    for x in range((fetch_set - 1) * fetch_interval,fetch_set * fetch_interval):
+        get_user_profile_link(x, {'host': None, 'port': None})

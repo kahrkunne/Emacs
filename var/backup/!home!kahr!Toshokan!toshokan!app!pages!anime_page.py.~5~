@@ -1,0 +1,44 @@
+from collections import defaultdict
+
+import tornado
+from tornado.web import HTTPError
+
+from ..models import Anime, Link, Person, Character, Company, Song, Manga, Genre
+from . import Page
+from .templates.anime_page import anime_page
+
+class AnimePage(Page):
+
+    template = anime_page
+
+    @tornado.web.addslash
+    def get(self, uid, title):
+        anime = self.db.query(Anime).filter_by(uid=uid).first()
+        links = anime.links
+
+        data = defaultdict(list)
+        data['rels'] = defaultdict(list)
+
+        for l in anime.links:
+            if l.person_id and l.character_id:
+                data['vas'].append((l.person, l.character, l.character_desc, l.person_desc))
+            elif l.person_id:
+                data['otherpeople'].append((l.person, l.anime_desc))
+            elif l.company_id:
+                data[l.company_desc.lower() + 's'].append(l.company.name)
+            elif l.song_id:
+                data['songs'].append((l.song, l.song_desc))
+            elif l.genre_id:
+                data['genres'].append(l.genre.name)
+            elif l.anime_self_id:
+                data['rels'][l.anime_desc].append(l.anime_self)
+            elif l.manga_id:
+                data['rels'][l.anime_desc].append(l.manga)
+
+        if anime:
+            self.t.anime = anime
+            self.t.data = data
+            print(data['rels'])
+            self.write(self.render())
+        else:
+            raise HTTPError(404)

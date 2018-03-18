@@ -1,0 +1,12 @@
+#!/usr/bin/python
+"""Library for downloading, processing and importing MAL data"""
+from urllib import request
+import pickle
+from debug import log
+
+def fetch_anime_pages(anime_ids):
+    c = 0
+    for ai in anime_ids:
+        if (i % 250 == 0):
+            log(4, 'I', "Fetching anime page for ID: {}".format(ai))
+        url = "https://myanimelist.net/anime/{}".format(ai)

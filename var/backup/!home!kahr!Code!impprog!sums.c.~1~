@@ -1,0 +1,35 @@
+/* file: sums.c */
+/* author: Kahr Kunne (email: k.kunne@student.rug.nl) */
+/* version: 0.01 */
+/* Description:
+ * Finds sums or whatever
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int horizontal(int wanted, int m, int startx, int starty, int maxx, int maxy)
+{
+  if (startx == maxx) {
+    return 0;
+  }
+  int x = startx;
+  int y = starty;
+  int sum;
+  
+  
+}
+
+int main(int argc, char *argv[])
+{
+  int n, m;
+  scanf("%d %d", &n, &m);
+  int matrix[m][m];
+  for (int i = 0; i < m; ++i) {
+    for (int j = 0; j < m; ++j) {
+      scanf("%d", &matrix[i][j]);
+    }
+  }
+
+  return 0;
+}

@@ -1,0 +1,27 @@
+#!/usr/bin/python
+
+tiles = ([str(num) + letter for num in range(1, 10) for letter in ['m', 's', 'p']] \
+        + ['to', 'na', 'sh', 'pe', 'hk', 'ht', 'ch']) * 4
+
+yaochuuhai = [num + letter for num in ['1', '9'] for letter in ['m', 's', 'p']] \
+             + ['to', 'na', 'sh', 'pe', 'hk', 'ht', 'ch']
+
+class hand():
+    def __init__(self, hand_tiles, tsumo):
+        self.tiles = hand_tiles
+        self.tsumo = tsumo
+    def discard(self, tile):
+        if tile != self.tsumo:
+            self.tiles.remove(tile)
+            self.tiles.append(self.tsumo)
+        self.tsumo = None
+
+def iskokushi(hand):
+    kokushi_tiles = list(yaochuuhai)
+    for tile in hand.tiles:
+        if tile not in yaochuuhai:
+            return False
+        else:
+            kokushi_tiles.remove(tile)
+    return hand.tsumo in yaochuuhai and (len(kokushi_tiles) == 0
+                                         or len(kokushi_tiles.remove(hand.tsumo)) == 0)

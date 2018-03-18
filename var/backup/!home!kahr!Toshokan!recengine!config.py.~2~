@@ -1,0 +1,4 @@
+min_delta = 700
+min_score = 000
+occur_penalty = 1
+comp_alg = 'pearson'

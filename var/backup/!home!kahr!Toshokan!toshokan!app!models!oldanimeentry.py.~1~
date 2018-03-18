@@ -1,0 +1,16 @@
+from sqlalchemy import ForeignKey
+
+from .model import (Base, Column, Integer, Sequence, String, DateTime)
+
+class OldAnimeEntry(Base):
+    __tablename__ = 'old_list_entries_anime'
+
+    uid = Column(Integer, Sequence('anime_list_entry_id_seq'), primary_key=True, autoincrement=True)
+    anime_id = Column(Integer, ForeignKey("anime.uid"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.uid"), nullable=False)
+    status = Column(Integer)
+    num_watched = Column(Integer)
+    score = Column(Integer)
+
+    def __repr__(self):
+        return "<AnimeEntry(uid='%s', title='%s', user='%s')>" % (self.uid, self.anime_id, self.user_id)

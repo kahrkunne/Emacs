@@ -1,0 +1,28 @@
+#import json
+
+#from ..page import BaseTemplate
+#extends BaseTemplate
+#implements respond
+
+<HTML>
+    <HEAD>
+        <TITLE>Toshokan</TITLE>
+        <link rel="stylesheet" href="/static/css/style.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
+        <script src="https://use.fontawesome.com/6e0448e881.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script>var backend = $json.dumps($backend)</script>
+    </HEAD>
+    <BODY>
+        <div class="topnav" id="topnav">
+            <a href="/">Home</a>
+            <a href="/search/">Search</a>
+            <a href="/news">News</a>
+        </div>
+        <div class="content">
+            #block main
+            Empty.
+            #end block
+        </div>
+    </BODY>
+</HTML>

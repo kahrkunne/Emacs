@@ -1,0 +1,49 @@
+from datetime import date
+from datetime import datetime
+import pytz
+
+from sqlalchemy import ForeignKey, event
+from sqlalchemy.orm import relationship
+
+from .model import (Base, Column, Integer, Sequence, String, DateTime)
+
+class AnimeEntry(Base):
+    __tablename__ = 'tshk_anime_entry'
+    uid = Column(Integer, Sequence('anime_entry_id_seq'), primary_key=True, unique=True)
+
+    user_id = Column(Integer, ForeignKey('tshk_user.uid'))
+    anime_id = Column(Integer, ForeignKey('tshk_anime.uid'), unique=True)
+
+    anime = relationship("Anime")
+
+    score = Column(Integer)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    num_episodes = Column(Integer)
+    num_rewatches = Column(Integer)
+    comments = Column(String)
+    status = Column(Integer)
+
+    def __repr__(self):
+        return "<AnimeEntry(user_id={}, anime_id={})>".format(self.user_id, self.anime_id)
+
+@event.listens_for(AnimeEntry, 'init')
+def verify_anime_entry(target, args, kwargs):
+    assert 0 <= kwargs['score'] <= 10
+    assert 0 <= kwargs['status'] <= 7
+    assert not kwargs['comments'] or len(kwargs['comments']) <= 2000
+    assert 0 <= kwargs['num_rewatches'] <= 1000
+    assert not kwargs['num_episodes'] or kwargs['status'] != 0
+    assert kwargs['status'] == 1 or kwargs['num_rewatches'] == 0
+    assert not kwargs['start_date'] or date(1950, 1, 1) <= kwargs['start_date'].date() <= datetime.now(pytz.UTC).date()
+    assert not kwargs['end_date'] or date(1950, 1, 1) <= kwargs['end_date'].date() <= datetime.now(pytz.UTC).date()
+    assert not kwargs['start_date'] or not kwargs['end_date'] or kwargs['start_date'] <= kwargs['end_date']
+
+    assert kwargs['status'] == 1 or not kwargs['anime'].num_episodes or kwargs['num_episodes'] != kwargs['anime'].num_episodes
+
+    assert kwargs['status'] == 0 or not kwargs['start_date'] or kwargs['start_date'].date() >= kwargs['anime'].start_date
+    assert kwargs['num_episodes'] != 0 or kwargs['score'] == 0
+    assert kwargs['num_episodes'] <= kwargs['anime'].num_episodes or not kwargs['anime'].num_episodes
+
+    kwargs['anime_id'] = kwargs['anime'].uid
+    del kwargs['anime']

@@ -1,0 +1,6 @@
+import tensorflow as tf
+import json
+
+with open('./cards.collectible.json', 'r') as f:
+    cards = json.loads(f.read())
+

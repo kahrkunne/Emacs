@@ -1,0 +1,29 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	new file:   tools/anime_db.py
+#	new file:   tools/config.py
+#	new file:   tools/debug.py
+#	new file:   tools/fetch.py
+#
+# Untracked files:
+#	tests/
+#	tools/.#add_users.py
+#	tools/add_users.py
+#	tools/fetch_mal_pages.py
+#	tools/fetch_user_pages.py
+#	tools/fix_pages.py
+#	tools/get_anime_data_from_title.py
+#	tools/legacy/
+#	tools/process_lists.py
+#	tools/process_mal_pages.py
+#	tools/profile_links1
+#	tools/profile_links2
+#	tools/profile_links3
+#	tools/wew.png
+#

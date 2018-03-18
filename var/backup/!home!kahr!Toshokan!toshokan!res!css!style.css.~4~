@@ -1,0 +1,98 @@
+.col-lg-3 {
+    padding-right: 7px;
+}
+
+.col {
+    padding-left: 7px;
+}
+
+.animepage-leftcol span {
+    font-weight: bold;
+}
+
+.anime-rel span {
+    font-weight: bold;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0;
+}
+
+.form-control {
+    border-radius: 0;
+}
+
+.btn {
+    border-radius: 0;
+    transition: none;
+}
+
+.searchbar .dropdown-menu {
+    left: initial;
+}
+
+.acc-area {
+    margin-left: 5px;
+}
+
+.search-result {
+}
+
+.form-control {
+    transition: none;
+}
+
+
+.form-inline .form-control{
+    width: 20em;
+}
+
+.form-control:focus {
+    border-color: inherit;
+    box-shadow: none;
+}
+
+div#search_results {
+    width: 100%;
+    border-radius: 0;
+    font-size: .8em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 5px;
+}
+
+.nsearch-result .col-10 {
+    padding-left: 5px;
+}
+
+.dropdown-menu {
+    border-radius: 0;
+}
+
+.anime-va-role .col-11{
+    padding-left: 0;
+}
+
+.anime-va-role .col-1 {
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+
+
+.anime-person .col-11{
+    padding-left: 0;
+}
+
+.anime-person .col-1 {
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+
+.borderless td{
+    border: none;
+}

@@ -1,0 +1,68 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   init.el
+#	modified:   org-init.org
+#
+# Untracked files:
+#	#!home!kahr!.config!fish!config.fish#
+#	#!home!kahr!.emacs.d!elpa!monokai-theme-20160419.1444!monokai-theme.el#
+#	#!home!kahr!.emacs.d!exwm-x!exwm-x-shortcuts.el#
+#	#!home!kahr!.stumpwmrc#
+#	#!home!kahr!.syncplay#
+#	#!home!kahr!.xinitrc#
+#	#!home!kahr!Code!VN_Engine!Engine.lisp#
+#	#!home!kahr!Code!cl-notifyd!cl-notifyd.lisp#
+#	#!home!kahr!Code!libmahjong.py#
+#	#!home!kahr!Downloads!OSHD-Linux-install (1).sh#
+#	#!home!kahr!FictionBase!main.py#
+#	#!home!kahr!Notes!migration.org#
+#	#!home!kahr!Tools!activities.org#
+#	#!home!kahr!Toshokan!recengine!recengine.pyx#
+#	#!home!kahr!Toshokan!toshokan!tools!add_users.py#
+#	#!home!kahr!VN!gsenjou!G-senjou no Maou - The Devil on G-String!VN!g_senjou_no_maou.cf#
+#	#!home!kahr!Website!org!helloworld.org#
+#	#!home!kahr!Website!org!tasteanecdotes.org#
+#	#!home!kahr!Website!templates!index.html#
+#	#!home!kahr!Website!website.py#
+#	#!home!kahr!Youtube!Scripts!On_the_skill_of_taste.org#
+#	#!home!kahr!text.org#
+#	#!sys!bus!usb!devices!usb1!power!autosuspend_delay_ms#
+#	#!sys!bus!usb!devices!usb1!power!wakeup#
+#	#!tmp!kek.tmpl#
+#	#!tmp!test.py#
+#	#init.el#
+#	%backup%~
+#	.mc-lists.el
+#	.python-environments/
+#	abbrev_defs
+#	ac-comphist.dat
+#	auto-save-list/
+#	backups/
+#	elpa/
+#	eshell/
+#	exwm-x/
+#	games/
+#	image-dired/
+#	meme-theme.el
+#	mentor/
+#	mingus/
+#	org-init.el
+#	recentf
+#	recentf~
+#	renpy.el
+#	savehist
+#	semanticdb/
+#	smith-theme.el
+#	snippets/org-mode/README.org
+#	tramp
+#	url/
+#	var/
+#	wew.png
+#

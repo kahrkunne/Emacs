@@ -1,0 +1,37 @@
+#from .layour import layout
+
+#extends layout
+#def navbar
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	<span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+	<ul class="navbar-nav mr-auto">
+	    <li class="nav-item active">
+		<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+	    </li>
+	    <li class="nav-item">
+		<a class="nav-link" href="/anime">Anime</a>
+	    </li>
+	</ul>
+
+	<form class="form-inline my-2 my-lg-0" method="get">
+	    <input name="q" id="qbox" data-toggle="dropdown" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+	    <div id="search_results" class="dropdown-menu" role="menu">
+		<article class="results">
+		    #if $results:
+			#for result in $results
+			    <div id="search-result">
+				$result.title_eng
+			    </div>
+			#end for
+		    #end if
+		</article>
+	    </div>
+	</form>
+    </div>
+</nav>
+#end def

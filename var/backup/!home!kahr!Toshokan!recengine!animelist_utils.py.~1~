@@ -1,0 +1,84 @@
+from sqlalchemy import (create_engine, Column, Integer, String, Date, Sequence, Float, DateTime, Index, ForeignKey)
+from sqlalchemy.sql import func
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import (database_exists, create_database)
+import json
+import tornado
+from tornado.httpclient import AsyncHTTPClient
+import functools
+
+AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+http_client = AsyncHTTPClient()
+
+io_loop = tornado.ioloop.IOLoop.current()
+
+Base = declarative_base()
+
+db = {}
+db['engine'] = 'postgresql+psycopg2'
+db['user'] = 'kahr'
+db['password'] = 'makama9makama9'
+db['domain'] = 'localhost'
+db['database'] = 'toshokan'
+
+def generate_session(Table):
+    """Given a table class Table, return a database session."""
+    engine = create_engine('{}://{}:{}@{}/{}'.format(db['engine'], db['user'], db['password'],
+                                                     db['domain'], db['database']))
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    Table.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+class Anime(Base):
+    __tablename__ = 'anime'
+
+    uid = Column(Integer, Sequence('anime_id_seq'), primary_key=True)
+    mal_id = Column(Integer, unique=True)
+    title = Column(String)
+    title_eng = Column(String)
+    synonyms = Column(String)
+    episodes = Column(Integer)
+    mal_score = Column(Float)
+    a_type = Column(String)
+    status = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    synopsis = Column(String)
+    flags = Column(String)
+
+session = generate_session(Anime)
+
+def mal_id_from_uid(uid):
+    return session.query(Anime).filter('uid = {}'.format(uid)).first().mal_id
+
+def uid_from_mal_id(mal_id):
+    return session.query(Anime).filter('mal_id = {}'.format(mal_id)).first().uid
+
+def get_user_list(name, offset=0, alist=[]):
+    k = None
+    def handle_response(response):
+        if response.error:
+            print('rip errors g ' + response.error)
+        elif response.body == b'[]':
+            k = alist
+            io_loop.stop()
+            return k
+        else:
+            data = response.body
+            new_alist = alist + json.loads(data)
+            get_user_list(name, offset=offset+300, alist=new_alist)
+
+    url = "https://myanimelist.net/animelist/{}/load.json?status=7&offset={}".format(name, offset)
+    io_loop.call_later(1, functools.partial(http_client.fetch, url, handle_response))
+    io_loop.start()
+
+def process_al(al):
+    final_al = []
+    for e in al:
+        if e['score']  != 0:
+            final_al.append(uid_from_mal_id(e['anime_id']))
+            final_al.append(e['score'])
+    return final_al

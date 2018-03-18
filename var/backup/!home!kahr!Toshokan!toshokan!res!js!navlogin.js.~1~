@@ -1,0 +1,9 @@
+$("#btn").click(function () {
+    $.ajax({
+        type: 'GET',
+        url: "/explicit_action_url/",
+        success: function (data) {
+            alert("success")
+        }
+    });
+});

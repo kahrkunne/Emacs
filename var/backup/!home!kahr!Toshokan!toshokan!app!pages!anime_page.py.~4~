@@ -1,0 +1,77 @@
+import tornado
+
+from ..models import Anime, Link, Person, Character, Company, Song, Manga, Genre
+from . import Page
+from .templates.anime_page import anime_page
+
+class AnimePage(Page):
+
+    template = anime_page
+
+    @tornado.web.addslash
+    def get(self, uid, title):
+        anime = self.db.query(Anime).filter_by(uid=uid).first()
+        links = self.db.query(Link).filter_by(main_kind='anime', main_id=anime.uid).all()
+
+        vas = [(self.db.query(Person).filter_by(uid=x.person_id).first(),
+                self.db.query(Character).filter_by(uid=x.character_id).first(),
+                x.character_desc,
+                x.person_desc) for x in
+               [x for x in links if x.person_id and x.character_id]]
+
+        otherpeople = [(self.db.query(Person).filter_by(uid=x.person_id).first(),
+                        x.anime_desc) for x in
+                       [x for x in links if x.person_id and not x.character_id]]
+
+        studios = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                   for x in links if x.company_id and x.company_desc == 'Studio']
+
+        licensors = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                     for x in links if x.company_id and x.company_desc == 'Licensor']
+
+        producers = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                     for x in links if x.company_id and x.company_desc == 'Producer']
+
+        songs = [(self.db.query(Song).filter_by(uid=x.song_id).first(),
+                  x.song_desc)
+                 for x in links if x.song_id]
+
+        genres = [self.db.query(Genre).filter_by(uid=x.genre_id).first().name
+                  for x in links if x.genre_id]
+
+        rel_links = [x for x in links if x.anime_self_id or x.manga_id]
+        rels = {'Adaptation':[], 'Sequel':[], 'Prequel':[], 'Summary':[],
+                'Alternative version':[], 'Parent story':[], 'Side story':[],
+                'Alternative setting':[], 'Full story':[], 'Spin-off':[],
+                'Character':[], 'Other':[]}
+
+        rel_names = rels
+
+        for k in rels:
+            for l in rel_links:
+                if l.anime_desc == k:
+                    if l.manga_id:
+                        rels[k].append(self.db.query(Manga).filter_by(uid=l.manga_id).first())
+                    if l.anime_self_id:
+                        rels[k].append(self.db.query(Anime).filter_by(uid=l.anime_self_id).first())
+
+        for k in rels:
+            rel_names[k] = ', '.join(['<a href=/{}/{}/>{}</a>'
+                                      .format(x.__class__.__name__.lower(),
+                                              x.uid,
+                                              x.name) for x in rels[k]])
+
+        if anime:
+            self.t.genres = genres
+            self.t.licensors = licensors
+            self.t.producers = producers
+            self.t.songs = songs
+            self.t.anime = anime
+            self.t.vas = vas
+            self.t.rels = rels
+            self.t.rel_names = rel_names
+            self.t.otherpeople = otherpeople
+            self.t.studios = studios
+            self.write(self.render())
+        else:
+            self.write('Not Found.')

@@ -1,0 +1,36 @@
+import tornado
+import sqlalchemy
+from sqlalchemy import or_
+from  passlib.hash import scrypt
+
+from . import Page
+from ..models import User
+
+from .templates.login import login
+
+class Login(Page):
+    template = login
+    @tornado.web.addslash
+    def get(self):
+        self.write(self.render())
+
+    @tornado.web.addslash
+    def post(self):
+        email = self.get_argument('email', "")
+        pw = self.get_argument('password', "")
+
+        try:
+            user = self.db.query(User.uid, User.name, User.password).filter(or_(User.name == email, User.email == email)).one()
+            if not scrypt.verify(pw, user.password):
+                raise ValueError()
+            
+            self.set_secure_cookie("user_id", str(user.uid))
+            self.set_secure_cookie("username", user.name)
+            self.set_secure_cookie("dname", user.display_name)
+            self.redirect(self.get_argument("next", "/search"))
+
+        except:
+            self.db.rollback()
+            self.t.errors = "Email or password incorrect."
+            self.t.email = email
+            self.write(self.render())

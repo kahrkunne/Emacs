@@ -1,0 +1,97 @@
+\documentclass{article}
+\usepackage{amssymb}
+\newcommand{\idiv}{\mbox{\bf ~div~}} 
+\newcommand{\imod}{\mbox{\bf ~mod~}} 
+\newcommand{\band}{~\wedge~} 
+\newcommand{\bor}{~\vee~} 
+\newcommand{\true}{\mbox{\bf ~true~}} 
+\newcommand{\false}{\mbox{\bf ~false~}} 
+\newcommand{\IF}{\mbox{\bf if~}} 
+\newcommand{\THEN}{\mbox{\bf ~then~}}
+\newcommand{\ELSE}{\mbox{\bf else~}}
+\newcommand{\END}{\mbox{\bf end}}
+\newcommand{\WHILE}{\mbox{\bf while~}}
+\newcommand{\DO}{\mbox{\bf ~do}}
+\newcommand{\FOR}{\mbox{\bf for~}}
+\newcommand{\TO}{\mbox{\bf ~to}}
+\newcommand{\SKIP}{\mbox{\bf ~skip}}
+\newcommand{\CONST}{\mbox{\bf const~}}
+\newcommand{\ARRAY}{\mbox{\bf ~array~}}
+\newcommand{\OF}{\mbox{\bf ~of~}}
+\newcommand{\VAR}{\mbox{\bf var~}}
+\newcommand{\vf}{\mbox{\sf vf}}
+\newcommand{\ord}{\mbox{\sf ord}}
+\newcommand{\imax}{\mbox{\bf ~max~}}
+\newcommand{\imin}{\mbox{\bf ~min~}}
+\newcommand{\Max}{\mbox{\sf Max}}
+\newcommand{\Min}{\mbox{\sf Min}} 
+
+\begin{document}
+\section*{Exercise 5.13a}
+\begin{tabbing}
+x\=xx\=\kill
+\>${x+y=Z}$;\\
+\>\>$(* Let's call our current value of x x0, and our current value of y y0; then x0+y0=Z *)$;\\
+\>$x := x+a$\\
+\>\>$(* x = x0+a *)$
+\end{tabbing}
+
+\begin{enumerate}
+\item[0] We decide that we need a {\bf while}-program: we are only allowed to
+  multiply by 2 and 3, and use addition. Besides, we assume that there is no function {\bf pow} available.
+\item[1] Choose an invariant $J$, and guard $B$ such that $J\band \neg B
+  \Rightarrow Q$.\\
+ We replace the constant $n$ by the variable $k$. 
+
+\begin{eqnarray*}
+J: &&x=k^2 \band y=k^3 \band 0\leq k \leq n \\
+B: &&k\neq n
+\end{eqnarray*}
+
+Clearly, $J$ and $n=k$ implies $Q$.
+\item[2] Initialization: Find $T_0$ such that $\{P:\ \true\}\ T_0\ \{J:\ x=k^2 \band y=k^3 \band 0\leq k \leq n\}$\\[1em]
+
+\begin{tabbing}
+xxxxx\=xx\=xx\=\kill
+     \>  \>$\{P: \true\}$\+\+\\
+           $\{0=0^2 \band 0=0^3 \band 0\leq 0\leq n\}$\-\-\\
+     $k:=0;$ $x:=0;$ $y:=0$;\+\+\\
+         \>$\{J:\ x=k^2 \band y=k^3 \band 0\leq k \leq n\}$
+\end{tabbing}
+\item[3] Variant function:  $\vf=n-k\in\mathbb{Z}$ and $J\band B
+  \Rightarrow n-k\geq 0$\\
+The invariant contains the conjunct $k\leq n$, so $\vf=n-k\geq 0$.
+\item[4] Body of the loop: $\{J\band B\band \vf=V\}\ S\ \{J\band \vf<V\}$
+\noindent
+\begin{tabbing}
+xx\=xx\=xx\=\kill
+     \>  \>$\{J\band B \band \vf=V\}$\+\+\\
+          $\{x=k^2 \band y=k^3 \band 0\leq k \leq n \band k\neq n \band n-k=V\}$\\
+          \> $(*$ prepare $k:=k+1$; $(k+1)^3=k^3+3k^2+3k+1=y+3x+3k+1$ $*)$\\
+          $\{x=k^2 \band y+3x+3k+1=(k+1)^3 \band 0\leq k+1 \leq n \band n-(k+1)<V\}$\-\-\\
+     $y:=y+3*x+3*k+1;$\+\+\\
+          $\{x=k^2 \band y=(k+1)^3 \band 0\leq k+1 \leq n \band n-(k+1)<V\}$\\
+          \> $(*$ prepare $k:=k+1$; $(k+1)^2=k^2+2k+1=x+2k+1$ $*)$\\
+          $\{x+2k+1=(k+1)^2 \band y=(k+1)^3 \band 0\leq k+1 \leq n \band n-(k+1)<V\}$\-\-\\
+     $x:=x+2*k+1;$\+\+\\
+          $\{x=(k+1)^2 \band y=(k+1)^3 \band 0\leq k+1 \leq n \band n-(k+1)<V\}$\-\-\\
+     $k:=k+1;$\+\+\\
+          $\{x=k^2 \band y=k^3 \band 0\leq k \leq n \band n-k<V\}$\\
+          $\{J \band \vf<V\}$
+\end{tabbing}
+\item[5] Conclude that $\{P\}\ T_0;\ \WHILE B\DO\ S\ \END\ \{Q\}$ solves the problem.
+\end{enumerate}
+\begin{tabbing}
+xxxxx\=xx\=xx\=xx\=\kill
+     \>  \>$\{P:\ \true\}$\\
+     \> $k:=0;$ $x:=0;$ $y:=0$;\\
+     \>  \>$\{J: x=k^2 \band y=k^3 \band 0\leq k \leq n \}$\\
+     \>  \>  \>$(*$ $\vf=n-k$ $*)$\\
+     \> $\WHILE k\neq n\DO$\+\+\\
+        $y:=y+3*x+3*k+1;$\\
+        $x:=x+2*k+1;$\\
+        $k:=k+1;$\-\-\\    
+     \> $\END;$\\
+     \>    \>$\{Q:\ x=n^2\band y=n^3\}$\\
+\end{tabbing}
+\end{document}

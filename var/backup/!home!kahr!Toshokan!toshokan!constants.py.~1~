@@ -1,0 +1,2 @@
+API_MIME_TYPE_PUBLIC = 'application/vnd.toshokan.toshokan.public-v1'
+API_MIME_TYPE_USER = 'application/vnd.toshokan.toshokan.user-v1'
