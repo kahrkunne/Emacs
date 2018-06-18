@@ -1,0 +1,11 @@
+package nl.rug.oop.graphEditor.view;
+
+import javax.swing.JFrame;
+import graphEditor.editor.Draw;
+
+public class GraphFrame extends JFrame{
+    public GraphFrame(String title){
+	// TODO implement, with controller and stuff
+	this.setTitle(title);
+    }
+}

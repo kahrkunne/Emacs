@@ -1,0 +1,162 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def head
+#raw
+<script id="animelist-controls-template" type="x-tmpl-mustache" language="text" type="text/html">
+    <form class="form-inline" id="animelist-controls-form">
+	<div class="form-group w-100 pb-1">
+	    <label for="animelist-control-status" class="text-left"><b>Status</b></label>
+	    <div class="input-group animelist-control ml-auto text-right">
+		<select class="form-control anime-control-select" id="animelist-control-status"> 
+		    <option>Plan To Watch</option>
+		    <option>Completed</option>
+		    <option>Watching</option>
+		    <option>On Hold</option>
+		    <option>Dropped</option>
+		</select>
+	    </div>
+	</div>
+
+	<div class="form-group w-100 pb-1">
+	    <label for="animelist-control-num-episodes" class="text-left"><b>Episodes</b></label>
+	    <div class="input-group animelist-control ml-auto">
+		<div class="input-group-prepend">
+		    <button class="btn btn-primary" type="button" id="anime-page-plus1">+</button>
+		</div>
+		<input name="animelist-num-episodes" id="animelist-control-num-episodes" type="text" class="text-right form-control" autocomplete="off" />
+		<div class="input-group-append">
+		    <span class="input-group-text" id="anime-page-max-eps"></span>
+		</div>
+
+	    </div>
+	</div>
+
+	<div class="form-group w-100 pb-1">
+	    <label for="animelist-control-score"><b>Score</b></label>
+	    <div class="input-group animelist-control ml-auto text-right">
+		<input name="animelist-score" id="animelist-control-score" type="text" class="form-control text-right" autocomplete="off" />
+	    </div>
+	</div>
+
+	<button type="button" class="btn btn-primary mr-auto w-50" id="animelist-control-save-button">Save</button>
+	<button type="button" class="btn ml-auto w-50" id="animelist-control-edit-button">Advanced</button>
+    </form>
+</script>
+#end raw
+#end def
+
+#if main_img:
+    #block leftcol_image
+    <img class="img-fluid" src="/static/img/$main_img.image_hash">
+#end block
+#end if
+
+#def leftcol_info
+<div class="font-weight-bold w-100 text-center">$anime.title</div>
+<hr />
+<span class="font-weight-bold">Type: </span>$anime.kind<br>
+<span class="font-weight-bold">Status: </span>$anime.status<br>
+<span class="font-weight-bold">Episodes: </span>$anime.num_episodes<br>
+<span class="font-weight-bold">Season: </span>$anime.season<br>
+<span class="font-weight-bold">Studios: </span>${', '.join([x.name for x in $data['studios']])}<br>
+<span class="font-weight-bold">Genres: </span>${', '.join([x.name for x in $data['genres']])}<br>
+
+<span class="font-weight-bold">Score: </span>PLACEHOLDER<br>
+<span class="font-weight-bold">Members: </span>PLACEHOLDER<br>
+<span class="font-weight-bold">Sakura Score: </span>$sakura_score<br>
+#end def
+
+#def leftcol_other
+<br>
+<div class="font-weight-bold text-center w-100" id="anime-page-controls">
+    Anime List
+    <hr />
+    <div id="animelist-controls"></div>
+</div>
+#end def
+
+#def info_tabs
+<li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" role="tab" href="#description">Description</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#characters">Characters</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#people">Staff</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#info">Info</a>
+</li>
+#end def
+
+#def info_tab_content
+
+<div class="tab-pane active" id="description" role="tabpanel">
+    $anime.description.replace("\n", "<br />")
+</div>
+
+<div class="tab-pane" id="characters" role="tabpanel">
+    #for va in [x for x in $data['vas'] if x[3] == 'Japanese']:
+	<div class="anime-va-role">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="/static/img/50x50.png">
+		</div>
+		<div class="col-11">
+		    <a href="/character/$va[1].uid">$va[1].name</a><br>
+		    <a href="/person/$va[0].uid">$va[0].name</a>
+		</div>
+	    </div>
+	</div>
+    #end for
+</div>
+
+<div class="tab-pane" id="people" role="tabpanel">
+    <!-- FIXME this should probably be sorted -->
+    #for person in $data['otherpeople']:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="/static/img/50x50.png">
+		</div>
+		<div class="col-11">
+		    <a href="/person/$person[0].uid">$person[0].name</a><br>
+		    $person[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+</div>
+
+<div class="tab-pane" id="info" role="tabpanel">
+    <span class="font-weight-bold">Aired: </span>$anime.start_date to $anime.end_date<br>
+    <span class="font-weight-bold">Licensors: </span>${', '.join([x.name for x in $data['licensors']])}<br>
+    <span class="font-weight-bold">Ranked: </span>PLACEHOLDER<br>
+    <span class="font-weight-bold">Producers: </span>${', '.join([x.name for x in $data['producers']])}<br>
+    <span class="font-weight-bold">Other Names: </span><br>$anime.synonyms.replace(";", "<br />")<br>
+
+    <br />
+    <br />
+    #for song in $data['songs']:
+	$song[1]: $song[0].name
+	<br />
+    #end for
+    <br>
+
+    <table class="table infopage-rel table-sm borderless">
+	<tbody>
+	    #for k in $data['rels']:
+		#if $data['rels'][$k]:
+		    <tr>
+			<th><span>$k</span></td>
+			    <td>${', '.join(['<a href="/{}/{}">{}</a>'.format(x.__class__.__name__.lower(), x.uid, x.title) for x in $data['rels'][$k]])}<br></td>
+		    </tr>
+		#end if
+	    #end for
+	</tbody>
+    </table>
+</div>
+#end def

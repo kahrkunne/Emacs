@@ -1,0 +1,81 @@
+from datetime import date
+from datetime import datetime
+import pytz
+
+from sqlalchemy import ForeignKey, event
+from sqlalchemy.orm import relationship
+
+from .model import (Base, Column, Integer, Sequence, String, DateTime, Float)
+
+class AnimeEntry(Base):
+    __tablename__ = 'tshk_anime_entry'
+    uid = Column(Integer, Sequence('anime_entry_id_seq'), primary_key=True, unique=True)
+
+    user_id = Column(Integer, ForeignKey('tshk_user.uid'))
+    anime_id = Column(Integer, ForeignKey('tshk_anime.uid'), unique=True)
+
+    anime = relationship("Anime")
+
+    score = Column(Float)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    num_episodes = Column(Integer)
+    num_rewatches = Column(Integer)
+    comments = Column(String)
+    status = Column(Integer)
+
+    def __repr__(self):
+        return "<AnimeEntry(user_id={}, anime_id={})>".format(self.user_id, self.anime_id)
+
+@event.listens_for(AnimeEntry, 'init')
+def verify_anime_entry(target, args, kwargs):
+    if 'verify' not in kwargs:
+        kwargs['verify'] = 'strict'
+
+    # Lenient verification: values which would harm our system are forbidden
+    if kwargs['verify'] != 'none':
+        # Score in [0, 10]
+        assert 0 <= kwargs['score'] <= 10
+
+        # Status in [0, 7] TODO determine exact number of statuses
+        assert 0 <= kwargs['status'] <= 7
+
+        # Comments can not be longer than 2000 characters
+        assert len(kwargs['comments']) <= 2000
+
+        # Number of rewatches in [0, 1000]
+        assert 0 <= kwargs['num_rewatches'] <= 1000
+
+    # Strict verification: nonsensical values are forbidden
+    if kwargs['verify'] == 'strict':
+        # Number of episodes != 0 implies status is not "Plan To Watch"
+        assert kwargs['num_episodes'] == 0 or kwargs['status'] != 0
+
+        # Number of rewatches != 0 implies status is "Completed"
+        assert kwargs['num_rewatches'] == 0 or kwargs['status'] == 1
+
+        # Start date, if it exists, in [1/1/1950, now]
+        assert not kwargs['start_date'] or date(1950, 1, 1) <= kwargs['start_date'].date() <= datetime.now(pytz.UTC).date()
+
+        # End date, if it exists, in [1/1/1950, now]
+        assert not kwargs['end_date'] or date(1950, 1, 1) <= kwargs['end_date'].date() <= datetime.now(pytz.UTC).date()
+
+        # If start date and end date both exist implies start date <= end_date
+        assert not (kwargs['start_date'] and kwargs['end_date']) or kwargs['start_date'] <= kwargs['end_date']
+
+        # Status is "Completed" if and only if number of episode is the maximum number of episodes
+        assert (kwargs['status'] == 1) == (kwargs['num_episodes'] == kwargs['anime'].num_episodes)
+
+        # Status is not "Plan To Watch" implies start date >= anime.start_date, if a start date is given
+        assert kwargs['status'] == 0 or not kwargs['start_date'] \
+            or kwargs['start_date'].date() >= kwargs['anime'].start_date
+
+        # Number of episodes == 0 implies score == 0
+        assert kwargs['num_episodes'] != 0 or kwargs['score'] == 0
+
+        # Number of episodes <= the maximum number of episodes
+        assert not kwargs['anime'].num_episodes or kwargs['num_episodes'] <= kwargs['anime'].num_episodes
+
+    kwargs['anime_id'] = kwargs['anime'].uid
+    del kwargs['anime']
+    del kwargs['verify']

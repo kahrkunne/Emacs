@@ -1,0 +1,413 @@
+#import json
+
+#from ..page import BaseTemplate
+#extends BaseTemplate
+#implements respond
+
+#if not $varExists('email')
+    #set email = ""
+#end if
+#if not $varExists('errors')
+    #set errors = ""
+#end if
+
+
+<!doctype html>
+<HTML lang="en">
+    <HEAD>
+	<TITLE>Toshokan</TITLE>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href=$static_url("css/bootstrap.min.css")>
+	<link rel="stylesheet" href=$static_url("css/bootstrap-datepicker.min.css")>
+	<link rel="stylesheet/less" type="/text/css" href=$static_url("css/style.less")>
+	<link rel="stylesheet" href=$static_url("css/animate.css")>
+	<script src=$static_url("js/less.min.js")></script>
+	<script src=$static_url("js/fontawesome.min.js")></script>
+	<script src=$static_url("js/jquery.min.js")></script>
+	<script>var backend = $json.dumps($backend)</script>
+	<script>var user = $json.dumps($user)</script>
+	<script src=$static_url("js/toshokan.js")></script>
+	<script src=$static_url("js/datepicker-min.js")></script>
+	<script src=$static_url("js/mustache.js")></script>
+	<script src=$static_url("js/json2.js")></script>
+	<script src=$static_url("js/moment.js")></script>
+	<script src=$static_url("js/bootstrap-notify.min.js")></script>
+	#raw
+	<script id="nsresult" type="x-tmpl-mustache" language="text" type="text/html">
+	    <div class="nsearch-result">
+		<a href="{{url}}">
+		    <div class="row my-2">
+			<div class="col-2">
+			    <div class="ns-image"><img src="{{image}}"></div>
+			</div>
+			<div class="col-10 justify-content-center align-self-center">
+			    <div class="ns-title text-truncate"><b>{{title}}</b></div>
+			    <div class="ns-info">{{#info}}<span> {{text}} </span><span class="{{icon}} fa fa-fw"></span>{{/info}}</div>
+			</div>
+		    </div>
+		</a>
+	    </div>
+	</script>
+	#end raw
+
+	<noscript><style>body { visibility: visible; }</style></noscript>
+
+	#block head
+	#end block
+
+    </HEAD>
+    <BODY style="visibility:hidden;">
+
+	<div class="modal" id="animelist-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+	    <div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+		    <div class="modal-header">
+			<span class="w-100 text-center"><h5 class="modal-title" id="animelist-edit-modal-title"></h5></span>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			</button>
+		    </div>
+		    <div class="modal-body animelist-edit">
+			<div class="row-fluid">
+			    <form class="form-inline" id="animelist-edit-form">
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="animelist-edit-status" class="text-left">Status</label>
+				    </div>
+				    <div class="col-5">
+					<select class="form-control anime-edit-select" id="animelist-edit-status"> 
+					    <option>Plan To Watch</option>
+					    <option>Completed</option>
+					    <option>Watching</option>
+					    <option>On Hold</option>
+					    <option>Dropped</option>
+					</select>
+				    </div>
+				</div>
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="animelist-edit-num-episodes">Episodes</label>
+				    </div>
+				    <div class="col-5">
+					<input name="animelist-num-episodes" id="animelist-edit-num-episodes" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="animelist-edit-score">Score</label>
+				    </div>
+				    <div class="col-5">
+					<input name="animelist-score" id="animelist-edit-score" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="animelist-edit-start-date">Start Date</label>
+				    </div>
+				    <div class="col-5">
+					<input name="animelist-start-date" id="animelist-edit-start-date" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+				
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="animelist-edit-end-date">End Date</label>
+				    </div>
+				    <div class="col-5">
+					<input name="animelist-end-date" id="animelist-edit-end-date" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="animelist-edit-num-rewatches">Rewatches</label>
+				    </div>
+				    <div class="col-5">
+					<input name="animelist-num-rewatches" id="animelist-edit-num-rewatches" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+				<br />
+
+				<div class="form-group w-100 justify-content-center">
+				    <label for="animelist-edit-comments">Comments</label>
+				    <textarea name="animelist-comments" id="animelist-edit-comments" type="text" class="form-control" rows="4"></textarea>
+
+
+				</div>
+			    </form>
+
+			</div>
+			
+		    </div>
+		    <div class="modal-footer justify-content-center">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			<button type="button" class="btn btn-primary" id="animelist-edit-save-button">Save changes</button>
+			<button type="button" class="btn btn-danger" id="animelist-edit-delete-button">Delete</button>
+		    </div>
+		</div>
+	    </div>
+	</div>
+
+	<div class="modal" id="mangalist-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+	    <div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+		    <div class="modal-header">
+			<span class="w-100 text-center"><h5 class="modal-title" id="mangalist-edit-modal-title"></h5></span>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			</button>
+		    </div>
+		    <div class="modal-body mangalist-edit">
+			<div class="row-fluid">
+			    <form class="form-inline" id="mangalist-edit-form">
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-status" class="text-left">Status</label>
+				    </div>
+				    <div class="col-5">
+					<select class="form-control anime-edit-select" id="mangalist-edit-status"> 
+					    <option>Plan To Read</option>
+					    <option>Completed</option>
+					    <option>Reading</option>
+					    <option>On Hold</option>
+					    <option>Dropped</option>
+					</select>
+				    </div>
+				</div>
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-num-chapters">Chapters</label>
+				    </div>
+				    <div class="col-5">
+					<input name="mangalist-num-chapters" id="mangalist-edit-num-chapters" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-num-volumes">Volumes</label>
+				    </div>
+				    <div class="col-5">
+					<input name="mangalist-num-volumes" id="mangalist-edit-num-volumes" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-score">Score</label>
+				    </div>
+				    <div class="col-5">
+					<input name="mangalist-score" id="mangalist-edit-score" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-start-date">Start Date</label>
+				    </div>
+				    <div class="col-5">
+					<input name="mangalist-start-date" id="mangalist-edit-start-date" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+				
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-end-date">End Date</label>
+				    </div>
+				    <div class="col-5">
+					<input name="mangalist-end-date" id="mangalist-edit-end-date" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+
+				<div class="form-group w-100 pb-2">
+				    <div class="col-7">
+					<label for="mangalist-edit-num-rereads">Rereads</label>
+				    </div>
+				    <div class="col-5">
+					<input name="mangalist-num-rereads" id="mangalist-edit-num-rereads" type="text" class="form-control text-right" />
+				    </div>
+				</div>
+
+				<br />
+
+				<div class="form-group w-100 justify-content-center">
+				    <label for="mangalist-edit-comments">Comments</label>
+				    <textarea name="mangalist-comments" id="mangalist-edit-comments" type="text" class="form-control" rows="4"></textarea>
+
+
+				</div>
+			    </form>
+
+			</div>
+			
+		    </div>
+		    <div class="modal-footer justify-content-center">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			<button type="button" class="btn btn-primary" id="mangalist-edit-save-button">Save changes</button>
+			<button type="button" class="btn btn-danger" id="mangalist-edit-delete-button">Delete</button>
+		    </div>
+		</div>
+	    </div>
+	</div>
+
+
+
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	    </button>
+
+	    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<div class="container">
+		    <div class="row ml-0 mr-0">
+			<ul class="navbar-nav">
+			    <li class="nav-item active">
+				<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+			    </li>
+
+			    <li class="nav-item">
+				<a class="nav-link" href="/alpha">Alpha</a>
+			    </li>
+
+
+			    <li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    Anime
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				    <a class="dropdown-item justify-content-center" href="/anime">Top Anime</a>
+				</div>
+			    </li>
+
+			    <li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    Manga
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				    <a class="dropdown-item" href="#">Nothing Here Yet</a>
+				</div>
+			    </li>
+
+			    <li class="nav-item searchbar d-block d-lg-none">
+				<div class="input-group">
+				    <input name="q" id="collapsed-qbox" data-toggle="dropdown" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off" />
+				    <div class="input-group-append">
+					<button class="btn btn-primary" type="button">Search</button>
+				    </div>
+				</div>	
+			    </li>
+
+
+			    #if $user and $user['id'] is not $None
+				<li class="nav-item dropdown d-block d-lg-none">
+				    <a class="nav-link dropdown-toggle" href="#" id="collapsed-profile-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					User
+				    </a>
+				    <div class="dropdown-menu" aria-labelledby="collapsed-profile-dropdown">
+					<a class="dropdown-item" href="/user/${user['name']}/dashboard">Dashboard</a>
+					<a class="dropdown-item" href="/user/${user['name']}/settings">Settings</a>
+					<a class="dropdown-item" href="/recommendations/${user['name']}">Recommendations</a>
+					<a class="dropdown-item" href="/animelist/${user['name']}">Anime List</a>
+					<div class="dropdown-divider"></div>
+					<form id="navlogout" class="px-2 py-1" method="post">
+					    <button id="navbar-logout-btn" class="btn btn-primary">Log Out</button>
+					</form>
+				    </div>
+				</li>
+			    #end if
+
+
+			</ul>
+
+			<ul class="navbar-nav ml-auto">
+			    <li class="searchbar d-none d-lg-block">
+				<form class="form-inline my-2 my-lg-0" method="get">
+				    <div class="dropdown">
+					<input name="q" id="qbox" data-toggle="dropdown" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off" aria-haspopup="true" aria-expanded="false" />
+					<div id="search_results" class="dropdown-menu" role="menu" aria-labelledby="qbox">
+					    <article class="results">
+					    </article>
+					</div>
+				    </div>
+				</form>
+			    </li>
+
+			    <li class="usericon d-none d-lg-block nav-item dropdown">
+				<div class="acc-area">
+				    #if $user and $user['id'] is not $None
+					<button class="bg-transparent btn btn-default p-0" type="button" data-toggle="dropdown">
+					    <img src=$static_url("img/"+$user_obj.profile_picture) class="nav-profile-picture rounded-circle">
+					</button>
+					<div class="dropdown-menu" aria-labelledby="account_dropdown">
+					    <a class="dropdown-item" href="/user/${user['name']}/dashboard">Dashboard</a>
+					    <a class="dropdown-item" href="/user/${user['name']}/settings">Settings</a>
+					    <a class="dropdown-item" href="/recommendations/${user['name']}">Recommendations</a>
+					    <a class="dropdown-item" href="/animelist/${user['name']}">Anime List</a>
+					    <div class="dropdown-divider"></div>
+					    <form id="navlogout" class="px-2 py-1" method="post">
+						<button id="navbar-logout-btn" class="btn btn-primary">Log Out</button>
+					    </form>
+
+					</div>
+
+
+				    #else
+					<button class="btn" id="login_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					    Log in
+					</button>
+					<div class="dropdown-menu dropdown-menu-right py-1" aria-labelledby="login_dropdown">
+					    <form class="px-2 py-1" id="navlogin" method="post">
+						<div class="form-group">
+						    <label for="nv_email" class="my-1">Email address</label>
+						    <input type="email" class="form-control" name="email" id="nv_email" placeholder="Email">
+						</div>
+						<div class="form-group">
+						    <label for="nv_password" id="nv_password" class="my-1">Password</label>
+						    <input type="password" class="form-control" name="password" id="nv_password" placeholder="Password">
+						</div>
+						<div class="form-check">
+						    <label class="form-check-label" for="dropdownCheck">
+							Remember me
+						    </label>
+						    <input type="checkbox" class="form-check-input" id="dropdownCheck">
+						</div>
+						<button id="navbar-login-btn" class="btn btn-primary">Sign in</button>
+					    </form>
+					</div>
+
+				    #end if
+				</div>
+			    </li>
+			</ul>
+		    </div>
+		</div>
+
+
+
+			</ul>
+	    </div>
+	</nav>
+
+	<div class="container">
+	    <div class="content">
+		#block main
+		Empty.
+			#end block
+	    </div>
+	</div>
+	<script src=$static_url("js/popper.min.js")></script>
+	<script src=$static_url("js/bootstrap.min.js")></script>
+
+    </BODY>
+</HTML>

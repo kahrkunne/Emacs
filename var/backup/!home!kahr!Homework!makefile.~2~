@@ -1,0 +1,14 @@
+# makefile, Gerard Renardel, 28 February 2018
+# makefile for programs for expression trees
+
+CC     = gcc
+CFLAGS = -std=c99 -pedantic -Wall
+
+inf:	scanner.c recognizeExp.c evalExp.c infixExp.c mainInf.c
+	$(CC) $(CFLAGS) scanner.c recognizeExp.c evalExp.c infixExp.c mainInf.c -g -o $@
+	
+clean:	
+	rm -f *~
+	rm -f #*#
+	rm -f *.o
+

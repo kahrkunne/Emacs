@@ -1,0 +1,38 @@
+#!/usr/bin/python3.6
+import sys
+import os
+import secrets
+import logging
+import atexit
+
+from redis import Redis
+from pottery import RedisDict
+import momoko
+import turicreate as tc
+import tornado.ioloop
+import tornado.web
+import tornado.options
+from tornado.web import url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+import app.pages as pages
+from app.conf import load_conf, save_conf
+from app.recengine import RecEngine
+from app.models import User, Anime, AnimeEntry
+import util
+
+from constants import (API_MIME_TYPE_PUBLIC, API_MIME_TYPE_ADMIN)
+
+
+from typing import Dict
+from model import Config, Search, Recengine, Database, Cache
+
+atexit.register(lambda: logging.getLogger("Toshokan").info('Shutting down!'))
+
+if __name__ == "__main__":
+    conf: Config = Config(sys.argv[1], sys.argv[2])
+    search: Search = Search(conf['search_config'])
+    cache: Cache = Cache(conf['cache_config'])
+    

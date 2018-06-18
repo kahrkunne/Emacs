@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 1
+#define MIN -1
+
+#define INFINITY 99999;
+
+typedef struct GameState {
+  int move;
+  int val;
+} GameState;
+
+GameState negaMax(int state, int color){
+  /* Variables:
+     state: number of matches left in the pile
+     color: current player; 1 for Max, -1 for Min
+  */
+  int move;
+  GameState best;
+  if (state == 1) {
+    /* There is only 1 match remaining; terminal state.
+     This is the utility value. In this case, we have only one match remaining, so we lose; that is to say, the opposite player wins, so we return -1 * color. best.move is not used in this case, but I initialize it anyways.*/
+    best.val = -1 * color;
+    best.move = 1;
+  } else {
+    // Set best.val to -INFINITY, so that the upcoming if statement `m > best.val` is always true the first time.
+    best.val = -INFINITY;
+    for (move = 1; move <= 3; move++) {
+      // For each possible action (taking 1 to 3 matches)
+      if (state - move > 0) { // If we have at least 1 match remaining, i.e. this is a legal move
+	// The call to negaMax calculates the value for this move *for the opposite player* (note the -1 * color part; 
+	int m = -1 * negaMax(state - move, -1 * color).val;
+	if (m > best.val){
+	  best.val = m;
+	  best.move = move;
+	}
+      }
+    }
+  }
+
+  return best;
+}
+
+void playNim(int state) {
+  int turn = 1;
+  while (state != 1) {
+    int action = negaMax(state, turn).move;
+    printf("%d: %s takes %d\n", state, 
+	   (turn==MAX ? "Max" : "Min"), action);
+    state = state - action;
+    turn = -turn;
+  }
+}
+
+int main(int argc, char *argv[]) {
+  if ((argc != 2) || (atoi(argv[1]) < 3)) {
+    fprintf(stderr, "Usage: %s <number of sticks>, where ", argv[0]);
+    fprintf(stderr, "<number of sticks> must be at least 3!\n");
+    return -1;
+  }
+
+  playNim(atoi(argv[1]));
+
+  return 0;
+}

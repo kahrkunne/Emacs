@@ -1,0 +1,15 @@
+*.cf
+old/
+.tramp_history
+*.lock
+*.log
+
+config.cf
+
+*.py[cod]
+*.so
+
+__pycache__/
+tools/anime_pages/
+tools/pages/
+res/img/

@@ -1,0 +1,24 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Encodings.Web;
+
+namespace Bencom.Controllers
+{
+    public class TwitterController : Controller
+    {
+        // 
+        // GET: /twitter/
+
+        public string Index()
+        {
+            return "This is my default action...";
+        }
+
+        // 
+        // GET: /twitter/getfeed/ 
+
+        public string getfeed(string handle, int numResults)
+        {
+            return HtmlEncoder.Default.Encode($"Fetching first {numResults} for @{handle}.");
+        }
+    }
+}

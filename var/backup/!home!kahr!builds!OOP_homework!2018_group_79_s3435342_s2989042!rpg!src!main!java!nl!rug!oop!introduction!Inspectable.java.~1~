@@ -1,0 +1,14 @@
+abstract public class Inespectable {
+    /**
+     * Inspectable
+     * An object that can be inspected, i.e. has an inspect method
+     * @author: Kahr Kunne, Gijs Erens
+     */
+    private String description;
+    public Inespectable(String d) {
+	this.description = d;
+    }
+    public String inspect(){
+	System.out.println("You see: " + this.description);
+    }
+}

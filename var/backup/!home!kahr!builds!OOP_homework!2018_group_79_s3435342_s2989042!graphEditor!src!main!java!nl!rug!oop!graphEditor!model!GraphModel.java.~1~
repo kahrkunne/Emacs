@@ -1,0 +1,53 @@
+// TODO packages
+public class GraphModel {
+    private ArrayList<GraphVertex> vertices;
+    private ArrayList<GraphEdge> edges;
+
+    public GraphModel() {
+	this.vertices = new ArrayList<GraphVertex>();
+	this.edges = new ArrayList<GraphEdge>();
+    }
+
+    public void addVertex(GraphVertex v){
+	this.vertices.add(v);
+    }
+
+    public void addEdge(GraphEdge e){
+	this.edges.add(e);
+    }
+
+    public void removeVertex(GraphVertex v){
+	this.vertices.remove(v);
+	for (GraphEdge e : this.edges){
+	    if(e.getVertices().contains(v)){
+		removeEdge(e);
+	    }
+	}
+    }
+
+    public void removeEdge(GraphEdge e){
+	this.edges.remove(e);
+    }
+
+    public void save(String filename){
+	ArrayList<String> lines = new ArrayList<String>();
+	lines.add(String.format("%d %d", this.vertices.size(), this.edges.size()));
+
+	for(GraphVertex v: this.vertices){
+	    lines.add(String.format("%d %d %d %s", v.getX(), v.getY(), v.getSize(), v.getName()));
+	}
+
+	for(GraphEdge e: this.edges){
+	    ArrayList<GraphVertex> vertices = e.getVertices();
+	    lines.add(String.format("%d %d", this.vertices.index(vertices.get(0)), this.vertices.index(vertices.get(1))));
+	}
+
+	// TODO import
+	Path file = Paths.get(filename);
+	Files.write(file, lines, Charset.forName("UTF-8"));
+    }
+
+    public void load(String filename){
+	// TODO implement
+    }
+}

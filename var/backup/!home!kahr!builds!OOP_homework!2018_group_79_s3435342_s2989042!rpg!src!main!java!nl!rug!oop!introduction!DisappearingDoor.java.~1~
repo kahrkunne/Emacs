@@ -1,0 +1,10 @@
+public class DisappearingDoor extends Door {
+    public DisappearingDoor(String descriptiion, Room r){
+	super(description, r);
+    }
+
+    public void interact(Player p){
+	System.out.println("As you close the door behind you, it disappears!");
+	super.interact();
+    }
+}

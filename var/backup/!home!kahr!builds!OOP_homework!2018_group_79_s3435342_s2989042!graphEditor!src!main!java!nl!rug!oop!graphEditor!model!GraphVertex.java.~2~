@@ -1,0 +1,97 @@
+package nl.rug.oop.graphEditor.model;
+
+import java.awt.event.MouseMotionListener;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Random;
+
+public class GraphVertex extends Observable {
+    private String name;
+    private int x;
+    private int y;
+    private int height;
+    private int width;
+    private boolean selected;
+
+    public GraphVertex(GraphModel model, int x, int y, int height, int width, String name) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.height = height;
+        this.width = width;
+        this.selected = false;
+        this.addObserver(model);
+    }
+
+    public GraphVertex() {
+        Random rand = new Random();
+        this.name = "Nameless";
+        this.x = rand.nextInt(800);
+        this.y = rand.nextInt(600);
+        this.height = rand.nextInt(100);
+        this.width = rand.nextInt(50);
+        this.selected = false;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setX(int x) {
+        this.x = x;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setY(int y) {
+        this.y = y;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setSelected(boolean val) {
+        this.selected = val;
+        setChanged();
+        notifyObservers();
+    }
+
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
+    public int getHeight() {
+        return this.height;
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public boolean isSelected() {
+        return this.selected;
+    }
+
+}

@@ -1,0 +1,19 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Killer extends Person {
+    /**
+     * Killer
+     * This guy kills you
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    public Killer(String description, Room r, ArrayList<Item> items, ArrayList<Item> equipped, int money){
+	super(description, r, items, equipped, money);
+    }
+
+    public void interact(Player p){
+	System.out.println("The killer slashes your throat!");
+	p.setHealth(0);
+    }
+}

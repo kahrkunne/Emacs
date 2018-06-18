@@ -1,0 +1,89 @@
+package nl.rug.oop.graphEditor.controller;
+
+import nl.rug.oop.graphEditor.model.GraphVertex;
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+public class SelectionController implements MouseListener, MouseMotionListener {
+    private GraphPanel panel;
+    private boolean pressed = false;
+    private long start, end;
+
+    public SelectionController(GraphPanel panel) {
+        this.panel = panel;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        for (GraphVertex v : panel.getModel().getVertices()) {
+            if (e.getX() > v.getX() &&
+                    e.getX() < v.getX() + v.getHeight() &&
+                    e.getY() > v.getY() &&
+                    e.getY() < v.getY() + v.getWidth()) {
+                v.setSelected(true);
+            } else {
+                v.setSelected(false);
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        this.pressed = true;
+        for (GraphVertex v : panel.getModel().getVertices()) {
+            if (e.getX() > v.getX() &&
+                    e.getX() < v.getX() + v.getHeight() &&
+                    e.getY() > v.getY() &&
+                    e.getY() < v.getY() + v.getWidth()) {
+                v.setSelected(true);
+            } else {
+                v.setSelected(false);
+            }
+        }
+        this.start = System.currentTimeMillis();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        this.end = System.currentTimeMillis();
+        if (pressed && (this.start - this.end) > 500) {
+            for (GraphVertex v : panel.getModel().getVertices()) {
+                if (v.isSelected()) {
+                    v.setX(e.getX() - v.getHeight() / 2);
+                    v.setY(e.getY() - v.getWidth() / 2);
+                    v.setSelected(false);
+                }
+            }
+            this.pressed = false;
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (pressed) {
+            for (GraphVertex v : panel.getModel().getVertices()) {
+                if (v.isSelected()) {
+                    v.setX(e.getX() - v.getHeight() / 2);
+                    v.setY(e.getY() - v.getWidth() / 2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+    }
+}

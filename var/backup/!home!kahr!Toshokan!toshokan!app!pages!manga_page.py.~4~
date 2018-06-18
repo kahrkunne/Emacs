@@ -1,0 +1,243 @@
+from collections import defaultdict
+from datetime import datetime
+from calendar import timegm
+import pytz
+
+import tornado
+from tornado.web import HTTPError
+
+from ..models import Anime, Link, Person, Company, Manga, Genre
+from . import Page
+from .templates.manga_page import manga_page
+
+class MangaPage(Page):
+    template = manga_page
+
+    @tornado.web.addslash
+    def get(self, uid, title):
+        # TODO top manga page
+        # TODO test
+
+        user = self.get_current_user()['name']
+        if not user:
+            user = '__nonexistent_user__'
+
+        if uid:
+            manga = self.db.query(Manga).filter_by(uid=uid).first()
+            if not manga:
+                raise HTTPError(404)
+
+        if self.is_api_get():
+            get_links = self.get_argument('get_links', default="false") == "false"
+
+            if uid:
+                mangas = [manga]
+            else:
+                try:
+                    manga_ids = [int(x) for x in self.get_argument('manga_ids', default=None).split(',')]
+                    assert manga_ids
+                    mangas = self.db.query(Manga).filter(Manga.uid.in_(manga_ids)).all()
+                except:
+                    raise HTTPError(400)
+
+            objs = []
+
+            for manga in mangas:
+                data = defaultdict(list)
+                if get_links:
+                    for l in manga.links:
+                        if l.person_id:
+                            data['people'].append({'person': {'id':l.person_id, 'name':l.person.name,
+                                                              'description':l.person_desc}})
+                        elif l.character_id:
+                            data['characters'].append({'character': {'id':l.character_id, 'name':l.character.name,
+                                                                     'description':l.character_desc}})
+                        elif l.company_id:
+                            data['companies'].append({'company': {'id':l.company_id, 'name':l.company.name,
+                                                                  'description':l.company_desc}})
+                        elif l.genre_id:
+                            data['genres'].append({'genre':{'id':l.genre_id, 'name':l.genre.name}})
+                        elif l.manga_self_id:
+                            data['related_manga'].append({'manga': {'description':l.manga_desc, 'id':l.manga_self_id,
+                                                                    'title':l.manga_self.title}})
+                        elif l.anime_id:
+                            data['related_anime'].append({'anime': {'description': l.anime_desc, 'id': l.anime_id,
+                                                                    'title':l.anime.title}})
+                        elif l.image_id:
+                            # TODO images might have descriptions in the future
+                            data['images'].append({'image': {'filename': l.image.image_hash, 'id':l.image_id}})
+                            if l.image_desc == 'main':
+                                data['main_image'] = {'filename':l.image.image_hash, 'id':l.image_id}
+
+                data['uid'] = manga.uid
+                data['title'] = manga.title
+                data['type'] = manga.kind
+                # TODO status
+                data['num_volumes'] = manga.num_volumes
+                data['num_chapters'] = manga.num_chapters
+                data['description'] = manga.description
+                data['start_date'] = timegm(manga.start_date.timetuple()) if manga.start_date else 0
+                data['end_date'] = timegm(manga.end_date.timetuple()) if manga.end_date else 0
+                data['flags'] = manga.flags
+                data['synonyms'] = manga.synonyms
+                objs.append(data)
+
+            if uid:
+                self.write({'data':objs[0]})
+            else:
+                self.write({'data':objs})
+
+        elif self.is_web_get():
+            manga = self.db.query(Manga).filter_by(uid=uid).first()
+            manga.status = 'STATUS NOT IMPLEMENTED YET'
+
+            links = self.db.query(Link).filter_by(main_kind='manga', main_id=manga.uid).all()
+
+            people = [(self.db.query(Person).filter_by(uid=x.person_id).first(),
+                       x.person_desc) for x in
+                      [x for x in links if x.person_id and not x.character_id]]
+
+            studios = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                       for x in links if x.company_id and x.company_desc == 'Studio']
+
+            licensors = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                         for x in links if x.company_id and x.company_desc == 'Licensor']
+
+            producers = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                         for x in links if x.company_id and x.company_desc == 'Producer']
+
+            genres = [self.db.query(Genre).filter_by(uid=x.genre_id).first().name
+                      for x in links if x.genre_id]
+
+            rel_links = [x for x in links if x.manga_self_id or x.anime_id]
+            rels = {'Adaptation':[], 'Sequel':[], 'Prequel':[], 'Summary':[],
+                    'Alternative version':[], 'Parent story':[], 'Side story':[],
+                    'Alternative setting':[], 'Full story':[], 'Spin-off':[],
+                    'Character':[], 'Other':[]}
+
+            rel_names = rels
+
+            for k in rels:
+                for l in rel_links:
+                    if l.manga_desc == k:
+                        if l.manga_self_id:
+                            rels[k].append(self.db.query(Manga).filter_by(uid=l.manga_self_id).first())
+                        if l.anime_id:
+                            rels[k].append(self.db.query(Anime).filter_by(uid=l.anime_id).first())
+
+            for k in rels:
+                rel_names[k] = ', '.join(['<a href=/{}/{}/>{}</a>'
+                                          .format(x.__class__.__name__.lower(),
+                                                  x.uid,
+                                                  x.title) for x in rels[k]])
+
+                self.t.genres = genres
+                self.t.licensors = licensors
+                self.t.producers = producers
+                self.t.manga = manga
+                self.t.rels = rels
+                self.t.rel_names = rel_names
+                self.t.people = people
+                self.t.studios = studios
+
+            self.write(self.render())
+
+        else:
+            raise HTTPError(406)
+
+    def put(self, uid, title):
+        # TODO test
+        content_type = self.request.headers.get('Content-type').split(',')
+        if self.API_MIME_TYPE_PUBLIC not in content_type:
+            raise HTTPError(406)
+        elif len(self.request.headers.get('Content-type').split(';')) > 1:
+            raise HTTPError(415)
+
+        # TODO better security
+        if self.get_current_user()['name'] != '__admin__':
+            raise HTTPError(401)
+
+        try:
+            manga = self.db.query(Manga).filter_by(uid=uid).first()
+            data = self.get_json_argument()
+            new_manga = Manga(description=data['description'],
+                              mal_id=int(data['mal_id']) if data['mal_id'] else manga.mal_id if manga.mal_id else None,
+                              synonyms=data['synonyms'],
+                              volumes=int(data['num_volumes']),
+                              chapters=int(data['num_chapters']),
+                              kind=data['type'],
+                              start_date=datetime.fromtimestamp(int(data['start_date']), pytz.UTC),
+                              end_date=datetime.fromtimestamp(int(data['end_date']), pytz.UTC),
+                              flags=data['flags'])
+            if uid:
+                new_manga.uid = uid
+
+            if manga:
+                for l in manga.links:
+                    self.db.delete(l)
+                    self.db.delete(manga)
+
+            self.db.add(new_manga)
+
+            for p in data['people']:
+                self.db.add(Link(manga_id=uid,
+                                 person_id=p['person']['id'],
+                                 manga_desc=p['person']['description'],
+                                 person_desc=p['person']['description']))
+
+            for c in data['characters']:
+                self.db.add(Link(manga_id=uid,
+                                 character_id=c['character']['id'],
+                                 character_desc=c['character']['description'],
+                                 manga_desc=c['character']['description']))
+
+            for c in data['companies']:
+                self.db.add(Link(manga_id=uid,
+                                 company_id=c['company']['id'],
+                                 company_desc=c['company']['description'],
+                                 manga_desc=c['manga']['description']))
+
+            for g in data['genres']:
+                self.db.add(Link(manga_id=uid,
+                                 genre_id=g['genre']['id'],
+                                 genre_desc=g['genre']['description'],
+                                 manga_desc=g['genre']['description']))
+
+            for a in data['related_manga']:
+                self.db.add(Link(manga_id=uid,
+                                 manga_self_id=a['manga']['id'],
+                                 manga_desc=a['manga']['description'],
+                                 manga_self_desc=a['manga']['description']))
+
+            for m in data['related_anime']:
+                self.db.add(Link(manga_id=uid,
+                                 anime_id=m['anime']['id'],
+                                 anime_desc=m['anime']['description'],
+                                 manga_desc=m['anime']['description']))
+
+            for i in data['images']:
+                # TODO images might have descriptions other than just 'main' or None
+                desc = 'main' if i['image']['id'] == data['main_image']['id'] else None
+                self.db.add(Link(manga_id=uid,
+                                 image_id=i['image']['id'],
+                                 image_desc=desc,
+                                 manga_desc=desc))
+
+            self.db.commit()
+        except:
+            self.db.rollback()
+            raise HTTPError(400)
+
+    def delete(self, uid, title):
+        # TODO test
+        try:
+            manga = self.db.query(Manga).filter_by(uid=uid).first()
+            assert manga
+            for l in manga.links:
+                self.db.delete(l)
+
+            self.db.delete(manga)
+            self.db.commit()
+        except:
+            self.db.rollback()
+            raise HTTPError(400)

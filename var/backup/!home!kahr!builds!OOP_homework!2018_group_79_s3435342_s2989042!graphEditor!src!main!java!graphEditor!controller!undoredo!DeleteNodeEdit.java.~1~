@@ -1,0 +1,26 @@
+package graphEditor.controller.undoredo;
+
+import graphEditor.model.GraphModel;
+import graphEditor.model.GraphVertex;
+
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
+public class DeleteNodeEdit extends AbstractUndoableEdit {
+    private GraphVertex vertex;
+    private GraphModel model;
+
+    public DeleteNodeEdit(GraphVertex vertex, GraphModel model) {
+        this.vertex = vertex;
+        this.model = model;
+    }
+
+    public void undo() throws CannotRedoException {
+        model.addVertex(vertex);
+    }
+
+    public void redo() throws CannotUndoException {
+        model.removeVertex(vertex);
+    }
+}

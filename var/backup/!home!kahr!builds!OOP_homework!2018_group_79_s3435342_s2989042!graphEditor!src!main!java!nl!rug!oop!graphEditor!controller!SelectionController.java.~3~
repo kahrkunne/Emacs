@@ -1,0 +1,117 @@
+package nl.rug.oop.graphEditor.controller;
+
+import nl.rug.oop.graphEditor.model.GraphEdge;
+import nl.rug.oop.graphEditor.model.GraphModel;
+import nl.rug.oop.graphEditor.model.GraphVertex;
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+public class SelectionController implements MouseListener, MouseMotionListener {
+    private GraphModel model;
+    private GraphPanel panel;
+    private boolean pressed = false, selected = false;
+    private long start, end;
+
+    public SelectionController(GraphModel model, GraphPanel panel) {
+        this.model = model;
+        this.panel = panel;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (model.isAdditionMode()) {
+            for (GraphVertex v : model.getVertices()) {
+                if (e.getX() > v.getX() &&
+                        e.getX() < v.getX() + v.getHeight() &&
+                        e.getY() > v.getY() &&
+                        e.getY() < v.getY() + v.getWidth() &&
+                        model.getSelected() != null) {
+                    model.addEdge(new GraphEdge(model, model.getSelected(), v));
+                    model.setAdditionMode(false);
+                    break;
+                }
+            }
+        } else {
+            for (GraphVertex v : model.getVertices()) {
+                if (e.getX() > v.getX() &&
+                        e.getX() < v.getX() + v.getHeight() &&
+                        e.getY() > v.getY() &&
+                        e.getY() < v.getY() + v.getWidth()) {
+                    v.setSelected(true);
+                } else {
+                    v.setSelected(false);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        pressed = true;
+        if (!model.isAdditionMode()) {
+            for (GraphVertex v : model.getVertices()) {
+                if (e.getX() > v.getX() &&
+                        e.getX() < v.getX() + v.getHeight() &&
+                        e.getY() > v.getY() &&
+                        e.getY() < v.getY() + v.getWidth() &&
+                        !selected) {
+                    v.setSelected(true);
+                    selected = true;
+                } else {
+                    v.setSelected(false);
+                }
+            }
+            start = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        this.end = System.currentTimeMillis();
+        if (pressed && (start - end) > 500) {
+            for (GraphVertex v : model.getVertices()) {
+                if (v.isSelected()) {
+                    v.setX(e.getX() - v.getHeight() / 2);
+                    v.setY(e.getY() - v.getWidth() / 2);
+                    selected = false;
+                    v.setSelected(false);
+                }
+            }
+            pressed = false;
+        }
+        selected = false;
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (pressed) {
+            for (GraphVertex v : model.getVertices()) {
+                if (v.isSelected()) {
+                    v.setX(e.getX() - v.getHeight() / 2);
+                    v.setY(e.getY() - v.getWidth() / 2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        if (model.isAdditionMode()) {
+            panel.setAddLineX(e.getX());
+            panel.setAddLineY(e.getY());//model.getSelected()
+        }
+    }
+}

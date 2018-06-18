@@ -1,0 +1,72 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def head
+#end def
+
+#def leftcol_info
+<span>$manga.name</span>
+<br>
+<span>Type: </span>$manga.kind<br>
+<span>Status: </span>$manga.status<br>
+<span>Volumes: </span>$manga.volumes<br>
+<span>Chapters: </span>$manga.chapters<br>
+<span>Runtime: </span>$manga.start_date to $manga.end_date<br>
+<span>Genres: </span>${', '.join($genres)}<br>
+<span>Etc etc: </span>TODO: Implement<br>
+
+<span>Score: </span>PLACEHOLDER<br>
+<span>Members: </span>PLACEHOLDER<br>
+#end def
+
+#def info_tabs
+<li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" role="tab" href="#description">Description</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#people">People</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#info">Info</a>
+</li>
+#end def
+
+#def info_tab_content
+<div class="tab-pane active" id="description" role="tabpanel">
+    $manga.description.replace("\n", "<br />")
+</div>
+
+<div class="tab-pane" id="people" role="tabpanel">
+    #for person in $people:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/person/$person[0].uid">$person[0].name</a><br>
+		    $person[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+</div>
+
+<div class="tab-pane" id="info" role="tabpanel">
+    todo implement lmao
+
+    <table class="table infopage-rel table-sm borderless">
+	<tbody>
+	    #for k in $rel_names:
+		#if $rel_names[$k]:
+		    <tr>
+			<th><span>$k</span></td>
+			    <td>$rel_names[$k]<br></td>
+		    </tr>
+		#end if
+	    #end for
+	</tbody>
+    </table>
+</div>
+#end def

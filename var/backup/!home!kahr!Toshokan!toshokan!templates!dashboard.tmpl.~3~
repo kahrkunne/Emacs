@@ -1,0 +1,136 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+<script id="dashboard-anime-list-template" type="x-tmpl-mustache" language="text" type="text/html">
+    <table class="table table-sm borderless animelist-table">
+	<thead>
+	    <th class=""><a href="javascript:;" class="sort-anime-title">Title</a></th>
+	    <th class="text-right" style="width:8em"><a href="javascript:;" class="sort-anime-progress">Progress</a></th>
+	</thead>
+	<tbody>
+	    {{#list}}
+	    <tr class="entry-anime-{{anime_id}}">
+		<td>
+		    <span class="dashboard-edit-button"><button href="javascript:;" class="btn edit-anime-{{anime_id}}">Edit</button></div>
+			{{title}}
+		</td>
+		<td class="text-right">{{num_episodes}}/{{#total_episodes}}{{total_episodes}}{{/total_episodes}}{{^total_episodes}}?{{/total_episodes}} <button href="javascript:;" class="animelist-plus-btn btn btn-sm btn-primary plus1-{{anime_id}}">+</button></td>
+	    </tr>
+	    {{/list}}
+	</tbody>
+    </table>
+</script>
+
+<script id="dashboard-manga-list-template" type="x-tmpl-mustache" language="text" type="text/html">
+    <table class="table table-sm borderless animelist-table">
+	<thead>
+	    <th class=""><a href="javascript:;" class="sort-manga-title">Title</a></th>
+	    <th class="text-right" style="width:8em"><a href="javascript:;" class="sort-manga-volumes">Volumes</a></th>
+	    <th class="text-right" style="width:8em"><a href="javascript:;" class="sort-manga-chapters">Chapters</a></th>
+	</thead>
+	<tbody>
+	    {{#list}}
+	    <tr class="entry-manga-{{manga_id}}">
+		<td>
+		    <span class="dashboard-edit-button"><button href="javascript:;" class="btn edit-manga-{{manga_id}}">Edit</button></div>
+			{{title}}
+		</td>
+		<td class="text-right">{{num_volumes}}/{{#total_volumes}}{{total_volumes}}{{/total_volumes}}{{^total_volumes}}?{{/total_volumes}} <button href="javascript:;" class="mangalist-plus-btn btn btn-sm btn-primary plus1-v-{{manga_id}}">+</button></td>
+		<td class="text-right">{{num_chapters}}/{{#total_chapters}}{{total_chapters}}{{/total_chapters}}{{^total_chapters}}?{{/total_chapters}} <button href="javascript:;" class="mangalist-plus-btn btn btn-sm btn-primary plus1-c-{{manga_id}}">+</button></td>
+
+	    </tr>
+	    {{/list}}
+	</tbody>
+    </table>
+</script>
+
+
+<script id="dashboard-feed-update-template" type="x-tmpl-mustache" language="text" type="text/html">
+    <div class="feed-update-{{type}} mt-2">
+	<div class="row">
+	    <div class="col-1 pr-1">
+		<div class="feed-image">
+		    <img class="rounded-circle img-responsive" style="width:100%;" src="{{image}}">
+		</div>
+	    </div>
+	    <div style="width:100%;" class="col justify-content-right align-self-center feed-text">
+		{{{text}}}
+	    </div>
+	</div>
+    </div>
+</script>
+
+<link rel="stylesheet" href="/static/css/bootstrap-datepicker.min.css">
+#end def
+
+#def main
+
+<div class="row">
+    <!-- TODO make this responsive properly -->
+    <div class="col-xl-1">
+	<div class="dashboard-nav">
+	    <ul class="nav nav-pills flex-column">
+		<li class="nav-item">
+		    <a class="nav-link active" data-toggle="tab" role="tab" href="#lists">Lists</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#news">News</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#stats">Stats</a>
+		</li>
+	    </ul>
+	</div>
+    </div>
+    <div class="col">
+	<div class="tab-content">
+	    <div class="tab-pane active" id="lists" role="tabpanel">
+		<div class="input-group">
+		    <input name="dashboard-search" id="animelist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off" style="display:inherit;" />
+		    <input name="dashboard-search" id="mangalist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off" style="display:none;" />
+		    <input name="dashboard-search" id="vnlist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off" style="display:none;" />
+		    <div class="input-group-btn">
+			<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="dashboard-list-dropdown">
+			    Anime
+			</button>
+			<div class="dropdown-menu dropdown-menu-right">
+			    <a class="dropdown-item" href="#" id="dashboard-anime" style="display:none;">Anime</a>
+			    <a class="dropdown-item" href="#" id="dashboard-manga" style="display:inherit;">Manga</a>
+			    <a class="dropdown-item" href="#" id="dashboard-vn" style="display:inherit;">VN</a>
+			</div>
+		    </div>
+		</div>
+
+		<div id="dashboard-list-anime" style="display:inherit;"></div>
+		<div id="dashboard-list-manga" style="display:none;"></div>
+		<div id="dashboard-list-vn" style="display:none;">NOT IMPLEMENTED YET</div>
+	    </div>
+	    <div class="tab-pane" id="news" role="tabpanel">
+		<div class="input-group">
+		    <input name="news-search" id="news-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+		    <div class="input-group-btn">
+			<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    Everything
+			</button>
+			<div class="dropdown-menu dropdown-menu-right">
+			    <a class="dropdown-item" href="#">Something</a>
+			    <a class="dropdown-item" href="#">Something else</a>
+			    <a class="dropdown-item" href="#">Foo bar baz</a>
+			</div>
+		    </div>
+		</div>
+		<div id="news-content">
+		</div>
+	    </div>
+	    <div class="tab-pane" id="stats" role="tabpanel">
+		TODO implement
+	    </div>
+
+	</div>
+    </div>
+
+</div>
+#end def

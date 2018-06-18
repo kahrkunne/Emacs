@@ -1,0 +1,7 @@
+from . import Page
+from ..models import User, AnimeEntry, Anime
+
+from .templates.animelist import animelist_import
+
+class AnimelistImport(Page):
+    

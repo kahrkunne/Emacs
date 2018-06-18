@@ -1,0 +1,4 @@
+* API
+** animelist
+*** GET
+URL: of the form toshokan.moe/animelist/[user]/[item], where [item] is optional

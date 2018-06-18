@@ -1,0 +1,26 @@
+// FIXME this shouldn't extend ItemUser
+public class Player implements Mortal {
+    /**
+     * Player
+     * The player in our RPG
+     * @author: Kahr Kunne, Gijs Erens
+     */
+    private Room room;
+    private int health;
+    public Player(Room r) {
+	this.room = r;
+	this.health = 100;
+    }
+    public Room getRoom(){
+	return this.room;
+    }
+    public void setRoom(Room r){
+	this.room = r;
+    }
+    public void setHealth(int health){
+	this.health = health;
+    }
+    public int getHealth(){
+	return this.health;
+    }
+}

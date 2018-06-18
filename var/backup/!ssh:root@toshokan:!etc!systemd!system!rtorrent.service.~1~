@@ -1,0 +1,9 @@
+[Unit]
+Description=rtorrent
+
+[Service]
+Type=simple
+User=torrent
+WorkingDirectory=/home/torrent
+ExecStart=rtorrent
+Restart=on-failure # or always, on-abort, etc

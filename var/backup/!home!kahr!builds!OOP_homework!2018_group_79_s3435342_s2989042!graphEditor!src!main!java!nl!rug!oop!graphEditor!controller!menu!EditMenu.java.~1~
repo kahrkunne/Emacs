@@ -1,0 +1,26 @@
+package nl.rug.oop.graphEditor.controller.menu;
+
+import nl.rug.oop.graphEditor.controller.menu.edit.RedoItem;
+import nl.rug.oop.graphEditor.controller.menu.edit.UndoItem;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
+public class EditMenu extends JMenu {
+    private JMenuItem undoItem, redoItem;
+
+    private void setUpMenu() {
+        getAccessibleContext().setAccessibleDescription("The main edit menu");
+
+        undoItem = new UndoItem();
+        redoItem = new RedoItem();
+
+        add(undoItem);
+        add(redoItem);
+    }
+
+    public EditMenu(String name) {
+        super(name);
+        setUpMenu();
+    }
+}

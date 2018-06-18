@@ -1,0 +1,15 @@
+package cardGame.model;
+
+/**
+ * A 36-card deck for the game Durak, which does not have numerical cards 2 through 5
+ */
+
+public class DurakDeck extends AbstractDeck {
+    protected void addCards() {
+	for(Card card: Card.values()){
+	    if(!({Card.Face.TWO, Card.Face.THREE, Card.Face.FOUR, Card.Face.FIVE}.contains(card.getFace()))){
+		addOnTop(card);
+	    }
+	}
+    }
+}

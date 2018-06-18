@@ -1,0 +1,11 @@
+abstract public class Equipable extends Item {
+    private int slot;
+    public Equipable(String description, int slot){
+	super(description);
+	this.slot = slot;
+    }
+
+    public int getSlot(){
+	return this.slot;
+    }
+}

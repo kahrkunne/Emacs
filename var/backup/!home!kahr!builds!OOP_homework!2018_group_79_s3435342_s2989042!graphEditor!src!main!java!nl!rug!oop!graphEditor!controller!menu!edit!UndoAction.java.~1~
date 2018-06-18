@@ -1,0 +1,24 @@
+package nl.rug.oop.graphEditor.controller.menu.edit;
+
+import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import java.awt.event.ActionEvent;
+
+public class UndoAction extends AbstractAction {
+    public UndoAction(String name) {
+        super(name);
+        setEnabled(true);
+    }
+
+    public UndoAction(String name, Icon img) {
+        super(name, img);
+        setEnabled(true);
+    }
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        //TODO: confirmation to exit (save file before exiting)
+        System.exit(0);
+    }
+}

@@ -1,0 +1,20 @@
+from .model import Base, Column, Integer, Sequence, String, Date
+
+class Manga(Base):
+    __tablename__ = 'tshk_manga'
+    uid = Column(Integer, Sequence('manga_id_seq'), primary_key=True)
+
+    title = Column(String)
+    description = Column(String)
+
+    mal_id = Column(Integer, unique=True)
+    synonyms = Column(String)
+    num_volumes = Column(Integer)
+    num_chapters = Column(Integer)
+    kind = Column(String)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    flags = Column(String)
+
+    def __repr__(self):
+        return "<Manga(uid={}, title={})>".format(self.uid, self.title)

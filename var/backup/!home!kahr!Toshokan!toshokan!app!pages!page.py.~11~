@@ -1,0 +1,159 @@
+import traceback
+
+from tornado.web import RequestHandler, HTTPError
+import Cheetah.Template
+import json
+from tornado import gen
+
+from ..util import slug
+from app.models import User
+
+class Page(RequestHandler):
+
+    template = None
+
+    def initialize(self, db, async_db, conf, API_MIME_TYPE_PUBLIC, API_MIME_TYPE_ADMIN, recengine, name):
+        # TODO IP, requires tinkering with the load balancer
+        conf['logger'].debug('[{}] REQUEST: [URI: {} - Method: {} - User: {} - Body: {}]'
+                             .format(name,
+                                     self.request.uri,
+                                     self.request.method,
+                                     self.get_current_user()['name'],
+                                     self.request.body.decode("UTF-8")))
+
+        self.async_db = async_db
+        self.name = name
+        self.db = db
+        self.conf = conf
+        self.API_MIME_TYPE_PUBLIC = API_MIME_TYPE_PUBLIC
+        self.API_MIME_TYPE_ADMIN = API_MIME_TYPE_ADMIN
+        self.recengine = recengine
+
+        if self.template:
+            self.t = self.template()
+            self.t.static_url = self.static_url
+            self.t.url = self.reverse_url
+            self.t.backend["solr_url"] = self.conf['solr']['url']
+            self.t.user = self.get_current_user()
+            # TODO "user" should probably be one thing, not split into user and obj
+            if self.t.user['id']:
+                self.t.user_obj = self.db.query(User).filter_by(uid=self.t.user['id']).first()
+        else:
+            self.t = None
+
+    def render(self):
+        return self.t.respond()
+
+    def get_json_argument(self, arg=None, default=None):
+        try:
+            body = json.loads(self.request.body.decode("UTF-8"))
+            if arg is None:
+                return body['data']
+            else:
+                return body['data'][arg]
+        except:
+            return default
+
+    def get_current_user(self):
+        try:
+            return {
+                "id":self.get_secure_cookie("user_id").decode("utf-8"),
+                "name":self.get_secure_cookie("username").decode("utf-8"),
+                "dname":self.get_secure_cookie("dname").decode("utf-8")
+            }
+
+        except:
+            return {
+                "id": None,
+                "name": None,
+                "dname": None
+            }
+
+    def assert_user_exists(self, username):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if not user:
+            raise HTTPError(404)
+        return user
+
+    def is_api_get(self):
+        accept = self.request.headers.get('Accept').split(',')
+        if self.API_MIME_TYPE_PUBLIC in accept:
+            self.set_header('Content-Type', self.API_MIME_TYPE_PUBLIC)
+            return True
+        else:
+            return False
+
+    def assert_api_compliant(self):
+        content_type = self.request.headers.get('Content-type').split(',')
+        if self.API_MIME_TYPE_PUBLIC not in content_type:
+            raise HTTPError(406)
+        elif len(self.request.headers.get('Content-type').split(';')) > 1:
+            raise HTTPError(415)
+
+    def is_web_get(self):
+        accept = self.request.headers.get('Accept').split(',')
+        return 'text/html' in accept
+
+    def verify_user_name(self, username):
+        if self.current_user['name'] != username:
+            raise HTTPError(401)
+
+    def verify_user_id(self, uid):
+        if self.current_user['id'] is None or int(self.current_user['id']) != int(uid):
+            raise HTTPError(401)
+
+    @gen.coroutine
+    def async_db_get(self, table, uids, columns, fetch='all'):
+        columns_string = columns if type(columns) == str else '(' + ', '.join(columns) + ')'
+        if type(uids) == int:
+            c = yield self.async_db.execute("SELECT {} FROM {} WHERE uid = {}".format(columns_string, table, uids))
+        else:
+            uids_string = '(' + ', '.join([str(x) for x in uids]) + ')'
+            c = yield self.async_db.execute("SELECT {} FROM {} WHERE uid in {}".format(columns_string, table, uids_string))
+        
+        if fetch == 'all':
+            return c.fetchall()
+        else:
+            return c.fetchone()
+
+class BaseTemplate(Cheetah.Template.Template):
+
+    season_icons = {'Winter': 'fa-snowflake-o',
+                    'Spring': 'fa-leaf',
+                    'Summer': 'fa-sun-o',
+                    'Fall': 'fa-pagelines',
+                    'undefined':''}
+
+    air_status_icons = {'Currently Airing': 'fa-play',
+                        'Finished Airing': 'fa-check',
+                        'Not yet aired': 'fa-fast-forward',
+                        'Unknown':'fa-question',
+                        '':'fa-question'}
+
+    a_type_icons = {'TV': 'fa-television',
+                    'OVA': 'fa-money',
+                    'Special': 'fa-star',
+                    'Music': 'fa-music',
+                    'ONA': 'fa-internet-explorer',
+                    'Movie': 'fa-video-camera',
+                    'Unknown':'fa-question',
+                    '':'fa-question'}
+
+    backend = {'icons':{'status':air_status_icons,
+                        'season':season_icons,
+                        'a_type':a_type_icons}}
+
+    def slug(self, text):
+        return slug(text)
+
+    def get_season(self, month):
+        if month < 4 and month > 0:
+            return "Winter"
+        if month >= 4 and month < 7:
+            return "Spring"
+        if month >= 7 and month < 10:
+            return "Summer"
+        if month >= 10:
+            return "Fall"
+        else:
+            return "Unknown"

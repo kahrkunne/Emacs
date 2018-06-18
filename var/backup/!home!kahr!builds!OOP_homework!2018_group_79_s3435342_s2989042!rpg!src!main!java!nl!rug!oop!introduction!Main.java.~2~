@@ -1,0 +1,32 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+import static java.util.Arrays.asList;
+
+public class Main {
+    public static void main(String[] args) {
+	// NOTE Right now the description of the room itself is not used anywhere
+	Room room = new Room("A white room with a red door and a black door");
+	Room otherRoom = new Room("A dark room, with no exits.");
+	Room thirdRoom = new Room("An empty room.");
+	room.addDoor(new DisappearingDoor("The red door", otherRoom));
+	room.addDoor(new NormalDoor("The black door", thirdRoom));
+	thirdRoom.addDoor(new NormalDoor("The black door", room));
+
+	room.addNPC(new Shopkeeper("Egg Salesman",
+				   room,
+				   new ArrayList<Item>(asList(new Item("egg", 2, -3))),
+				   null,
+				   1000));
+	otherRoom.addNPC(new Killer("Killer", otherRoom,
+				    null,
+				    null,
+				    0));
+
+	Player player = new Player(room);
+
+	Game game = new Game(new ArrayList<Room>(asList(room, otherRoom, thirdRoom)), player);
+
+	game.run();
+    }
+}

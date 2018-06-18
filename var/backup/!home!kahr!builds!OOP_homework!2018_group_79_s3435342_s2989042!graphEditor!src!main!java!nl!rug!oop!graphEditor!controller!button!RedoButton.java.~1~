@@ -1,0 +1,20 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import nl.rug.oop.graphEditor.controller.menu.edit.RedoAction;
+
+import javax.swing.*;
+import java.awt.event.KeyEvent;
+
+public class RedoButton extends JButton {
+    private void setButtonProperties() {
+        setVerticalTextPosition(AbstractButton.CENTER);
+        setHorizontalTextPosition(AbstractButton.CENTER);
+        setMnemonic(KeyEvent.VK_N);
+        setToolTipText("redo");
+    }
+
+    public RedoButton() {
+        super(new RedoAction("", new ImageIcon("target/classes/icons/redo.png")));
+        setButtonProperties();
+    }
+}

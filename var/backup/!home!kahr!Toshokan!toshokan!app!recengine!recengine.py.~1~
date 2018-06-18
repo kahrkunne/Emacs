@@ -1,0 +1,143 @@
+import sys
+from collections import defaultdict
+import csv
+import re
+from random import randint
+
+import numpy as np
+import scipy.sparse as sp
+from random import random
+from sklearn.feature_extraction import DictVectorizer
+import turicreate as tc
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+sys.path.append('/home/kahr/Toshokan/toshokan/app')
+import models
+
+def build_feature_frame(session):
+    d = {'anime_id':[], 'directors':[], 'genres':[], 'studios':[]}
+    animes = session.query(models.Anime)
+    for anime in animes:
+        links = session.query(models.Link).filter_by(main_kind='anime', main_id=anime.uid).all()
+        studios = [session.query(models.Company).filter_by(uid=x.company_id).first().name
+                   for x in links if x.company_id and x.company_desc == 'Studio']
+        genres = [session.query(models.Genre).filter_by(uid=x.genre_id).first().name
+                  for x in links if x.genre_id]
+        directors = [session.query(models.Person).filter_by(uid=x.person_id).first().name
+                     .replace(', ','')
+                     for x in links if x.person_desc and re.match('^Director', x.person_desc)]
+
+        d['anime_id'].append(anime.uid)
+        d['studios'].append(['studio_{}'.format(studio) for studio in studios])
+        d['genres'].append(['genre_{}'.format(genre) for genre in genres])
+        d['directors'].append(['director_{}'.format(director) for director in directors])
+
+    return tc.SFrame(d)
+
+def genses():
+    e = create_engine('postgresql://kahr:makama9makama9@localhost/toshokan')
+    s = sessionmaker(bind=e)()
+    return (e,s)
+
+def gen_mal_interactions_csv(session, min_rating=1, implicit=False, filename='interactions.csv'):
+    entries = session.query(models.OldAnimeEntry).yield_per(100000)
+    with open(filename, 'w+') as f:
+        for e in entries:
+            if implicit:
+                score = 1
+            else:
+                score = e.score
+
+            if score < min_rating:
+                continue
+
+            f.write('__mal_{},{},{}\n'.format(e.name, e.anime_id, score))
+
+def parse_mal_interactions_csv(filename='interactions.csv', min_rating=1,
+                               implicit=False, test=False, fraction=1):
+    def _build_interaction_matrix(rows, cols, data):
+        mat = sp.lil_matrix((rows, cols), dtype=np.int8)
+
+        for uid, iid, rating in data:
+            if rating >= min_rating:
+                mat[uid, iid] = rating
+
+        return mat.tocoo()
+
+    data = []
+
+    usernumbers = {}
+    useritems = defaultdict(list)
+    bigcol = 0
+    count = 0
+    testdata = []
+    traindata = []
+    allitems = []
+    count = 0
+    prevname = ''
+
+    with open(filename, 'r') as f:
+        for row in csv.reader(f, delimiter=','):
+            e = (row[0], int(row[1]), int(row[2]))
+
+            if e[0] != prevname:
+                prevname = e[0]
+                count += 1
+
+            usernumbers.setdefault(e[0], count)
+            useritems[e[0]].append(e[1])
+
+            if e[1] not in allitems:
+                allitems.append(e[1])
+
+            if e[1] > bigcol:
+                bigcol = e[1]
+
+            if implicit:
+                score = 1
+            else:
+                score = e[2]
+
+            if random() > 0.8 and test:
+                testdata.append((count, e[1], score))
+            else:
+                traindata.append((count, e[1], score))
+
+    bigrow = count + 1
+    bigcol = bigcol + 1 # FIXME why?
+
+    test = _build_interaction_matrix(bigrow, bigcol, testdata)
+    train = _build_interaction_matrix(bigrow, bigcol, traindata)
+
+    return (train, test, usernumbers, useritems)
+
+
+def gen_anime_id_map(session):
+    entries = session.query(models.Anime).yield_per(100000)
+    out = {}
+    for e in entries:
+        out[e.uid] = e.name
+    return out
+
+def get_anime_genres(session, aid):
+    genre_ids = [x[0] for x in session.query(models.Link.genre_id).filter_by(anime_id=aid).all() if x[0]]
+    genre_names = {}
+    for gid in genre_ids:
+        genre_names[gid] = session.query(models.Genre.name).filter_by(uid=gid).first()[0]
+
+    return genre_names
+
+def gen_model(kind='explicit', data=None, **kwargs):
+    kwargs.setdefault('verbose', False)
+    kwargs.setdefault('target', 'score')
+    try:
+        if data is None:
+            data = tc.load_sframe('./interactions_{}.sframe'.format(kind))
+    except:
+        # TODO specific exception
+        raise Exception
+
+    model = tc.recommender.ranking_factorization_recommender.create(data, 'user', 'anime_id', **kwargs)
+    return model

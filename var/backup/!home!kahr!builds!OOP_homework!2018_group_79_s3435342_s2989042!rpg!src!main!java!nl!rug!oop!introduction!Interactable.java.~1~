@@ -1,0 +1,9 @@
+public interface Interactable {
+    /**
+     * Interactable
+     * An interface for objects that can be interacted with.
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    abstract public void interact(Player p);
+}

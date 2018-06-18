@@ -1,0 +1,51 @@
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Bencom.Models
+{
+    public class TwitterModel
+    {
+	public static async Task<IEnumerable<string>> getFeed(string handle, int numResults){
+	    HttpClient client = new HttpClient();
+	    string accessToken = await getAccessToken();
+
+	    var timelineRequest = new HttpRequestMessage(HttpMethod.Get, 
+							 "https://api.twitter.com/1.1/statuses/user_timeline.json"
+							 +$"?count={numResults}&screen_name={handle}&trim_user=1&exclude_replies=1&tweet_mode=extended");
+	    timelineRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
+	    HttpResponseMessage timelineResponse = await client.SendAsync(timelineRequest);
+	    
+	    var tweets = JsonConvert.DeserializeObject(
+						       await timelineResponse.Content.ReadAsStringAsync()
+						       ) as IEnumerable<dynamic>;
+	    return tweets == null ? null : tweets.Select(t => (string)(t["text"].ToString()));
+	    
+	}
+
+	public static async Task<string> getAccessToken()
+	{           
+	    //XXX In a real application, this would of course never be hard-coded, for security reasons.
+	    string token = "VFllS21Ia0ZscFIwYjZwc0l5WmtHR2tFZDpLaUFBQjVSVGxQYUNMNWFuV25MZEZ1V0pHbno5RW9EUzdFczlrNFdySUFkSUlDZXR2QQ==";
+
+	    HttpClient client = new HttpClient();
+	    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://api.twitter.com/oauth2/token ");
+
+	    request.Headers.Add("Authorization", $"Basic {token}");
+	    request.Content = new StringContent("grant_type=client_credentials", 
+						Encoding.UTF8, "application/x-www-form-urlencoded");
+															  
+	    HttpResponseMessage response = await client.SendAsync(request);
+	    string responseJson = await response.Content.ReadAsStringAsync();
+
+	    dynamic result = JsonConvert.DeserializeObject(responseJson);
+	    return result["access_token"];
+	}
+    }
+
+
+}

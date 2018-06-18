@@ -1,4 +1,3 @@
-
 (setq user-full-name "Kahr Kunne"
       user-mail-address "kahr.kunne@gmail.com")
 
@@ -149,10 +148,12 @@
                          ("melpa-stable" . "https://stable.melpa.org/packages/")
                          ("elpy" . "http://jorgenschaefer.github.io/packages/")))
 (package-initialize)
+(add-to-list 'load-path "~/.emacs.d/lisp")
 
 (require 'package)
 ;;  (setq package-enable-at-startup nil)
 ;;  (package-initialize)
+  (setq use-package-always-ensure t)
 
 (use-package geiser
   :config
@@ -251,18 +252,28 @@
 (global-set-key (kbd "s-<up>") 'windmove-up)
 
 (use-package magit
-  :config
-  (setq with-editor-emacsclient-executable "/usr/bin/emacsclient-emacs-25"))
+    :config
+    (setq with-editor-emacsclient-executable "/usr/bin/emacsclient-emacs-25")
+  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+)
 
 (use-package evil
-  :commands evil-ex
-  :config
-  (evil-mode 1))
+    :commands evil-ex
+    :config
+    (evil-mode 1)
+  (define-key evil-normal-state-map (kbd ";") 'evil-ex)
+  (define-key evil-normal-state-map (kbd "SPC") 'avy-goto-char-timer)
+  (define-key evil-visual-state-map (kbd "SPC") 'avy-goto-char-timer)
+  (define-key evil-normal-state-map (kbd "g k") 'open-line-above)
+  (define-key evil-normal-state-map (kbd "g j") 'open-line-below)
+  (define-key evil-normal-state-map (kbd "g a") 'paste-above)
+  (define-key evil-normal-state-map (kbd "g p") 'paste-below)
 
-(require 'evil)
-(define-key evil-normal-state-map (kbd ";") 'evil-ex)
-(define-key evil-normal-state-map (kbd "SPC") 'avy-goto-char-timer)
-(define-key evil-visual-state-map (kbd "SPC") 'avy-goto-char-timer)
+  (define-key evil-insert-state-map (kbd "C-o") nil)
+  (define-key evil-insert-state-map (kbd "C-d") nil)
+)
+
+  (require 'evil)
 
 (use-package evil-surround
   :config
@@ -284,7 +295,8 @@
   :bind
   ("C-c c" . yas-expand)
   :config
-  (yas-global-mode 1))
+  (yas-global-mode 1)
+  (yas-load-directory "~/.emacs.d/snippets/"))
 
 (use-package mozc
   :config
@@ -350,6 +362,18 @@
           ("*Help*" :select t)))
   (shackle-mode t))
 
+(use-package workgroups2
+  :config
+  (workgroups-mode t))
+
+(use-package treemacs
+  :config
+  (global-set-key (kbd "C-c t") #'treemacs)
+  )
+
+(use-package treemacs-projectile)
+(use-package treemacs-evil)
+
 (use-package exwm)
 (use-package exwm-x)
 (use-package exwm-config
@@ -384,9 +408,16 @@
   (add-hook 'exwm-randr-screen-change-hook
             (lambda ()
               (start-process-shell-command
-               "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-1 --auto")))
+               "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-0 --auto")))
   (exwm-enable)
   (exwm-randr-enable))
+
+;; exim
+(require 'exim)
+(add-hook 'exwm-init-hook 'exim-start)
+(push ?\C-\\ exwm-input-prefix-keys)
+(push ?\C-U exwm-input-prefix-keys) 
+(push ?\C-u exwm-input-prefix-keys)
 
 (setq org-agenda-files (quote ("~/Life/agenda.org")))
 (add-to-list 'org-modules "org-habit")
@@ -502,12 +533,14 @@ buffer is not visiting a file."
     (newline-and-indent)
     (goto-char pos)))
 
+;  (use-package evil-magit)
+
 (defhydra hydra-zoom (global-map "<f2>")
   "zoom"
   ("g" text-scale-increase "in")
   ("l" text-scale-decrease "out"))
 
-(defhydra hydra-launch (:color blue)
+(defhydra hydra-launch (:color blue :hint nil)
   "
 ^Term^             ^Files^           ^IRC^          ^Email^        ^System        
 ^^^^^^^^--------------------------------------------------------------------------
@@ -515,48 +548,60 @@ _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus      _l_: linux ap
 _e_: eshell
 _s_: shell
 "
-  ("t" ansi-term "ansi-term")
-  ("e" eshell "eshell")
-  ("s" shell "shell")
-  ("d" dired "dired")
-  ("i" erc "erc")
-  ("g" gnus "gnus")
-  ("l" counsel-linux-app "counsel-linux-app"))
+  ("t" ansi-term)
+  ("e" eshell)
+  ("s" shell)
+  ("d" dired)
+  ("i" erc)
+  ("g" gnus)
+  ("l" counsel-linux-app))
 (global-set-key (kbd "C-c l") 'hydra-launch/body)
 
-(defhydra hydra-navigate (:color blue)
+(defhydra hydra-navigate (:color blue :hint nil)
   "
 ^Char^             ^Line^           ^search^          ^File^          ^buffer
 ^^^^^^^^---------------------------------------------------------------------------------------
 _c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
 _j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
 "
-  ("c" avy-goto-char-timer "avy-goto-char-timer")
-  ("j" avy-goto-char "avy-goto-char")
-  ("l" avy-goto-line "avy-goto-line")
-  ("s" swiper "swiper")
-  ("a" swiper-all "swiper-all")
-  ("f" counsel-find-file "counsel-find-file")
-  ("p" counsel-find-file-at-point "counsel-find-file-at-point")
-  ("b" switch-to-buffer "switch-to-buffer")
-  ("o" switch-to-buffer-other-window "switch-to-buffer-other-window"))
+  ("c" avy-goto-char-timer)
+  ("j" avy-goto-char)
+  ("l" avy-goto-line)
+  ("s" swiper)
+  ("a" swiper-all)
+  ("f" counsel-find-file)
+  ("p" counsel-find-file-at-point)
+  ("b" switch-to-buffer)
+  ("o" switch-to-buffer-other-window))
 (global-set-key (kbd "C-c n") 'hydra-navigate/body)
 
 (defun eshell-full-clear ()
   (interactive)
   (eshell/clear t))
 
-(defhydra hydra-eshell (:color blue)
+(defhydra hydra-eshell (:color blue :hint nil)
   "
 ^I/O^              ^Visual
 ^^^^^^^-----------------------------
 _b_: buffer        _c_: clear
-                 _x_: clear history
+		 _x_: clear history
 "
-  ("b" eshell-insert-buffer-name "eshell-insert-buffer-name")
-  ("c" eshell/clear "eshell/clear")
-  ("x" eshell-full-clear "eshell full clear"))
+  ("b" eshell-insert-buffer-name)
+  ("c" eshell/clear)
+  ("x" eshell-full-clear))
 (global-set-key (kbd "C-c e") 'hydra-eshell/body)
+
+(defhydra hydra-workgroups (:color blue :hint nil)
+  "
+_c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
+"
+  ("c" wg-create-workgroup)
+  ("A" wg-rename-workgroup)
+  ("k" wg-kill-workgroup)
+  ("v" wg-switch-to-workgroup)
+  ("s" wg-save-session-as)
+  ("f" wg-open-session))
+(global-set-key (kbd "C-c w") 'hydra-workgroups/body)
 
 (global-set-key (kbd "C-c d") 'insert-date)
 (global-set-key (kbd "C-x g") 'webjump)
@@ -566,16 +611,21 @@ _b_: buffer        _c_: clear
 (global-set-key (kbd "C-c f") 'eval-region)
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
 (global-set-key (kbd "C-c r") 'rename-buffer)
-(define-key evil-normal-state-map (kbd "g k") 'open-line-above)
-(define-key evil-normal-state-map (kbd "g j") 'open-line-below)
-(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-(define-key evil-normal-state-map (kbd "g a") 'paste-above)
-(define-key evil-normal-state-map (kbd "g p") 'paste-below)
 (global-set-key (kbd "C-h C-f") 'find-function)
 (global-set-key (kbd "C-h C-v") 'find-variable)
 (global-set-key (kbd "C-c p") #'mingus-toggle)
-(define-key evil-insert-state-map (kbd "C-o") nil)
-(define-key evil-insert-state-map (kbd "C-d") nil)
 (global-set-key (kbd "<XF86AudioLowerVolume>") #'mingus-vol-down)
 (global-set-key (kbd "<XF86AudioRaiseVolume>") #'mingus-vol-up)
 (global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
+
+((defun to-vm ()
+  (interactive)
+  (call-process "to-vm.sh"))
+
+(defun from-vm ()
+  (interactive)
+  (call-process "from-vm.sh"))
+
+
+(global-set-key (kbd "s-d") #'to-vm)
+(global-set-key (kbd "s-f") #'from-vm)

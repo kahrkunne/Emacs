@@ -1,0 +1,71 @@
+\documentclass[a4paper,11pt,twoside]{article}
+\usepackage{a4wide}
+\usepackage{amssymb,amsmath}
+\usepackage{palatino,mathpazo}
+\usepackage{exercise}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage{appendix}
+\usepackage{xspace}
+
+\newcommand{\MATLAB}{\textsc{Matlab}\xspace}
+
+\renewcommand{\ExerciseHeader}{{%
+\textbf{\large\ExerciseHeaderDifficulty\ExerciseName\ %
+\ExerciseHeaderNB\ExerciseHeaderTitle\ExerciseHeaderOrigin}}\medskip}
+\def\ExerciseName{Assignment}
+\renewcommand{\theenumi}{\alph{enumi}}
+
+\newcommand{\tx}[1]{\texttt{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\noindent 
+{\bf
+Introduction to Scientific Computing\\
+Report Practical 4: $N$-body simulations\\
+Kahr Kunne s3435342\\
+Merijn Schröder s3328481\\
+Mar 25, 2018
+}
+\bigbreak\hrule\smallskip\noindent
+
+\begin{Exercise}[title={Implementing a two-body simulation}]
+\begin{enumerate}
+\item[b.] To compute the acceleration of particle $i$, we use the formula $$\vec{a}_i = \sum_{j \neq i} G \frac{m_j(\vec{r}_j - \vec{r}_i)}{||\vec{r}_j - \vec{r}_i||^3}$$ with $m$ being the mass of the particle and $r$ being the position vectors of the particle. First, we define the position vectors of the particles in \MATLAB.
+\begin{Verbatim}
+r1 = sqrt(positions(1,1)^2 + positions(2,1)^2 + positions(3,1)^2);
+r2 = sqrt(positions(1,2)^2 + positions(2,2)^2 + positions(3,2)^2);
+\end{Verbatim}
+This code is based on the Pythagorean theorem. First we compute the distance from the center to the particle on a two-dimensional field. After that, we use that distance to compute the distance of the particle in a three-dimensional field. Now, we can implement the formula for calculating $\vec{a}$ in our code.
+\begin{Verbatim}
+dvdt(:,1) = G * ((masses(2) * (r2 - r1)) / (norm(r2 - r1))^3);
+dvdt(:,2) = G * ((masses(1) * (r1 - r2)) / (norm(r1 - r2))^3);
+\end{Verbatim}
+This results in the acceleration of particle 1 \tx{dvdt(:,1)} and particle 2 \tx{dvdt(:,2)}.
+\item[c.] \begin{enumerate}
+\item[1.] To compute the derivative of the positions, we use the formula $\frac{dx}{dt} = v$. Because the derivative of the positions equals $\frac{dx}{dt} = v$, we can say that $dxdt$ equals $v$. We can do the same reasoning for the acceleration: the derivative of velocity $\frac{dv}{dt}$ equals $a$, so $dvdt = a$. To compute $a$, we can use the function \tx{ISCcomputeAccelerations2}.
+\begin{Verbatim}
+dxdt = velocities(:,:,i);
+dvdt = ISCcomputeAccelerations2(masses, positions(:,:,i));
+\end{Verbatim}
+\item[2.] To update the equations, we make use of the computed velocity and acceleration.
+\begin{Verbatim}
+positions(:,:,i+1) = positions(:,:,i) + Delta_t * velocities(:,:,i);
+velocities(:,:,i+1) = velocities(:,:,i) + Delta_t * dvdt;
+\end{Verbatim}
+\item[3.] First, we set $\Delta T$ to 0.01. We define the number of steps as \textit{duration} $/ \Delta T$.
+\begin{Verbatim}
+Delta_t = 1;
+num_steps = duration / Delta_t;
+\end{Verbatim}
+\end{enumerate}
+\end{enumerate}
+\end{Exercise}
+\end{document}
+
+
+

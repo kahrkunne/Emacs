@@ -1,0 +1,20 @@
+public class GraphVertex {
+    private String name;
+
+    public GraphVertex(String name){
+	this.name = name;
+    }
+
+    public GraphVertex() {
+	this.name = "Nameless";
+    }
+
+    public void setName(String name) {
+	this.name = name;
+    }
+
+    public String getName() {
+	return this.name;
+    }
+
+}

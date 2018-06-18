@@ -1,0 +1,23 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
+import java.util.Observable;
+import java.util.Observer;
+import java.awt.event.KeyEvent;
+
+public class NewNodeAction extends AbstractAction implements Observer {
+    public NewNodeAction() {
+        super("new node");
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        //fixEnabled(); TODO: implement making the button enabled or not
+    }
+}

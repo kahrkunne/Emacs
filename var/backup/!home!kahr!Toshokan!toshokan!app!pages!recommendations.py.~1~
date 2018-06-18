@@ -1,0 +1,22 @@
+from . import Page
+
+from .templates.recommendations import recommendations
+
+class Recommendations(Page):
+    template = recommendations
+
+    def get(self, username, item):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if not user:
+            raise HTTPError(404)
+
+        authenticated = username == self.get_current_user()['name']
+
+        if not authenticated:
+            raise HTTPError(401)
+
+        accept = self.request.headers.get('Accept').split(',')
+
+        if self.API_MIME_TYPE_PUBLIC in accept:
+            if item:
+                

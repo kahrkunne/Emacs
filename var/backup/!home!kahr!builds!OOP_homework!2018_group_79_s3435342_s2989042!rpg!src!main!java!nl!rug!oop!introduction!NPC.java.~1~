@@ -1,0 +1,17 @@
+public class NPC extends Inspectable implements Interactable {
+    /**
+     * Door
+     * A door
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    private Room room;
+    public Door(String description, Room r) {
+	super(description);
+	this.room = r;
+    }
+
+    public void interact(Player p){
+	p.setRoom(this.room);
+    }
+}

@@ -1,0 +1,24 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Shopkeeper extends Person {
+    /**
+     * Shopkeeper
+     * A shopkeeper
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    public Shopkeeper(String description, Room r, ArrayList<Item> items, ArrayList<Item> equipped, int money){
+	super(description, r, items, equipped, money);
+    }
+
+    public void interact(Player p){
+	Item item = this.removeItem(0);
+	if(item != null){
+	    System.out.println("The shopkeeper hands you an item!");
+	    item.inspect();
+	} else {
+	    System.out.println("The shopkeeper has no more items");
+	}
+    }
+}

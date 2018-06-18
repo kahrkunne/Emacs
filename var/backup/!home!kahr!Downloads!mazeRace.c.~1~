@@ -1,0 +1,275 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#define ever ;;
+
+/* The function sqr calculates n^2. */
+
+int sqr(int n) {
+	return n*n;
+}
+
+/* The function sqrr takes the square root of n. */
+
+int sqrr(int n) {
+	int i;
+	while (i*i < n) i++;
+	return i;
+}
+
+/* The function accessible determines whether a block type is accessible. */
+
+int accessible(char c, int possibilities) {
+	switch(c) {
+		case '#':
+			return 0;
+		case '^':
+			if (possibilities == 0 || possibilities == 1) return 0;
+			return 1;
+		case '%':
+			if (possibilities == 0 || possibilities == 2) return 0;
+			return 1;
+		default:
+			return 1;
+	}
+}
+
+/* The function freeMaze frees the maze */
+
+void freeMaze(char **maze, int rows) {
+	for (int i = 0; i < rows; i++) {
+		free(maze[i]);
+	}
+	free(maze);
+}
+
+/* The function genMembers generates an array with a length which equals to the
+ * number of members in the team. Each index contains the height of that
+ * particular member.
+ */
+
+int *genMembers(int numberOfMembers) {
+	int *members = malloc(sizeof(int) * numberOfMembers);
+	for (int i = 0; i < numberOfMembers; i++) {
+		int heightMember;
+		scanf("%d", &heightMember);
+		members[i] = heightMember;
+	}
+	return members;
+}
+
+/* The function passPossibility returns the information about the blocks which
+ * can be passed by the members:
+ * *0: nothing can be passed by nobody
+ * *1: only flower beds can be passed
+ * *2: only gates can be passed
+ * *3: there are members which can pass ether flower beds of gates, but not
+ *			both
+ * *4: there is a member which can pass everything
+ */
+
+int passPossibility(int *members, int numberOfMembers,
+	int minHeightForFlowerBed, int maxHeightForGate) {
+	int possibilities[2];
+	for (int i = 0; i < numberOfMembers; i++) {
+		if (members[i] >= minHeightForFlowerBed) {
+			if (members[i] <= maxHeightForGate) return 4;
+			/* a member can pass only a flower bed */
+			possibilities[0] = 1;
+		}
+		/* a member can pass only a gate */
+		if (members[i] <= maxHeightForGate) possibilities[1] = 1;
+	}
+	if (possibilities[0] == 1) {
+		if (possibilities[1] == 1) return 3;
+		return 1;
+	}
+
+	if (possibilities[1] == 1) return 2;
+	return 0;
+}
+
+/* The function minimizeDistance calculates for every block around the cloud
+ * the distance from that block to the exit (as the crow flies, using
+ * Pythagoras). The function returns information about the block with the least
+ * distance.
+ */
+
+int *minimizeDistance(char **maze, int position, int exit, int possibilities,
+	int *cloud, int rows, int columns) {
+	int mazeSize = rows * columns;
+	int currRow = position/rows;
+	int currColumn = position - (currRow * columns);
+	int exitRow = exit/rows;
+	int exitColumn = exit - (exitRow * columns);
+
+	/* check which block connected to the cloud has the least distance to the exit
+	 * using Pythagoras */
+	int minDist = INT_MAX, min[2];
+	for (int i = 0; i < mazeSize; i++) {
+		/* only check the neighbors of blocks which are included in the cloud */
+		if (cloud[i] != INT_MAX) {
+			currRow = i/rows;
+			currColumn = i - (currRow * columns);
+			int crowsDistance; // straight distance from block to exit
+			if (accessible(maze[currRow-1][currColumn], possibilities) && cloud[i-columns] == INT_MAX) {
+				crowsDistance = sqrr(sqr((exitRow-1)-currRow) + sqr(exitColumn-currColumn));
+				if (crowsDistance < minDist) {
+					minDist = crowsDistance;
+					min[1] = 0;
+					min[0] = i;
+				}
+			}
+			if (accessible(maze[currRow][currColumn+1], possibilities) && cloud[i+1] == INT_MAX) {
+				crowsDistance = sqrr(sqr(exitRow-currRow) + sqr(exitColumn-(currColumn+1)));
+				if (crowsDistance < minDist) {
+					minDist = crowsDistance;
+					min[1] = 1;
+					min[0] = i;
+				}
+			}
+			if (accessible(maze[currRow+1][currColumn], possibilities) && cloud[i+columns] == INT_MAX) {
+				crowsDistance = sqrr(sqr(exitRow-(currRow+1)) + sqr(exitColumn-currColumn));
+				if (crowsDistance < minDist) {
+					minDist = crowsDistance;
+					min[1] = 2;
+					min[0] = i;
+				}
+			}
+			if (accessible(maze[currRow][currColumn-1], possibilities) && cloud[i-1] == INT_MAX) {
+				crowsDistance = sqrr(sqr(exitRow-currRow) + sqr(exitColumn-(currColumn-1)));
+				if (crowsDistance < minDist) {
+					minDist = crowsDistance;
+					min[1] = 3;
+					min[0] = i;
+				}
+			}
+		}
+	}
+
+	static int toAdd[2];
+	toAdd[0] = min[0];
+
+	switch(min[1]) {
+		case 0:
+			toAdd[1] = min[0] - columns;
+			break;
+		case 1:
+			toAdd[1] = min[0] + 1;
+			break;
+		case 2:
+			toAdd[1] = min[0] + columns;
+			break;
+		case 3:
+			toAdd[1] = min[0] - 1;
+			break;
+	}
+	/* toAdd[0] is the block of which a neighbor has the least distance to the
+			exit.
+	 * toAdd[1] indicates the position of the new block relative to toAdd[0].
+	 		0 = north, 1 = east, 2 = south and 3 is west.
+	 */
+	return toAdd;
+}
+
+/* The function generateRoute computes the route which has the least distance
+ * from start to exit.
+ */
+
+int generateRoute(char **maze, int position, int exit, int possibilities,
+	int distance, int rows, int columns) {
+	int mazeSize = rows * columns, min;
+	int *cloud = malloc(sizeof(int) * mazeSize);
+
+	for (int i = 0; i < mazeSize; i++) {
+		cloud[i] = INT_MAX;
+	}
+	cloud[position] = 0;
+
+	for(ever) {
+		int *toAdd = minimizeDistance(maze, position, exit, possibilities, cloud, 
+			rows, columns);
+		
+		cloud[toAdd[1]] = cloud[toAdd[0]] + 1;
+		if (toAdd[1] == exit) {
+			min = cloud[toAdd[1]];
+			break;
+		}
+	}
+	free(cloud);
+	return min;
+}
+
+/* The main function sets up the situation. It lets generateRoute do all the
+ * dirty work. */
+
+int main(int argc, char *argv[]) {
+	int numberOfMazes;
+	scanf("%d", &numberOfMazes);
+	
+	for (int mazeNum = 0; mazeNum < numberOfMazes; mazeNum++) {
+		int maxHeightForGate, minHeightForFlowerBed;
+		scanf("%d %d", &maxHeightForGate, &minHeightForFlowerBed);
+		
+		/* create array of members and add heights to them */
+		int numberOfMembers;
+		scanf("%d", &numberOfMembers);
+		int *members = genMembers(numberOfMembers);
+
+		/* check which types of 'blocks' can be passed with the members */
+		int possibilities = passPossibility(members, numberOfMembers,
+			minHeightForFlowerBed, maxHeightForGate);
+
+		/* generate two-dimensional array which represents the maze */
+		int rows, columns, *exits = NULL, numberOfExits = 0;
+		scanf("%d %d", &rows, &columns);
+		char **maze = malloc(sizeof(char*) * rows);
+		for (int i = 0; i < rows; i++) {
+			maze[i] = malloc(sizeof(char) * columns);
+			for (int j = 0; j < columns; j++) {
+				maze[i][j] = getchar();
+				if (maze[i][j] == '\n') maze[i][j] = getchar();
+				/* If there is an accessible coordinate at the edge of the maze, this is
+				 * an exit (except for corners). The exits are stored in an array. */
+				if ( (((i == 0 || i == rows-1) && accessible(maze[i][j], possibilities)) 
+				|| ((j == 0 || j == columns-1) && accessible(maze[i][j], possibilities)))
+				&& !(i == 0 && j == 0) && !(i == rows-1 && j == 0) &&
+				!(i == 0 && j == columns-1) && !(i == rows-1 && j == columns-1) ) {
+					numberOfExits++;
+					exits = realloc(exits, sizeof(int) * numberOfExits);
+					exits[numberOfExits-1] = i * columns + j;
+				}
+			}
+		}
+
+		int min = INT_MAX, track, position = ((rows/2) * columns) + columns/2;
+
+		/* When possibilities has the value 3, the program divides the computation
+		 * in two parts: possibilities 1 and 2.*/
+		if (possibilities == 3) {
+			for (int i = 0; i < numberOfExits; i++) {
+				track = generateRoute(maze, position, exits[i], 1, 0, rows, columns);
+				if (track < min) min = track;
+			}
+			for (int i = 0; i < numberOfExits; i++) {
+				track = generateRoute(maze, position, exits[i], 2, 0, rows, columns);
+				if (track < min) min = track;
+			}
+		} else {
+			for (int i = 0; i < numberOfExits; i++) {
+				track = generateRoute(maze, position, exits[i], possibilities, 0, rows,
+					columns);
+				if (track < min) min = track;
+			}
+		}
+		printf("%d\n", min+1);
+
+		/* free after solving one maze, the memory will be available for the next
+		 * maze */
+		free(members);
+		freeMaze(maze, rows);
+		free(exits);
+	}
+	return 0;
+}

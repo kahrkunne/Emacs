@@ -1,0 +1,16 @@
+public class Item extends Inspectable implements Interactable {
+    /**
+     * Item
+     * An Item
+     * This will probably become abstract in the future
+     * @author: Kahr Kunne, Gijs Erens
+     */
+    public Item(String description){
+	super(description);
+    }
+
+    public void interact(Player p){
+	System.out.println("You look at the item.");
+	self.inspect();
+    }
+}

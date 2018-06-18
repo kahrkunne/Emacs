@@ -1,0 +1,28 @@
+package nl.rug.oop.graphEditor.controller;
+
+import nl.rug.oop.graphEditor.model.GraphModel;
+import nl.rug.oop.graphEditor.model.GraphVertex;
+
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
+class MoveEdit extends AbstractUndoableEdit {
+    private GraphVertex vertex;
+    private GraphModel model;
+
+    public MoveEdit(GraphVertex vertex, GraphModel model){
+	this.vertex = vertex;
+	this.model = model;
+    }
+
+    public void undo() throws CannotUndoException {
+	vertex.setX(oldX);
+	vertex.setY(oldY);
+    }
+
+    public void redo() throws CannotRedoException {
+	vertex.setX(newX);
+	vertex.setY(newY);
+    }
+}

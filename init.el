@@ -23,7 +23,7 @@
  '(org-agenda-files (quote ("~/Life/agenda.org")))
  '(package-selected-packages
    (quote
-    (tabbar mozc treemacs-evil treemacs wc-mode flycheck-cython cython-mode suggest mingus company-quickhelp symon evil-goggles nlinum-hl winum typing-game dired-ranger ace-jump-buffer smex writegood-mode evil-snipe shackle neotree emms-player-mpv emms image+ emojify virtualenvwrapper no-littering system-packages indent-guide multi-term counsel-projectile projectile rainbow-mode sr-speedbar elscreen powerline smart-mode-line nlinum dired+ ample-theme ein company-jedi elpy ivy-hydra counsel gnuplot gnuplot-mode ess exwm-x xkcd xelb exwm lispyville lispy random-splash-image erc-image tao-theme closure-lint-mode ace-window switch-window avy web-mode moe-theme zenburn-theme which-key use-package solarized-theme slime-company simple-mpc scheme-complete rainbow-delimiters python-environment pdf-tools paredit multiple-cursors monokai-theme monochrome-theme magit key-chord ivy hlinum helm haskell-mode geiser flycheck fic-mode expand-region evil-visual-mark-mode evil-surround evil-mc epc dired-details+ crux company-c-headers color-theme-solarized cherry-blossom-theme bliss-theme aggressive-indent ace-jump-mode)))
+    (evil-magit workgroups2 csharp-mode less-css-mode tabbar mozc wc-mode flycheck-cython cython-mode mingus company-quickhelp symon evil-goggles nlinum-hl winum typing-game dired-ranger ace-jump-buffer smex writegood-mode evil-snipe shackle neotree emms-player-mpv emms image+ emojify virtualenvwrapper indent-guide multi-term counsel-projectile rainbow-mode sr-speedbar elscreen nlinum dired+ ample-theme ein company-jedi elpy counsel gnuplot gnuplot-mode ess exwm-x xkcd xelb exwm random-splash-image erc-image tao-theme closure-lint-mode ace-window switch-window avy moe-theme slime-company scheme-complete rainbow-delimiters python-environment paredit multiple-cursors monochrome-theme key-chord hlinum helm haskell-mode geiser flycheck fic-mode expand-region evil-visual-mark-mode evil-surround evil-mc epc dired-details+ crux company-c-headers color-theme-solarized cherry-blossom-theme bliss-theme aggressive-indent ace-jump-mode)))
  '(py-force-py-shell-name-p t)
  '(py-shell-name "python2"))
 (custom-set-faces
@@ -35,10 +35,5 @@
  '(evil-goggles-paste-face ((t (:inherit (quote diff-added)))))
  '(evil-goggles-yank-face ((t (:inherit (quote diff-changed)))))
  '(fic-face ((t (:foreground "red3"))))
- '(nlinum-hl-face ((t (:inherit linum :foreground "gray"))))
- '(org-level-1 ((t (:inherit variable-pitch :foreground "#FD971F" :height 1.0 :family "Terminus"))))
- '(org-level-2 ((t (:inherit variable-pitch :foreground "#A6E22E" :height 1.0 :family "Terminus"))))
- '(org-level-3 ((t (:inherit variable-pitch :foreground "#66D9EF" :height 1.0 :family "Terminus"))))
- '(org-level-4 ((t (:inherit variable-pitch :foreground "#E6DB74" :height 1.0 :family "Terminus"))))
- '(org-level-5 ((t (:inherit variable-pitch :foreground "#E6DB74" :height 1.0 :family "Terminus")))))
+ '(nlinum-hl-face ((t (:inherit linum :foreground "gray")))))
 (put 'downcase-region 'disabled nil)

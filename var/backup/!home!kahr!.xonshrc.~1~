@@ -1,0 +1,10 @@
+# XONSH WIZARD START
+$AUTO_PUSHD = '1'
+$COMPLETIONS_CONFIRM = '1'
+$IGNOREEOF = '1'
+$UPDATE_COMPLETIONS_ON_KEYPRESS = '1'
+$ = "(5368709120, 'b')"
+$0 = '5368709120'
+$1 = 'b'
+xontrib load coreutils docker_tabcomplete jedi mpl scrapy_tabcomplete vox vox_tabcomplete avox z schedule
+# XONSH WIZARD END

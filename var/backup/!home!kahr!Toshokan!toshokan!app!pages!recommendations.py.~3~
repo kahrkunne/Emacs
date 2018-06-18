@@ -1,0 +1,26 @@
+from tornado.web import HTTPError
+
+from . import Page
+from ..models import User, Anime
+
+from .templates.recommendations import recommendations
+
+class Recommendations(Page):
+    template = recommendations
+
+    def get(self, username, item):
+        user = self.assert_user_exists(username)
+        self.verify_user_id(user.uid)
+
+        if self.is_api_get():
+            if item:
+                self.write({'data': self.recengine.sakura_score(username, item)})
+            else:
+                k = int(self.get_argument('num_recommendations', default=10))
+                recs = self.recengine.rec(users=[username],k=k)['anime_id']
+                # FIXME this might be a bit slow
+                self.write({'data':[[rec, self.db.query(Anime).filter_by(uid=rec).first().title] for rec in recs]})
+        elif self.is_web_get():
+            self.write(self.render())
+        else:
+            raise HTTPError(406)

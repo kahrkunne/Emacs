@@ -1,0 +1,35 @@
+from tornado.web import HTTPError
+
+from . import Page
+from ..models import User, Anime
+
+from .templates.recommendations import recommendations
+
+class Recommendations(Page):
+    template = recommendations
+
+    def get(self, username, item):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if not user:
+            raise HTTPError(404)
+
+        authenticated = username == self.get_current_user()['name']
+
+        if not authenticated:
+            raise HTTPError(401)
+
+        accept = self.request.headers.get('Accept').split(',')
+
+        if self.API_MIME_TYPE_PUBLIC in accept:
+            self.set_header('Content-Type', self.API_MIME_TYPE_PUBLIC)
+            if item:
+                self.write({'data': self.recengine.sakura_score(username, item)})
+            else:
+                k = int(self.get_argument('num_recommendations', default=10))
+                recs = self.recengine.rec(users=[username],k=k)['anime_id']
+                # FIXME this might be a bit slow
+                self.write({'data':[[rec, self.db.query(Anime).filter_by(uid=rec).first().name] for rec in recs]})
+        elif 'text/html' in accept:
+            self.write(self.render())
+        else:
+            raise HTTPError(406)

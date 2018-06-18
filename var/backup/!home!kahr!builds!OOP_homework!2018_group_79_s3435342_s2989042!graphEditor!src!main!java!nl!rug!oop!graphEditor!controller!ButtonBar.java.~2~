@@ -1,0 +1,22 @@
+package nl.rug.oop.graphEditor.controller;
+
+import nl.rug.oop.graphEditor.controller.button.NewNodeButton;
+import nl.rug.oop.graphEditor.controller.button.DeleteNodeButton;
+import nl.rug.oop.graphEditor.controller.button.AddEdgeButton;
+import nl.rug.oop.graphEditor.controller.button.RenameButton;
+import nl.rug.oop.graphEditor.controller.button.UndoButton;
+import nl.rug.oop.graphEditor.controller.button.RedoButton;
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import javax.swing.JToolBar;
+
+public class ButtonBar extends JToolBar {
+    public ButtonBar(GraphPanel panel) {
+        add(new NewNodeButton("new node", panel));
+        add(new DeleteNodeButton("delete node", panel));
+        add(new AddEdgeButton("add edge", panel));
+        add(new RenameButton("rename", panel));
+        add(new UndoButton(panel.getModel()));
+        add(new RedoButton(panel.getModel()));
+    }
+}

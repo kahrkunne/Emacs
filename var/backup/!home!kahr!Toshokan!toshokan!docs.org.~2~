@@ -1,0 +1,76 @@
+* API
+** animelist
+Let an "entry" be a JSON object with the following keys:
+*anime_id*: The Toshokan anime ID of the anime
+*score*: The user-given score, or 0 if it is absent
+*start_date*: A UTC UNIX timestamp, as such: if the status is 0 ("plan to watch"), start_date is the date the entry was added to the anime list. Else, start_date is the date the user started watching the anime. A value of 0 indicates start_date is absent.
+*end_date*: A UTC UNIX timestamp, representing when the user finished watching the anime. A value of 0 indicates end_date is absent
+*num_episodes*: The number of episodes the user has watched
+*num_rewatches*: The number of times the user has watched the anime after the first time
+*comments*: User-defined comments, in text
+total_episodes: Total number of episodes the anime has
+*username*: username of our user
+*type*: type of the anime
+*name*: title of the anime
+
+Observe that the following values are redundant: username, type, name.
+*** URL
+Of the form toshokan.moe/animelist/[user]/[item], where [item] is optional
+*** GET
+**** Output
+***** data
+If API_MIME_TYPE_PUBLIC in Content-Type, output a list of all the user's entries if [item] is not given, or a single object representing the entry for [item] (empty if there is no such entry).
+Else, if 'text/html' in Content-Type, render a webpage representing the same data as above.
+**** Errors
+If [user] is not in the database: 404
+If [user]'s animelist is private and the sender of the request is not [user]: 401
+If neither API_MIME_TYPE_PUBLIC nor 'text/html' in Content-Type: 406
+*** PUT
+**** Input
+***** data
+A single entry if [item] is given; else a list of entries.
+***** import
+A boolean representing whether or not the input represents an import from another location (currently only MyAnimeList is supported). Should only be specified if [item] is not given; if it is, this is implied to be false.
+**** Behaviour
+If [item] is given, add the single entry corresponding to it to the database, replacing any existing entry with the same id, unless `import` is true. Otherwise, all entries in the input are added in the same way.
+
+If `import` is false, entries are subject to the following strict verification:
+
+1. 0 <= score <= 10
+2. 0 <= status <= 7
+3. length of comments <= 2000
+4. 0 <= num_rewatches <= 1000
+5. num_episodes == 0 or status != 0
+6. num_rewatches == 0 or status == 0
+7. start_date == 0 or 1/1/1950 <= start_date <= current time
+8. end_date == 0 or 1/1/1950 <= end_date <= current time
+9. not start_date or not end_date or start_date <= end_date
+10. (status == 1) <=> (num_episodes == anime.num_episodes)
+11. status == 0 or not start_date or start_date >= anime.start_date
+12. num_episodes != 0 or score == 0
+13. not anime.num_episodes or num_episodes <= anime.num_episodes
+
+Failure of any entry to pass this verification results in the entire operation being rejected. 
+If `import` is true, only the first four criteria are tested; furthermore, if an entry fails to meet the criteria, it is simply skipped; the other entries are still processed. Furthermore, as stated above, if `import` is true, entries are never replaced, only added if they are not present.
+
+**** Output
+If [item] is given, it is simply returned back to the caller. Else, if `import` is true, a JSON object of the following format is returned:
+*succeeded*: number of entries which were successfully added
+*failed*: number of entries which were not successfully added
+Finally, if `import` is false, we simply return HTTP status code 200 (success)
+**** Errors
+If API_MIME_TYPE_PUBLIC not in Content-Type: 406
+If a version header is given to the API_MIME_TYPE_PUBLIC: 415
+If [user] does not exist in the database: 404
+If the request sender is not [user]: 401
+If the entries are improperly formatted or fail to pass the verification described in the previous header: 400
+
+*** DELETE
+**** Behaviour
+If [item] is given, delete the entry for [user] corresponding to [item]. Else, delete all entries for [user].
+**** Errors
+If API_MIME_TYPE_PUBLIC not in Content-Type: 406
+If a version header is given to the API_MIME_TYPE_PUBLIC: 415
+If [user] does not exist in the database: 404
+If the request sender is not [user]: 401
+

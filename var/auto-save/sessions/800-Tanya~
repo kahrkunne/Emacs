@@ -1,0 +1,4 @@
+/sudo:root@localhost:/etc/vsftpd.conf
+/home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aetc_avsftpd.conf#
+/sudo:root@localhost:/etc/samba/smb.conf
+/home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aetc_asamba_asmb.conf#

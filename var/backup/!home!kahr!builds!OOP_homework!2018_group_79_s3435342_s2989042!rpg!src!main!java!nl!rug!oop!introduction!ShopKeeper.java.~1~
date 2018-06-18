@@ -1,0 +1,8 @@
+public class ShopKeeper extends NPC {
+    /**
+     * ShopKeeper
+     * A non-player character
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+}

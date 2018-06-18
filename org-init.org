@@ -242,12 +242,13 @@ Configuration for packages. This category is kind of ambigious.
 Add alternative package sources such as melpa. Note that currently this is unsafe - the org repository doesn't use https, and AFAIK none of them use TLS. There is a fix for this floating online, but at the time I couldn't get it to work.
 #+NAME: Package initialization
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                             ("org" . "http://orgmode.org/elpa/")
-                             ("melpa" . "https://melpa.org/packages/")
-                             ("melpa-stable" . "https://stable.melpa.org/packages/")
-                             ("elpy" . "http://jorgenschaefer.github.io/packages/")))
-    (package-initialize)
+  (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                           ("org" . "http://orgmode.org/elpa/")
+                           ("melpa" . "https://melpa.org/packages/")
+                           ("melpa-stable" . "https://stable.melpa.org/packages/")
+                           ("elpy" . "http://jorgenschaefer.github.io/packages/")))
+  (package-initialize)
+  (add-to-list 'load-path "~/.emacs.d/lisp")
 #+END_SRC
 
 Initialize use-package
@@ -475,8 +476,12 @@ https://magit.vc/
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package magit
     :config
-    (setq with-editor-emacsclient-executable "/usr/bin/emacsclient-emacs-25"))
+    (setq with-editor-emacsclient-executable "/usr/bin/emacsclient-emacs-25")
+  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+)
 #+END_SRC
+
+
 ***** TODO Unlock the full potential of git and magit
 *** Text editing
 **** evil
@@ -487,12 +492,20 @@ https://bitbucket.org/lyro/evil/wiki/Home
   (use-package evil
     :commands evil-ex
     :config
-    (evil-mode 1))
-
-  (require 'evil)
+    (evil-mode 1)
   (define-key evil-normal-state-map (kbd ";") 'evil-ex)
   (define-key evil-normal-state-map (kbd "SPC") 'avy-goto-char-timer)
   (define-key evil-visual-state-map (kbd "SPC") 'avy-goto-char-timer)
+  (define-key evil-normal-state-map (kbd "g k") 'open-line-above)
+  (define-key evil-normal-state-map (kbd "g j") 'open-line-below)
+  (define-key evil-normal-state-map (kbd "g a") 'paste-above)
+  (define-key evil-normal-state-map (kbd "g p") 'paste-below)
+
+  (define-key evil-insert-state-map (kbd "C-o") nil)
+  (define-key evil-insert-state-map (kbd "C-d") nil)
+)
+
+  (require 'evil)
 #+END_SRC
 Also get evil-surround, for surrounding text (for example, in parens). Port of vim-surround.
 #+NAME: evil-surround
@@ -534,11 +547,12 @@ Gives snippets, similar to what TextMate did.
 https://github.com/joaotavora/yasnippet
 #+NAME: yasnippet
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package yasnippet
-    :bind
-    ("C-c c" . yas-expand)
-    :config
-    (yas-global-mode 1))
+    (use-package yasnippet
+      :bind
+      ("C-c c" . yas-expand)
+      :config
+      (yas-global-mode 1)
+      (yas-load-directory "~/.emacs.d/snippets/"))
 #+END_SRC
 *** Emacs enhancements
 **** mozc
@@ -690,6 +704,48 @@ https://github.com/wasamasa/shackle
             ("*Help*" :select t)))
     (shackle-mode t))
 #+END_SRC
+**** workgroups2
+Workgroups is a session manager for Emacs.
+https://github.com/pashinin/workgroups2
+#+NAME: workgroups2
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package workgroups2
+    :config
+    (workgroups-mode t))
+#+END_SRC
+**** treemacs
+File and project explorer
+https://github.com/Alexander-Miller/treemacs
+Also includes treemacs-evil and treemacs-projectile.
+#+NAME: treemacs
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package treemacs
+    :config
+    (setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+    (setq treemacs-follow-after-init t
+	  treemacs-width             35)
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-git-mode 'extended)
+    (set-face-background 'hl-line "dim gray")
+    (set-face-attribute 'treemacs-root-face nil :height 1.0)
+
+    :bind
+      (:map global-map
+	  ("C-c t m"   . treemacs-select-window)
+	  ("C-c t 1"   . treemacs-delete-other-windows)
+	  ("C-c t t"   . treemacs)
+	  ("C-c t B"   . treemacs-bookmark)
+	  ("C-c t C-t" . treemacs-find-file)
+	  ("C-c t M-t" . treemacs-find-tag))
+    )
+
+  (use-package treemacs-projectile
+    :after treemacs evil)
+  (use-package treemacs-evil
+    :after treemacs projectile)
+#+END_SRC
+
 ** EXWM
 Code for the X Emacs Window Manager (EXWM).
 https://github.com/ch11ng/exwm/wiki
@@ -729,9 +785,16 @@ https://github.com/ch11ng/exwm/wiki
     (add-hook 'exwm-randr-screen-change-hook
               (lambda ()
                 (start-process-shell-command
-                 "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-1 --auto")))
+                 "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-0 --auto")))
     (exwm-enable)
     (exwm-randr-enable))
+
+  ;; exim
+  (require 'exim)
+  (add-hook 'exwm-init-hook 'exim-start)
+  (push ?\C-\\ exwm-input-prefix-keys)
+  (push ?\C-U exwm-input-prefix-keys) 
+  (push ?\C-u exwm-input-prefix-keys)
 #+END_SRC
 ** Org
 *** Agenda
@@ -884,16 +947,26 @@ Paste above or below the point.
       (newline-and-indent)
       (goto-char pos)))
 #+END_SRC
+
+Evil-magit: vim-like keybindings for magiT
+https://github.com/emacs-evil/evil-magit
+
+**** TODO 18.06-2018 CURRENTLY BROKEN
+#+NAME: evil-magit
+#+BEGIN_SRC emacs-lisp :tangle yes
+;  (use-package evil-magit)
+#+END_SRC
+
 *** Keybindings
 Pretty much self-explanatory
 #+NAME: keybindings
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
   (defhydra hydra-zoom (global-map "<f2>")
     "zoom"
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out"))
 
-  (defhydra hydra-launch (:color blue)
+  (defhydra hydra-launch (:color blue :hint nil)
     "
   ^Term^             ^Files^           ^IRC^          ^Email^        ^System        
   ^^^^^^^^--------------------------------------------------------------------------
@@ -901,48 +974,60 @@ Pretty much self-explanatory
   _e_: eshell
   _s_: shell
   "
-    ("t" ansi-term "ansi-term")
-    ("e" eshell "eshell")
-    ("s" shell "shell")
-    ("d" dired "dired")
-    ("i" erc "erc")
-    ("g" gnus "gnus")
-    ("l" counsel-linux-app "counsel-linux-app"))
+    ("t" ansi-term)
+    ("e" eshell)
+    ("s" shell)
+    ("d" dired)
+    ("i" erc)
+    ("g" gnus)
+    ("l" counsel-linux-app))
   (global-set-key (kbd "C-c l") 'hydra-launch/body)
 
-  (defhydra hydra-navigate (:color blue)
+  (defhydra hydra-navigate (:color blue :hint nil)
     "
   ^Char^             ^Line^           ^search^          ^File^          ^buffer
   ^^^^^^^^---------------------------------------------------------------------------------------
   _c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
   _j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
   "
-    ("c" avy-goto-char-timer "avy-goto-char-timer")
-    ("j" avy-goto-char "avy-goto-char")
-    ("l" avy-goto-line "avy-goto-line")
-    ("s" swiper "swiper")
-    ("a" swiper-all "swiper-all")
-    ("f" counsel-find-file "counsel-find-file")
-    ("p" counsel-find-file-at-point "counsel-find-file-at-point")
-    ("b" switch-to-buffer "switch-to-buffer")
-    ("o" switch-to-buffer-other-window "switch-to-buffer-other-window"))
+    ("c" avy-goto-char-timer)
+    ("j" avy-goto-char)
+    ("l" avy-goto-line)
+    ("s" swiper)
+    ("a" swiper-all)
+    ("f" counsel-find-file)
+    ("p" counsel-find-file-at-point)
+    ("b" switch-to-buffer)
+    ("o" switch-to-buffer-other-window))
   (global-set-key (kbd "C-c n") 'hydra-navigate/body)
 
   (defun eshell-full-clear ()
     (interactive)
     (eshell/clear t))
 
-  (defhydra hydra-eshell (:color blue)
+  (defhydra hydra-eshell (:color blue :hint nil)
     "
   ^I/O^              ^Visual
   ^^^^^^^-----------------------------
   _b_: buffer        _c_: clear
-                   _x_: clear history
+		   _x_: clear history
   "
-    ("b" eshell-insert-buffer-name "eshell-insert-buffer-name")
-    ("c" eshell/clear "eshell/clear")
-    ("x" eshell-full-clear "eshell full clear"))
+    ("b" eshell-insert-buffer-name)
+    ("c" eshell/clear)
+    ("x" eshell-full-clear))
   (global-set-key (kbd "C-c e") 'hydra-eshell/body)
+
+  (defhydra hydra-workgroups (:color blue :hint nil)
+    "
+  _c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
+  "
+    ("c" wg-create-workgroup)
+    ("A" wg-rename-workgroup)
+    ("k" wg-kill-workgroup)
+    ("v" wg-switch-to-workgroup)
+    ("s" wg-save-session-as)
+    ("f" wg-open-session))
+  (global-set-key (kbd "C-c w") 'hydra-workgroups/body)
 
   (global-set-key (kbd "C-c d") 'insert-date)
   (global-set-key (kbd "C-x g") 'webjump)
@@ -952,17 +1037,22 @@ Pretty much self-explanatory
   (global-set-key (kbd "C-c f") 'eval-region)
   (global-set-key (kbd "C-x C-r") 'sudo-edit)
   (global-set-key (kbd "C-c r") 'rename-buffer)
-  (define-key evil-normal-state-map (kbd "g k") 'open-line-above)
-  (define-key evil-normal-state-map (kbd "g j") 'open-line-below)
-  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-  (define-key evil-normal-state-map (kbd "g a") 'paste-above)
-  (define-key evil-normal-state-map (kbd "g p") 'paste-below)
   (global-set-key (kbd "C-h C-f") 'find-function)
   (global-set-key (kbd "C-h C-v") 'find-variable)
   (global-set-key (kbd "C-c p") #'mingus-toggle)
-  (define-key evil-insert-state-map (kbd "C-o") nil)
-  (define-key evil-insert-state-map (kbd "C-d") nil)
   (global-set-key (kbd "<XF86AudioLowerVolume>") #'mingus-vol-down)
   (global-set-key (kbd "<XF86AudioRaiseVolume>") #'mingus-vol-up)
   (global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
+
+  ((defun to-vm ()
+    (interactive)
+    (call-process "to-vm.sh"))
+
+  (defun from-vm ()
+    (interactive)
+    (call-process "from-vm.sh"))
+
+
+  (global-set-key (kbd "s-d") #'to-vm)
+  (global-set-key (kbd "s-f") #'from-vm)
 #+END_SRC

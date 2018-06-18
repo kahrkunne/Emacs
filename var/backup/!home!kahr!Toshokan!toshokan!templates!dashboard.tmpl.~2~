@@ -1,0 +1,202 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+<script id="dashboard-list-template" type="x-tmpl-mustache" language="text" type="text/html">
+    <table class="table table-sm borderless animelist-table">
+	<thead>
+	    <th class=""><a href="javascript:;" class="sort-title">Title</a></th>
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-progress">Progress</a></th>
+	</thead>
+	<tbody>
+	    {{#list}}
+	    <tr class="entry-{{kind}}-{{id}}">
+		<td>
+		    <span class="dashboard-edit-button"><button href="javascript:;" class="btn edit-{{kind}}-{{id}}">Edit</button></div>
+			{{name}}
+		</td>
+		<td class="text-right">{{progress}}/{{max_progress}} <button href="javascript:;" class="animelist-plus-btn btn btn-sm plus1-{{anime_id}}">+</button></td>
+	    </tr>
+	    {{/list}}
+	</tbody>
+    </table>
+</script>
+
+<script id="dashboard-feed-update-template" type="x-tmpl-mustache" language="text" type="text/html">
+    <div class="feed-update-{{type}} mt-2">
+	<div class="row">
+	    <div class="col-1 pr-1">
+		<div class="feed-image">
+		    <img class="rounded-circle img-responsive" style="width:100%;" src="{{image}}">
+		</div>
+	    </div>
+	    <div style="width:100%;" class="col justify-content-right align-self-center feed-text">
+		{{{text}}}
+	    </div>
+	</div>
+    </div>
+</script>
+
+<link rel="stylesheet" href="/static/css/bootstrap-datepicker.min.css">
+#end def
+
+#def main
+<div class="modal" id="animelist-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+	<div class="modal-content">
+	    <div class="modal-header">
+		<span class="w-100 text-center"><h5 class="modal-title" id="animelist-edit-modal-title"></h5></span>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		    <span aria-hidden="true">&times;</span>
+		</button>
+	    </div>
+	    <div class="modal-body animelist-edit">
+		<div class="row-fluid">
+		    <form class="form-inline" id="animelist-edit-form">
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-status" class="text-left">Status</label>
+			    </div>
+			    <div class="col-5">
+				<select class="form-control anime-edit-select" id="animelist-edit-status"> 
+				    <option>Plan To Watch</option>
+				    <option>Completed</option>
+				    <option>Watching</option>
+				    <option>On Hold</option>
+				    <option>Dropped</option>
+				</select>
+			    </div>
+			</div>
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-num-episodes">Episodes</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-num-episodes" id="animelist-edit-num-episodes" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-score">Score</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-score" id="animelist-edit-score" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-start-date">Start Date</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-start-date" id="animelist-edit-start-date" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+			
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-end-date">End Date</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-end-date" id="animelist-edit-end-date" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-num-rewatches">Rewatches</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-num-rewatches" id="animelist-edit-num-rewatches" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+			<br />
+
+			<div class="form-group w-100 justify-content-center">
+			    <label for="animelist-edit-comments">Comments</label>
+			    <textarea name="animelist-comments" id="animelist-edit-comments" type="text" class="form-control" rows="4"></textarea>
+
+
+			</div>
+		    </form>
+
+		</div>
+		
+	    </div>
+	    <div class="modal-footer justify-content-center">
+		<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		<button type="button" class="btn btn-primary" id="animelist-edit-save-button">Save changes</button>
+	    </div>
+	</div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- TODO make this responsive properly -->
+    <div class="col-xl-1">
+	<div class="dashboard-nav">
+	    <ul class="nav nav-pills flex-column">
+		<li class="nav-item">
+		    <a class="nav-link active" data-toggle="tab" role="tab" href="#lists">Lists</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#news">News</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#stats">Stats</a>
+		</li>
+	    </ul>
+	</div>
+    </div>
+    <div class="col">
+	<div class="tab-content">
+	    <div class="tab-pane active" id="lists" role="tabpanel">
+		<div class="input-group">
+		    <input name="animelist-search" id="animelist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+		    <div class="input-group-btn">
+			<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    Anime
+			</button>
+			<div class="dropdown-menu dropdown-menu-right">
+			    <a class="dropdown-item" href="#">Anime</a>
+			    <a class="dropdown-item" href="#">Manga</a>
+			    <a class="dropdown-item" href="#">VN</a>
+			</div>
+		    </div>
+		</div>
+
+		<div id="dashboard-list-anime"></div>
+	    </div>
+	    <div class="tab-pane" id="news" role="tabpanel">
+		<div class="input-group">
+		    <input name="news-search" id="news-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+		    <div class="input-group-btn">
+			<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    Everything
+			</button>
+			<div class="dropdown-menu dropdown-menu-right">
+			    <a class="dropdown-item" href="#">Something</a>
+			    <a class="dropdown-item" href="#">Something else</a>
+			    <a class="dropdown-item" href="#">Foo bar baz</a>
+			</div>
+		    </div>
+		</div>
+		<div id="news-content">
+		</div>
+	    </div>
+	    <div class="tab-pane" id="stats" role="tabpanel">
+		TODO implement
+	    </div>
+
+	</div>
+    </div>
+
+</div>
+#end def

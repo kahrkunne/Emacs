@@ -1,0 +1,9 @@
+host rug
+user s3435342
+HostName lwp-ssh.service.rug.nl
+IdentityFile ~/.ssh/s3435342_lwp_rsa
+ForwardX11 yes
+GSSAPIAuthentication yes
+GSSAPIKeyExchange yes
+GSSAPIDelegateCredentials yes
+GSSAPIRenewalForcesRekey yes

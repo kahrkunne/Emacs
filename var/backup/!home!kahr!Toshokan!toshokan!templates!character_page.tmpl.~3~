@@ -1,0 +1,82 @@
+#from .infopage import infopage
+
+#extends infopage
+
+#def leftcol_info
+<span>$character.name</span><br>
+#end def
+
+#def info_tabs
+<li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" role="tab" href="#appearances">Appearances</a>
+</li>
+#if $varoles
+    <li class="nav-item">
+	<a class="nav-link" data-toggle="tab" role="tab" href="#vas">Voice actors</a>
+    </li>
+#end if
+<li class="nav-item">
+    <a class="nav-link" data-toggle="tab" role="tab" href="#details">Details</a>
+</li>
+#end def
+
+#def info_tab_content
+<div class="tab-pane active" id="appearances" role="tabpanel">
+    #if $animeroles:
+	<span>Anime appearances:</span><br>
+    #end if
+    #for animerole in $animeroles:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/anime/$animerole[0].uid">$animerole[0].name</a><br>
+		    $animerole[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+
+    #if $mangaroles:
+	<span>Manga appearances:</span><br>
+    #end if
+    #for manga in $mangaroles:
+	<div class="infopage-person">
+	    <div class="row">
+		<div class="col-1">
+		    <img class="img-fluid" src="http://via.placeholder.com/50x50">
+		</div>
+		<div class="col-11">
+		    <a href="/manga/$manga[0].uid">$manga[0].name</a><br>
+		    $manga[1]
+		</div>
+	    </div>
+	</div>
+    #end for
+
+</div>
+
+<div class="tab-pane" id="details" role="tabpanel">
+    $character.description.replace("\n", "<br />")
+</div>
+
+#if $varoles
+    <div class="tab-pane" id="vas" role="tabpanel">
+	#for va in $varoles:
+	    <div class="infopage-person">
+		<div class="row">
+		    <div class="col-1">
+			<img class="img-fluid" src="http://via.placeholder.com/50x50">
+		    </div>
+		    <div class="col-11">
+			<a href="/person/$va[0].uid">$va[0].name</a><br>
+			$va[1]
+		    </div>
+		</div>
+	    </div>
+	#end for
+    </div>
+#end if
+#end def

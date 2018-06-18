@@ -1,0 +1,21 @@
+[global]
+workgroup = WORKGROUP
+wins support = yes
+local master = yes
+preferred master = yes
+server string = Server van Kahr
+log file = /var/log/samba/%m.log
+
+[kahr]
+path = /home/kahr
+writable = no
+browseable = yes
+valid users = kahr
+guest ok = yes
+
+[test]
+comment = eafefawef
+path = /root/test
+read only = no
+browseable = yes
+guest ok = yes

@@ -1,0 +1,19 @@
+final int MAX_DIM = 256;
+
+public class GraphVertex {
+    private String name;
+    private int[][] location = new int[MAX_DIM][MAX_DIM];
+    private int size;
+
+    public GraphVertex(String name, int[MAX_DIM][MAX_DIM] location, int size) {
+	name = name;
+	location = location;
+	size = size;
+    }
+
+    public GraphVertex() {
+	name = "Nameless";
+	location = 
+    }
+
+}

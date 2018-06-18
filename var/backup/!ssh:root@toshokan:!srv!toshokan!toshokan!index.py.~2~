@@ -1,0 +1,90 @@
+#!/usr/bin/python3.6
+import sys
+import os
+import secrets
+
+import turicreate as tc
+import tornado.ioloop
+import tornado.web
+from tornado.web import url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import app.pages as pages
+from app.conf import load_conf, save_conf
+from app.recengine import RecEngine
+from app.models import User, Anime, AnimeEntry
+
+from constants import (API_MIME_TYPE_PUBLIC, API_MIME_TYPE_ADMIN)
+
+# TODO proper settings
+new_model = False
+model_kind = 'implicit'
+
+def make_app(session, conf):
+    tshk_data = {'user':[], 'anime_id':[], 'score':[]}
+    if new_model:
+        users = session.query(User)
+        for user in users:
+            alist = user.animelist
+            for entry in alist:
+                # TODO support for implicit
+                if model_kind == 'implicit':
+                    tshk_data['user'].append(user.name)
+                    tshk_data['anime_id'].append(entry.anime.uid)
+                    tshk_data['score'].append(1.0)
+                else:
+                    if entry.score > 0:
+                        tshk_data['user'].append(user.name)
+                        tshk_data['anime_id'].append(entry.anime.uid)
+                        tshk_data['score'].append(entry.score)
+
+    tshk_data = tc.SFrame(tshk_data)
+
+    recengine = RecEngine(tshk_data=tshk_data,
+                          new_model=new_model,
+                          model_args={'kind':model_kind,
+                                      'target':'score' if model_kind == 'explicit' else None})
+    app_config = {'db': session, 'conf':conf, 'recengine':recengine,
+                  'API_MIME_TYPE_PUBLIC':API_MIME_TYPE_PUBLIC, 'API_MIME_TYPE_ADMIN':API_MIME_TYPE_ADMIN}
+    return tornado.web.Application(
+        [
+            url(r"/logout/?", pages.Logout, app_config, name="logout"),
+            url(r"/?", pages.Home, app_config, name="home"),
+            url(r"/animelist/([\w-]+)/?(\d+)?/?", pages.AnimeList, app_config, name="animelist"),
+            url(r"/mangalist/([\w-]+)/?(\d+)?/?", pages.MangaList, app_config, name="mangalist"),
+            url(r"/anime/?(\d+)?/?(.*)?", pages.AnimePage, app_config, name="anime"),
+            url(r"/manga/?(\d+)?/?(.*)?", pages.MangaPage, app_config, name="manga"),
+            url(r"/person/(\d+)/?(.*)", pages.PersonPage, app_config, name="person"),
+            url(r"/character/(\d+)/?(.*)", pages.CharacterPage, app_config, name="character"),
+            url(r"/search/?", pages.Search, app_config, name="search"),
+            url(r"/login/?", pages.Login, app_config, name="login"),
+            url(r"/register/?", pages.Register, app_config, name="register"),
+            url(r"/user/([\w-]+)/settings/?([\w-]+)?/?", pages.Settings, app_config, name="settings"),
+            url(r"/user/([\w-]+)/dashboard/?", pages.Dashboard, app_config, name="dashboard"),
+            url(r"/user/([\w-]+)/import/?", pages.AnimelistImport, app_config, name="import"),
+            url(r"/recommendations/([\w-]+)/?(\d+)?/?", pages.Recommendations, app_config, name="recommendations"),
+        ],
+        static_path=os.path.join(os.path.dirname(__file__), "res"),
+        debug=conf['debug'],
+        cookie_secret=conf["secret"],
+        login_url="/login")
+
+if __name__ == "__main__":
+    conf = load_conf(sys.argv[1])
+    if not conf.get("secret"):
+        conf["secret"] = secrets.token_hex(128)
+        save_conf(sys.argv[1], conf)
+
+    sys.argv[1] = None
+
+    engine = create_engine('postgresql://%s:%s@%s:%s/%s' %
+                           (conf['db']['user'], conf['db']['pw'], conf['db']['address'],
+                            conf['db']['port'], conf['db']['database']), echo=False)
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    app = make_app(session, conf)
+    app.listen(80)
+    tornado.ioloop.IOLoop.current().start()

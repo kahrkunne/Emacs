@@ -1,0 +1,52 @@
+public class GraphVertex {
+    private String name;
+    private int x;
+    private int y;
+    private int size;
+
+    public GraphVertex(String name, int x, int y, int size){
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.size = size;
+    }
+
+    public GraphVertex() {
+	this.name = "Nameless";
+	this.x = 0;
+	this.y = 0;
+	this.size = 5; // TODO choose good number
+    }
+
+    public void setName(String name) {
+	this.name = name;
+    }
+
+    public String getName() {
+	return this.name;
+    }
+
+    public void setX(int x){
+	this.x = x;
+    }
+
+    public void setY(int x){
+	this.y = y;
+    }
+
+    public void setSize(int size){
+	this.size = size;
+    }
+
+    public Int getX(){
+	return this.x;
+    }
+
+    public Int getY(){
+	return this.y;
+    }
+
+    public Int getSize(){
+	return this.size;
+    }
+}

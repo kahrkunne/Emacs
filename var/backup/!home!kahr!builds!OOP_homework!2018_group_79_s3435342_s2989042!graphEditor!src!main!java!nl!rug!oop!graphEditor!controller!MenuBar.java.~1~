@@ -1,0 +1,16 @@
+package nl.rug.oop.graphEditor.controller;
+
+import nl.rug.oop.graphEditor.controller.menu.FileMenu;
+import nl.rug.oop.graphEditor.controller.menu.EditMenu;
+import nl.rug.oop.graphEditor.controller.menu.WindowMenu;
+import nl.rug.oop.graphEditor.view.GraphFrame;
+
+import javax.swing.JMenuBar;
+
+public class MenuBar extends JMenuBar {
+    public MenuBar(GraphFrame frame) {
+        add(new FileMenu("File"));
+        add(new EditMenu("Edit"));
+        add(new WindowMenu("Window", frame));
+    }
+}

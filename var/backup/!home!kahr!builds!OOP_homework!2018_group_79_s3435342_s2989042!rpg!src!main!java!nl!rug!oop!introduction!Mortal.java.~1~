@@ -1,0 +1,3 @@
+public interface Mortal {
+    public void setHealth(int health);
+}

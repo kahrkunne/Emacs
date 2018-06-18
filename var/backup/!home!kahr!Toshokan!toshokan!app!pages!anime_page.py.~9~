@@ -1,0 +1,278 @@
+from collections import defaultdict
+from datetime import datetime
+from calendar import timegm
+import concurrent
+import pytz
+
+import tornado
+from tornado.web import HTTPError, asynchronous
+from tornado import gen
+from tornado.ioloop import IOLoop
+
+from ..models import Anime, Link, Person, Character, Company, Song, Manga, Genre, Image, User
+from . import Page
+from .templates.anime_page import anime_page
+from .templates.top_anime_page import top_anime_page
+
+import tornado.gen
+import tornado.concurrent
+import time
+from threading import Thread
+from functools import wraps
+
+executor = concurrent.futures.ThreadPoolExecutor(8)
+
+class AnimePage(Page):
+    template = anime_page
+
+    def foo(self, uid):
+        get_links = self.get_argument('get_links', default="false") == "true"
+        anime_links = defaultdict(list)
+
+        if uid:
+            animes = [self.db.query(Anime).filter_by(uid=uid).first()]
+            anime_links[animes[0].uid] = animes[0].links
+        else:
+            try:
+                anime_ids = [int(x) for x in self.get_argument('anime_ids', default=None).split(',')]
+                assert anime_ids
+                animes = self.db.query(Anime).filter(Anime.uid.in_(anime_ids))
+                links = self.db.query(Link).filter(Link.anime_id.in_(anime_ids))
+                for l in links:
+                    anime_links[l.anime_id].append(l)
+            except:
+                raise HTTPError(400)
+
+        objs = []
+
+        for anime in animes:
+            data = defaultdict(list)
+            if get_links:
+                for l in anime_links[anime.uid]:
+                    if l.person_id and l.character_id:
+                        data['cast'].append({'person':{'id':l.person_id, 'name':l.person.name,
+                                                       'description':l.person_desc},
+                                             'character':{'id':l.character_id, 'name':l.character.name,
+                                                          'description':l.character_desc}})
+                    elif l.person_id:
+                        data['other_people'].append({'person':{'id':l.person_id, 'name':l.person.name,
+                                                               'description':l.anime_desc}})
+                    elif l.company_id:
+                        data['companies'].append({'company': {'id':l.company_id, 'name':l.company.name,
+                                                              'description':l.company_desc}})
+                    elif l.song_id:
+                        data['songs'].append({'song': {'id':l.song_id, 'description':l.song_desc}})
+                    elif l.genre_id:
+                        data['genres'].append({'genre':{'id':l.genre_id, 'name':l.genre.name}})
+                    elif l.anime_self_id:
+                        data['related_anime'].append({'anime': {'description':l.anime_desc, 'id':l.anime_self_id,
+                                                                'title':l.anime_self.title}})
+                    elif l.manga_id:
+                        data['related_manga'].append({'manga': {'description': l.manga_desc, 'id': l.manga_id,
+                                                                'title':l.manga.title}})
+                    elif l.image_id:
+                        # TODO images might have descriptions in the future
+                        data['images'].append({'image': {'filename': l.image.image_hash, 'id':l.image_id}})
+                        if l.image_desc == 'main':
+                            data['main_image'] = {'filename':l.image.image_hash, 'id':l.image_id}
+
+            data['uid'] = anime.uid
+            data['title'] = anime.title
+            data['type'] = anime.kind
+            data['status'] = anime.status
+            data['num_episodes'] = anime.num_episodes
+            data['season'] = anime.season
+            data['description'] = anime.description
+            data['start_date'] = timegm(anime.start_date.timetuple()) if anime.start_date else 0
+            data['end_date'] = timegm(anime.end_date.timetuple()) if anime.end_date else 0
+            data['flags'] = anime.flags
+            data['source'] = anime.source
+            data['duration'] = anime.duration
+            data['rating'] = anime.rating
+            data['timeslot'] = anime.timeslot
+            data['synonyms'] = anime.synonyms
+            objs.append(data)
+
+        return objs
+
+    @tornado.web.addslash
+    @asynchronous
+    def get(self, uid, title):
+        # TODO test better
+        user = self.current_user['name']
+        if not user:
+            user = '__nonexistent_user__'
+
+        if self.is_api_get():
+            a = executor.submit(self.foo, uid)
+
+            self.finish(a.result())
+
+        elif self.is_web_get():
+            if not uid:
+                # TODO proper way of doing this
+                template = top_anime_page()
+                template.top_anime = []
+                template.url = self.reverse_url
+                template.backend["solr_url"] = self.conf['solr']['url']
+                template.user = self.get_current_user()
+                if template.user['id']:
+                    template.user_obj = self.db.query(User).filter_by(uid=template.user['id']).first()
+
+                anime_ids = self.recengine.rec(users=['__nonexistent_user__'], k=100)['anime_id']
+                links = self.db.query(Link).filter(Link.anime_id.in_(anime_ids), Link.image_desc == 'main').all()
+                for x in anime_ids:
+                    anime = self.db.query(Anime).filter_by(uid=x).first()
+                    for link in links:
+                        if link.anime_id == x and link.image_desc == 'main':
+                            # FIXME what if there is no main image?
+                            img = link.image.image_hash
+
+                            template.top_anime.append([anime, img])
+
+                self.write(template.respond())
+            else:
+                print(self.static_url("css/style.css"))
+                anime = self.db.query(Anime).filter_by(uid=uid).first()
+                data = defaultdict(list)
+                data['rels'] = defaultdict(list)
+                data['images'] = []
+
+                for l in anime.links:
+                    if l.person_id and l.character_id:
+                        data['vas'].append((l.person, l.character, l.character_desc, l.person_desc))
+                    elif l.person_id:
+                        data['otherpeople'].append((l.person, l.anime_desc))
+                    elif l.company_id:
+                        data[l.company_desc.lower() + 's'].append(l.company)
+                    elif l.song_id:
+                        data['songs'].append((l.song, l.song_desc))
+                    elif l.genre_id:
+                        data['genres'].append(l.genre)
+                    elif l.anime_self_id:
+                        data['rels'][l.anime_desc].append(l.anime_self)
+                    elif l.manga_id:
+                        data['rels'][l.anime_desc].append(l.manga)
+                    elif l.image_id:
+                        data['images'].append(l.image)
+                        if l.image_desc == 'main':
+                            main_img = l.image
+
+                self.t.sakura_score = self.recengine.sakura_score(user, anime.uid)
+
+                self.t.main_img = main_img
+
+                self.t.anime = anime
+                self.t.data = data
+                self.write(self.render())
+                self.finish()
+
+        else:
+            raise HTTPError(406)
+
+    def put(self, uid, title):
+        # TODO untested
+        self.assert_api_compliant()
+        self.verify_user_name('__admin__')
+
+        try:
+            anime = self.db.query(Anime).filter_by(uid=uid).first()
+            data = self.get_json_argument()
+            new_anime = Anime(description=data['description'],
+                              mal_id=int(data['mal_id']) if data['mal_id'] else anime.mal_id if anime.mal_id else None,
+                              synonyms=data['synonyms'], # TODO process properly, once GET api changes
+                              num_episodes=int(data['num_episodes']),
+                              kind=data['type'],
+                              status=data['status'],
+                              start_date=datetime.fromtimestamp(int(data['start_date']), pytz.UTC),
+                              end_date=datetime.fromtimestamp(int(data['end_date']), pytz.UTC),
+                              flags=data['flags'],
+                              source=data['source'],
+                              duration=int(data['duration']),
+                              rating=data['rating'],
+                              season=data['season'],
+                              timeslot=data['timeslot'])
+            if uid:
+                new_anime.uid = uid
+
+            if anime:
+                for l in anime.links:
+                    self.db.delete(l)
+                    self.db.delete(anime)
+
+            self.db.add(new_anime)
+
+            # FIXME IMPORTANT this part might not always respect proper description guidelines,
+            # i.e. it might not set some descriptions which it should.
+            # In general, this should be standardized more!
+            for c in data['cast']:
+                # Specifically, anime_desc should be set to *something* here, but I don't know what.
+                self.db.add(Link(anime_id=uid,
+                                 person_id=c['person']['id'],
+                                 person_desc=c['person']['description'],
+                                 character_id=c['character']['id'],
+                                 character_desc=c['character']['description']))
+
+            for p in data['other_people']:
+                self.db.add(Link(anime_id=uid,
+                                 person_id=p['person']['id'],
+                                 anime_desc=p['person']['description'],
+                                 person_desc=p['person']['description']))
+
+            for c in data['companies']:
+                self.db.add(Link(anime_id=uid,
+                                 company_id=c['company']['id'],
+                                 company_desc=c['company']['description'],
+                                 anime_desc=c['anime']['description']))
+
+            for s in data['songs']:
+                self.db.add(Link(anime_id=uid,
+                                 song_id=s['song']['id'],
+                                 song_desc=s['song']['description'],
+                                 anime_desc=s['song']['description']))
+
+            for g in data['genres']:
+                self.db.add(Link(anime_id=uid,
+                                 genre_id=g['genre']['id'],
+                                 genre_desc=g['genre']['description'],
+                                 anime_desc=g['genre']['description']))
+
+            for a in data['related_anime']:
+                self.db.add(Link(anime_id=uid,
+                                 anime_self_id=a['anime']['id'],
+                                 anime_desc=a['anime']['description'],
+                                 anime_self_desc=a['anime']['description']))
+
+            for m in data['related_manga']:
+                self.db.add(Link(anime_id=uid,
+                                 manga_id=m['manga']['id'],
+                                 anime_desc=m['manga']['description'],
+                                 manga_desc=m['manga']['description']))
+
+            for i in data['images']:
+                # TODO images might have descriptions other than just 'main' or None
+                desc = 'main' if i['image']['id'] == data['main_image']['id'] else None
+                self.db.add(Link(anime_id=uid,
+                                 image_id=i['image']['id'],
+                                 image_desc=desc,
+                                 anime_desc=desc))
+
+            self.db.commit()
+        except:
+            self.db.rollback()
+            raise HTTPError(400)
+
+    def delete(self, uid, title):
+        # TODO test
+        self.assert_user_name('__admin__')
+        try:
+            anime = self.db.query(Anime).filter_by(uid=uid).first()
+            assert anime
+            for l in anime.links:
+                self.db.delete(l)
+
+            self.db.delete(anime)
+            self.db.commit()
+        except:
+            self.db.rollback()
+            raise HTTPError(400)

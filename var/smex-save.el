@@ -1,19 +1,29 @@
 
 ;; ----- smex-history -----
 (
- list-packages
- company-mode
- async-shell-command
- recover-this-file
- R
- S
- cd
+ wg-reset
+ wg-kill-workgroup
+ workgroups-mode
+ edebug-backtrace
+ wg-save-session
+ treemacs-reset-icons
+ package-list-packages
 )
 
 ;; ----- smex-data -----
 (
- (company-mode . 2)
- (recover-this-file . 1)
- (async-shell-command . 1)
- (list-packages . 2)
+ (treemacs . 2)
+ (neotree . 1)
+ (treemacs-mode . 1)
+ (org-mode . 1)
+ (package-install . 2)
+ (package-reinstall . 5)
+ (package-refresh-contents . 1)
+ (package-list-packages . 1)
+ (treemacs-reset-icons . 1)
+ (wg-save-session . 1)
+ (edebug-backtrace . 1)
+ (workgroups-mode . 5)
+ (wg-kill-workgroup . 1)
+ (wg-reset . 1)
 )

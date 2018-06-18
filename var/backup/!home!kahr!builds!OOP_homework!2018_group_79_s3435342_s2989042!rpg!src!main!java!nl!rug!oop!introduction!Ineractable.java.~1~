@@ -1,0 +1,10 @@
+
+abstract public class Inspectable {
+    /**
+     * Inspectable
+     * An object that can be inspected, i.e. has an inspect method
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    abstract public void interact(Player p);
+}

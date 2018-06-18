@@ -1,0 +1,167 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#raw
+<script id="animelist-section-template" type="x-tmpl-mustache" language="text" type="text/html">
+    {{#title}}<b>{{title}}</b>{{/title}}
+    <table class="table table-sm borderless animelist-table">
+	<thead>
+	    <th class=""><a href="javascript:;" class="sort-title">Title</a></th>
+	    {{#animelist_display_progress}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-progress">Progress</a></th>
+	    {{/animelist_display_progress}}
+	    {{#animelist_display_score}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-score">Score</a></th>
+	    {{/animelist_display_score}}
+	    {{#animelist_display_type}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-type">Type</a></th>
+	    {{/animelist_display_type}}
+	    {{#animelist_display_start_date}}
+	    <th class="text-center" style="width:6em"><a href="javascript:;" class="sort-start-date">Start date</a></th>
+	    {{/animelist_display_start_date}}
+	    {{#animelist_display_end_date}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-end-date">End date</a></th>
+	    {{/animelist_display_end_date}}
+	    {{#animelist_display_num_rewatches}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-num-rewatches">Rewatches</a></th>
+	    {{/animelist_display_num_rewatches}}
+	</thead>
+	<tbody>
+	    {{#alist}}
+	    <tr class="entry-{{anime_id}}">
+		<td>
+		    {{name}}
+		    {{#edit}}<span class="animelist-edit-button"><a href="javascript:;" class="edit-{{anime_id}}">Edit</a></div>{{/edit}}
+		</td>
+		{{#animelist_display_progress}}
+		<td class="text-center">{{num_episodes}}/{{total_episodes}}<a href="javascript:;" {{#plus}}{{#edit}}class="plus1-{{anime_id}}">+{{/edit}}{{/plus}}</a></td>{{/animelist_display_progress}}
+		{{#animelist_display_score}}<td class="text-center">{{#score}}{{score}}{{/score}}</td>{{/animelist_display_score}}
+		{{#animelist_display_type}}<td class="text-center">{{type}}</td>{{/animelist_display_type}}
+		{{#animelist_display_start_date}}<td class="text-center">{{readable_start_date}}</td>{{/animelist_display_start_date}}
+		{{#animelist_display_end_date}}<td class="text-center">{{readable_end_date}}</td>{{/animelist_display_end_date}}
+		{{#animelist_display_num_rewatches}}<td class="text-center">{{num_rewatches}}</td>{{/animelist_display_num_rewatches}}
+	    </tr>
+	    {{/alist}}
+	</tbody>
+    </table>
+</script>
+<link rel="stylesheet" href="/static/css/bootstrap-datepicker.min.css">
+#end raw
+#end def
+
+#def main
+
+<div class="alert alert-danger alert-dismissible collapse" id="animelist-alert-invalid-input">
+    <button type="button" class="close" id="alert-invalid-input-close-button">
+	<span aria-hidden="true">&times;</span>
+    </button>
+    <strong>Error</strong> Invalid data.
+</div>
+
+<div id="meme">
+    <input name="animelist-search" id="animelist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+	
+</div>
+
+<div id="animelist">
+
+</div>
+
+<div class="modal" id="animelist-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+	<div class="modal-content">
+	    <div class="modal-header">
+		<span class="w-100 text-center"><h5 class="modal-title" id="animelist-edit-modal-title"></h5></span>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		    <span aria-hidden="true">&times;</span>
+		</button>
+	    </div>
+	    <div class="modal-body animelist-edit">
+		<div class="row-fluid">
+		    <form class="form-inline" id="animelist-edit-form">
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-status" class="text-left">Status</label>
+			    </div>
+			    <div class="col-5">
+				<select class="form-control anime-edit-select" id="animelist-edit-status"> 
+				    <option>Plan To Watch</option>
+				    <option>Completed</option>
+				    <option>Watching</option>
+				    <option>On Hold</option>
+				    <option>Dropped</option>
+				</select>
+			    </div>
+			</div>
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-num-episodes">Episodes</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-num-episodes" id="animelist-edit-num-episodes" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-score">Score</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-score" id="animelist-edit-score" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-start-date">Start Date</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-start-date" id="animelist-edit-start-date" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+			
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-end-date">End Date</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-end-date" id="animelist-edit-end-date" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+
+			<div class="form-group w-100 pb-2">
+			    <div class="col-7">
+				<label for="animelist-edit-num-rewatches">Rewatches</label>
+			    </div>
+			    <div class="col-5">
+				<input name="animelist-num-rewatches" id="animelist-edit-num-rewatches" type="text" class="form-control text-right" />
+			    </div>
+			</div>
+
+			<br />
+
+			<div class="form-group w-100 justify-content-center">
+			    <label for="animelist-edit-comments">Comments</label>
+			    <textarea name="animelist-comments" id="animelist-edit-comments" type="text" class="form-control" rows="4"></textarea>
+
+
+			</div>
+		    </form>
+
+		</div>
+		
+	    </div>
+	    <div class="modal-footer justify-content-center">
+		<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		<button type="button" class="btn btn-primary" id="animelist-edit-save-button">Save changes</button>
+	    </div>
+	</div>
+    </div>
+</div>
+#end def

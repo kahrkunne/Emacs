@@ -1,0 +1,69 @@
+3. a.
+grandfather(X, lot).
+The answer is Terach
+
+b.
+grandfather(terach, X).
+The answers are Isaac, Milcah, Yiscah and Lot.
+
+4. a.
+plus(s(s(s(0))), s(s(0)), s(s(s(s(s(0)))))).
+true.
+
+b.
+plus(s(s(s(0))), s(s(0)), s(s(s(s(s(s(0))))))).
+false.
+
+c.
+even(0).
+even(s(s(X))) :- even(X).
+
+odd(1).
+odd(s(s(X))) :- odd(X).
+
+d.
+div2(N,D) :- plus(N,N,D).
+
+Tests:
+
+?- div2(0,0).
+true.
+
+?- div2(s(0),s(0)).
+false.
+
+?- div2(s(0),s(s(0))).
+true.
+
+e.
+divi2(N,D) :- times(N,s(s(0)),D).
+
+Tests same as in d)
+
+f.
+pow(s(s(0)), X, s(s(s(s(s(s(s(s(0))))))))).
+We find X = s(s(s(0))), which is correct.
+log(X,B,N) :- pow(B,N,X).
+
+g.
+fib(0,0).
+fib(s(0),s(0)).
+fib(A,B) :- A=s(s(X)), fib(X,Y), fib(s(X),Z), plus(Y,Z,B).
+
+h. ### DIT WERKT NIET ###
+power(X,0,s(0)) :- isnumber(X).
+power(X,N,Y) :- even(N), times(X,X,A), div2(N,B), power(A, B, Y).
+power(X,N,Y) :- odd(N), N = s(A), times(X, B, Y), power(X, A, B).
+
+5.
+member([H|T], N) :- H is N.
+member([H|T], N) :- member(T, N).
+
+A list L concatenated to the empty list is that list L.
+The concatenation of lists X and Y is list L if and only if:
+* The head of X is the head of L
+* The concatenation of the tail of X and Y is the tail of L
+We find:
+
+concat([], L, L).
+concat([H|XT], Y, [H|LT]) :- concat(XT,Y,LT).

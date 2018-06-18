@@ -1,0 +1,79 @@
+et, ev = tc.recommender.util.random_split_by_user(explicit, 'user', 'anime_id', max_num_users=100000)
+it, iv = tc.recommender.util.random_split_by_user(implicit, 'user', 'anime_id', max_num_users=100000)
+
+implicit_users = list(set(iv['user']))
+random.shuffle(implicit_users)
+explicit_users = list(set(ev['user']))
+random.shuffle(explicit_users)
+
+#explicit_points = defaultdict(list)
+#implicit_points = defaultdict(list)
+
+ipp1 = defaultdict(int)
+ipp2 = defaultdict(int)
+ipp3 = defaultdict(int)
+ipr1 = defaultdict(int)
+ipr2 = defaultdict(int)
+ipr3 = defaultdict(int)
+
+epp1 = defaultdict(int)
+epp2 = defaultdict(int)
+epr1 = defaultdict(int)
+epr2 = defaultdict(int)
+
+ei = mi.evaluate(iv, verbose=False)['precision_recall_by_user']
+ei2 = mi2.evaluate(iv, verbose=False)['precision_recall_by_user']
+ei3 = mi3.evaluate(iv, verbose=False)['precision_recall_by_user']
+ee = me.evaluate(ev, verbose=False)['precision_recall_by_user']
+ee = me2.evaluate(ev, verbose=False)['precision_recall_by_user']
+
+#for user in implicit_users:
+#    n = len(implicit[implicit['user'] == user])
+#    implicit_points[n].append(user)
+
+#for user in explicit_users:
+#    n = len(explicit[explicit['user'] == user])
+#    explicit_points[n].append(user)
+
+for p in implicit_points:
+    if p < 10 or not implicit_points[p]: continue
+    for user in implicit_points[p]:
+        ipp1[p] += ei[ei['user'] == user]['precision'][10]
+        ipp2[p] += ei2[ei2['user'] == user]['precision'][10]
+        ipp3[p] += ei3[ei3['user'] == user]['precision'][10]
+        ipr1[p] += ei[ei['user'] == user]['recall'][10]
+        ipr2[p] += ei2[ei2['user'] == user]['recall'][10]
+        ipr3[p] += ei3[ei3['user'] == user]['recall'][10]
+
+    ipp1[p] /= len(implicit_points[p])
+    ipp2[p] /= len(implicit_points[p])
+    ipp3[p] /= len(implicit_points[p])
+    ipr1[p] /= len(implicit_points[p])
+    ipr2[p] /= len(implicit_points[p])
+    ipr3[p] /= len(implicit_points[p])
+
+
+for p in explicit_points:
+     if p < 10 or not explicit_points[p]: continue
+     for user in explicit_points[p]:
+         epp1[p] += ee[ee['user'] == user]['precision'][10]
+         epp2[p] += ee2[ee2['user'] == user]['precision'][10]
+         epr1[p] += ee[ee['user'] == user]['recall'][10]
+         epr2[p] += ee2[ee2['user'] == user]['recall'][10]
+
+     epp1[p] /= len(explicit_points[p])
+     epp2[p] /= len(explicit_points[p])
+     epr1[p] /= len(explicit_points[p])
+     epr2[p] /= len(explicit_points[p])
+     
+
+def plot(s):
+    x = []
+    y = []
+    for i in s:
+        x.append(i)
+        y.append(s[i])
+
+    plt.plot(x, y, 'ro')
+    plt.axis([0,300,0,1])
+    plt.show()

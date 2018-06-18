@@ -1,0 +1,19 @@
+from tornado.web import url
+import tornado.web
+import tornado.ioloop
+
+import app.pages as pages
+
+def make_app():
+    app_config = {}
+    return tornado.web.Application([
+        url(r"/?", pages.Home, app_config, name="home")
+    ],
+    static_path=os.path.join(os.path.dirname(__file__), "res"),
+    debug=True,
+    cookie_secret="fjaoiejwaofijwaeo235j245")
+
+if __name__ == '__main__':
+    app = make_app()
+    app.listen(8111)
+    tornado.ioloop.IOLoop.current().start()

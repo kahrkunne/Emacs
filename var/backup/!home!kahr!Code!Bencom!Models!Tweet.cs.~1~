@@ -1,0 +1,17 @@
+using System;
+using System.Net.HTTP;
+
+namespace Bencom.Models
+{
+    public class Tweet
+    {
+	public Tweet(string handle)
+	{
+	    
+	}
+
+	public string getMeme(){
+	    return "kek";
+	}
+    }
+}

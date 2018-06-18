@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+whoami
+ddcutil -d 1 setvcp 60 0x0f

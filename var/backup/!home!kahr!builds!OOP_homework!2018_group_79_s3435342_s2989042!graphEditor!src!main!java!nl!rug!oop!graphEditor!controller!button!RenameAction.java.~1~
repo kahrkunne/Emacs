@@ -1,0 +1,47 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.util.Observable;
+import java.util.Observer;
+
+public class RenameAction extends AbstractAction implements Observer {
+    private GraphPanel panel;
+
+    public RenameAction(String name, GraphPanel panel) {
+        super(name);
+        this.panel = panel;
+        panel.getModel().addObserver(this);
+    }
+
+    private void fixEnabled() {
+        if (panel.getModel().getSelected() != null) {
+            setEnabled(true);
+        } else {
+            setEnabled(false);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String s = (String) JOptionPane.showInputDialog(
+                panel,
+                "Enter the new name:\n",
+                "Rename",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                panel.getModel().getSelected().getName());
+        if (s != null) {
+            panel.getModel().getSelected().setName(s);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        fixEnabled();
+    }
+}

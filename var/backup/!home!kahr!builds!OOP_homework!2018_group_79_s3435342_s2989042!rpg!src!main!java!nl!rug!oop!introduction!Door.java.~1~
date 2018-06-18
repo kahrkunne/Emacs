@@ -1,0 +1,10 @@
+public class Door extends Inspectable {
+    /**
+     * Door
+     * A door
+     * @author: Kahr Kunne, Gijs Erens
+     */
+    public Door(String description) {
+	super(description);
+    }
+}

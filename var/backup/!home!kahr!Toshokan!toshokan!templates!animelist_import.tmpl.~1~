@@ -1,0 +1,11 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#end def
+
+#def main
+neuk je moeder, snuif poeder
+#end def

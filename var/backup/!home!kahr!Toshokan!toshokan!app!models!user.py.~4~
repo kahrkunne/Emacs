@@ -1,0 +1,73 @@
+import re
+
+from sqlalchemy.orm import validates, relationship
+from sqlalchemy.sql import func
+from tornado.escape import xhtml_escape
+
+from .model import Base, Column, Integer, Sequence, String, DateTime, Boolean
+from .anime_entry import AnimeEntry
+
+class User(Base):
+    """The User model.
+
+    uid (int): The unique id of each `User`. `uid`s must not be exposed directly to end-users in any way
+               without priorly being obfuscated.
+
+    name (str): The username. Must be between 4 and 16 characters, and only contain dashes, underscores and 
+                alphanumeric characters. Cannot start with a dash, and cannot be only composed of digits.
+                Usernames have to be case-insensitively unique, meaning that `Bob` and `bob` should be treated as 
+                the same user. However the original capitalization is still stored in the database and displayed on the website.
+
+    password (str): The salted hash of the `User`'s password.
+
+    joined (datetime): `datetime` object representing the exact time this `User` was created.
+
+    """
+    __tablename__ = 'tshk_user'
+    uid = Column(Integer, Sequence('user_id_seq'), primary_key=True)
+
+    name = Column(String)
+    description = Column(String)
+
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    display_name = Column(String, nullable=False)
+    joined = Column(DateTime(timezone=True), default=func.now())
+
+    animelist = relationship('AnimeEntry')
+
+    # Settings
+    animelist_display_progress = Column(Boolean, nullable=False, default=True)
+    animelist_display_score = Column(Boolean, nullable=False, default=True)
+    animelist_display_type = Column(Boolean, nullable=False, default=True)
+    animelist_display_start_date = Column(Boolean, nullable=False, default=False)
+    animelist_display_end_date = Column(Boolean, nullable=False, default=False)
+    animelist_display_num_rewatches = Column(Boolean, nullable=False, default=False)
+
+    animelist_private = Column(Boolean, nullable=False, default=False)
+
+    def __repr__(self):
+        return "<User(uid='%s', name='%s', email='%s')>" % (self.uid, self.name, self.email)
+
+    @validates("name")
+    def validate_name(self, key, name):
+        valid_username_regex = r"(?=(?=^[A-z])|(?=^\d(?!\d*$)))(?=[\w-]{3,16}$)"
+        if re.match(valid_username_regex, name) is None or len(name) > 16:
+            raise ValueError()
+        else:
+            return name.lower()
+
+    @validates("email")
+    def validate_email(self, key, email):
+        if len(email) >= 4 and len(email) <= 128:
+            return email.lower()
+        else:
+            raise ValueError()
+
+    @validates("display_name")
+    def validate_dname(self, key, dname):
+        dname = xhtml_escape(dname)
+        if len(dname) > 64:
+            raise ValueError()
+        else:
+            return dname

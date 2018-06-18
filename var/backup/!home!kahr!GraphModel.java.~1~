@@ -1,0 +1,16 @@
+public class GraphModel {
+    ArrayList<GraphVertex> vertices;
+    ArrayList<GraphEdge> edges;
+    public GraphModel() {
+	vertices = new ArrayList<GraphVertex>();
+	edges = new ArrayList<GraphEdge>();
+    }
+
+    public void addVertex(GraphVertex v){
+	vertices.add(v);
+    }
+
+    public void addEdge(GraphEdge e){
+	edges.add(e);
+    }
+}

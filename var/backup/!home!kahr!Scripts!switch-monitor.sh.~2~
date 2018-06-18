@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ddcutil -d 1 setvcp 60 0x0f

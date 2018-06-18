@@ -1,0 +1,9 @@
+public class Room {
+    protected String meme;
+    public Room(String kek) {
+	meme = kek;
+    }
+    public static String getMeme(){
+	return meme;
+    }
+}

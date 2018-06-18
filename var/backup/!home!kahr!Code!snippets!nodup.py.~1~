@@ -1,0 +1,21 @@
+from collections import defaultdict
+
+def itdec(it, func):
+    for e in it:
+        result, valid = func(e)
+        if not valid:
+            continue
+        yield result
+
+def nodupper():
+    def nodup(val, exists=defaultdict(bool)):
+        valid = not exists[val]
+        exists[val] = True
+        if valid:
+            return (val, True)
+        else:
+            return (None, False)
+
+    return nodup
+
+for i in itdec([1,1,1,2,3,3,4], nodupper()): print(i)

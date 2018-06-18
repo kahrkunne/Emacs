@@ -1,0 +1,18 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import javax.swing.*;
+import java.awt.event.KeyEvent;
+
+public class DeleteNodeButton extends JButton {
+    private void setButtonProperties() {
+        setVerticalTextPosition(AbstractButton.CENTER);
+        setHorizontalTextPosition(AbstractButton.CENTER);
+        setMnemonic(KeyEvent.VK_N);
+        setToolTipText("delete node");
+    }
+
+    public DeleteNodeButton() {
+        super(new DeleteNodeAction());
+        setButtonProperties();
+    }
+}

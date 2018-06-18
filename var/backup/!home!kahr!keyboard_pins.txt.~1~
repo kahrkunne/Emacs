@@ -1,0 +1,15 @@
+;; This buffer is for text that is not saved, and for Lisp evaluation.
+;; To create a file, visit it with <open> and enter text in its buffer.
+
+B0 <-> col 1
+B1 <-> col 2
+B2 <-> col 3
+B3 <-> col 4
+B7 <-> col 5
+D0 <-> col 6
+D1 <-> col 7
+D2 <-> col 8
+D3 <-> col 9
+C6 <-> col 10
+C7 <-> col 11
+D5 <-> col 12

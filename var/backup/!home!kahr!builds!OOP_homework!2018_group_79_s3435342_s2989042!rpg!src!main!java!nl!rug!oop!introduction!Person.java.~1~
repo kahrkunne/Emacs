@@ -1,0 +1,25 @@
+public class Person extends NPC {
+    /**
+     * Person
+     * A person
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    private List<Item> items;
+    public Person(String description, Room r, ArrayList<Item> items){
+	super(description, r);
+	this.items = items;
+    }
+
+    public void addItem(Item i){
+	this.items.add(i);
+    }
+
+    public void removeItem(Int index){
+	if(this.items.isEmpty()){
+	    return null;
+	}else{
+	    return this.items.remove(index);
+	}
+    }
+}

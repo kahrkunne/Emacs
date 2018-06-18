@@ -1,0 +1,7 @@
+1.
+n = 3: Max takes two matches, so Min has to take the last match, i.e. Max wins.
+n = 4: Max takes three matches, so Min has to take the last match, i.e. Max wins.
+n = 5: Min always wins:
+** If Max takes 1 match, Min takes 3, leaving 1 for Max
+** If Max takes 2, Min takes 2, leaving 1 for Max
+** If max takes 3, Min takes 1, leaving 1 for Max

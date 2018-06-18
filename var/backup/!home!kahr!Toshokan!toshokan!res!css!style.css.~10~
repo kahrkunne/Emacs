@@ -1,0 +1,176 @@
+.col-lg-3 {
+    padding-right: 7px;
+}
+
+.col {
+    padding-left: 7px;
+}
+
+.infopage-leftcol span {
+    font-weight: bold;
+}
+
+.infopage-rel span {
+    font-weight: bold;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0;
+}
+
+.form-control {
+    border-radius: 0;
+}
+
+.btn {
+    border-radius: 0;
+    transition: none;
+}
+
+.searchbar .dropdown-menu {
+    left: initial;
+}
+
+.acc-area {
+    margin-left: 5px;
+}
+
+.search-result {
+}
+
+.form-control {
+    transition: none;
+}
+
+#qbox {
+    width: 20em;
+}
+
+.form-control:focus {
+    border-color: inherit;
+    box-shadow: none;
+}
+
+div#search_results {
+    width: 100%;
+    border-radius: 0;
+    font-size: .8em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 5px;
+}
+
+.nsearch-result .col-10 {
+    padding-left: 5px;
+}
+
+.dropdown-menu {
+    border-radius: 0;
+}
+
+.anime-va-role .col-11{
+    padding-left: 0;
+}
+
+.anime-va-role .col-1 {
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+
+
+.infopage-person .col-11{
+    padding-left: 0;
+}
+
+.infopage-person .col-1 {
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+
+.borderless td, .borderless th{
+    border: none;
+}
+
+.infopage-rel th {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.table-sm td, .table-sm th {
+    padding: 0.4rem;
+}
+
+.animelist-edit label{
+    justify-content: left;
+}
+
+.animelist-edit .form-control{
+    width: 100%;
+}
+
+.animelist-edit .form-inline{
+    padding: 0 0 8px 0;
+}
+
+.modal-content {
+    border-radius: 0;
+}
+
+.btn-primary.focus, .btn-primary:focus {
+    box-shadow: none !important;
+}
+
+.anime-edit-select {
+  text-align-last: right;
+}
+
+.anime-edit-select option{
+    direction:rtl;
+}
+
+.animelist-edit textarea {
+    margin: 0 15px;
+}
+
+.animelist-edit-button {
+    align: right;
+    float: right;
+}
+
+.alert {
+    border-radius: 0;
+}
+
+a:hover {
+    color: green;
+    text-decoration: none;
+}
+
+.infopage-leftcol {
+    max-width: 22%;
+}
+
+html, body {
+    height: 100vh;
+}
+
+.full-length {
+    height: 90vh;
+}
+
+.half-length {
+    height: 45vh;
+}
+
+.animelist-plus-btn {
+    padding: .1rem .25rem;
+
+}
+
+.top-anime-thumb {
+}

@@ -1,0 +1,20 @@
+[global]
+encrypt passwords = yes
+workgroup = WORKGROUP
+log file = /var/log/samba/%m.log
+remote announce = 192.168.178.11
+
+
+[kahr]
+path = /home/kahr
+writable = no
+browseable = yes
+valid users = kahr
+guest ok = yes
+
+[test]
+comment = eafefawef
+path = /root/test
+read only = no
+browseable = yes
+guest ok = yes

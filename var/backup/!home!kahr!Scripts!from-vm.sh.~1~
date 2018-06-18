@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+echo "makama9makama9" | sudo -S ddcutil -d 1 setvcp 60 0x0f
+

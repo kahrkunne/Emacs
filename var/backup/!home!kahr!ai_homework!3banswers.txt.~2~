@@ -1,0 +1,56 @@
+3. a.
+grandfather(X, lot).
+The answer is Terach
+
+b.
+grandfather(terach, X).
+The answers are Isaac, Milcah, Yiscah and Lot.
+
+4. a.
+plus(s(s(s(0))), s(s(0)), s(s(s(s(s(0)))))).
+true.
+
+b.
+plus(s(s(s(0))), s(s(0)), s(s(s(s(s(s(0))))))).
+false.
+
+c.
+even(0).
+even(s(s(X))) :- even(X).
+
+odd(1).
+odd(s(s(X))) :- odd(X).
+
+d.
+div2(N,D) :- plus(N,N,D).
+
+Tests:
+
+?- div2(0,0).
+true.
+
+?- div2(s(0),s(0)).
+false.
+
+?- div2(s(0),s(s(0))).
+true.
+
+e.
+divi2(N,D) :- times(N,s(s(0)),D).
+
+Tests same as in d)
+
+f.
+pow(s(s(0)), X, s(s(s(s(s(s(s(s(0))))))))).
+We find X = s(s(s(0))), which is correct.
+log(X,B,N) :- pow(B,N,X).
+
+g. ### DIT WERKT NIET ###
+fib(0,0).
+fib(s(0),s(0)).
+fib(A,B) :- fib(X,Y), fib(s(X),Z), plus(Y,Z,B), A=s(s(X)).
+
+h. ### DIT WERKT OOK NIET ###
+power(X,0,s(0)) :- isnumber(X).
+power(X,N,Y) :- even(N), power(A, B, Y), times(X,X,A), div2(N,B).
+power(X,N,Y) :- odd(N), minus(N, s(0), A), power(X, A, B), times(X, B, Y).

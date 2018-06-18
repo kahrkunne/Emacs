@@ -1,0 +1,85 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+import static java.util.Arrays.asList;
+
+public class Game {
+    Scanner s;
+    Player player;
+    ArrayList<Room> rooms;
+    public Game(ArrayList<Room> rooms, Player player){
+	this.s = new Scanner(System.in);
+	this.rooms = rooms;
+	this.player = player;
+    }
+
+    public void run(){
+	String input;
+	printPrompt();
+	while(!((input = this.s.next()).equals("q"))){
+	    if(input.equals("0")){
+		player.getRoom().inspect();
+	    } else if(input.equals("1")){
+		System.out.println("Which door do you take? (-1 : stay here)");
+		List<Door> doors = player.getRoom().getDoors();
+		inspectList(doors);
+		chooseInteraction(doors, s, player);
+	    } else if(input.equals("2")){
+		System.out.println("You look if there's someone here. You see:");
+		List<NPC> NPCs = player.getRoom().getNPCs();
+		inspectList(NPCs);
+		System.out.println("Interact ? (-1: do nothing)");
+		chooseInteraction(NPCs, s, player);
+	    } else if(input.equals("3")){
+		System.out.println("Equip what?");
+		System.out.println("Equipping not implemented yet.");
+	    }
+
+	    if(player.getHealth() <= 0){
+		System.out.println("You have died.");
+		break;
+	    }
+
+	    // Print our prompt at the end of this loop, when we're ready to take new input
+	    printPrompt();
+	}
+    }
+
+    private static void printPrompt(){
+	System.out.println("");
+	System.out.println("What do you want to do?");
+	System.out.println(" (0) Look around");
+	System.out.println(" (1) Look for a way out");
+	System.out.println(" (2) Look for company");
+	System.out.println(" (3) Equip an item");
+	System.out.println(" (q) Quit");
+    }
+
+    private static void inspectList(List<? extends Inspectable> list){
+	/* Generic method for inspecting a list of objects */
+	for (int i = 0; i < list.size(); i++) {
+	    Inspectable thing = list.get(i);
+	    if (thing == null) {
+		continue;
+	    }
+	    System.out.print(" ("+i+") ");
+	    thing.inspect();
+	}
+    }
+
+    private static void chooseInteraction(List<? extends Interactable> list, Scanner s, Player player){
+	/* Generic method for choosing an object to interact with out of a list */
+	String choice = s.next();
+	try {
+	    int n = Integer.parseInt(choice);
+	    if (n != -1){
+		// "-1" means "do thing"
+		list.get(n).interact(player);
+	    }
+	}catch (NumberFormatException | IndexOutOfBoundsException foo) {
+	    // The player entered a non-number, or the respective room doesn't exist
+	    System.out.println("Invalid input.");
+	}
+    }
+
+}

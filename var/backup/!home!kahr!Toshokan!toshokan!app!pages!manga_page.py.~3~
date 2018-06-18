@@ -1,0 +1,69 @@
+import tornado
+from tornado.web import HTTPError
+
+from ..models import Anime, Link, Person, Character, Company, Song, Manga, Genre
+from . import Page
+from .templates.manga_page import manga_page
+
+class MangaPage(Page):
+    # TODO properly implement API
+
+    template = manga_page
+
+    @tornado.web.addslash
+    def get(self, uid, title):
+        manga = self.db.query(Manga).filter_by(uid=uid).first()
+        if not manga:
+            raise HTTPError(404)
+        manga.status = 'STATUS NOT IMPLEMENTED YET'
+
+        links = self.db.query(Link).filter_by(main_kind='manga', main_id=manga.uid).all()
+
+        people = [(self.db.query(Person).filter_by(uid=x.person_id).first(),
+                   x.person_desc) for x in
+                  [x for x in links if x.person_id and not x.character_id]]
+
+        studios = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                   for x in links if x.company_id and x.company_desc == 'Studio']
+
+        licensors = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                     for x in links if x.company_id and x.company_desc == 'Licensor']
+
+        producers = [self.db.query(Company).filter_by(uid=x.company_id).first().name
+                     for x in links if x.company_id and x.company_desc == 'Producer']
+
+        genres = [self.db.query(Genre).filter_by(uid=x.genre_id).first().name
+                  for x in links if x.genre_id]
+
+        rel_links = [x for x in links if x.manga_self_id or x.anime_id]
+        rels = {'Adaptation':[], 'Sequel':[], 'Prequel':[], 'Summary':[],
+                'Alternative version':[], 'Parent story':[], 'Side story':[],
+                'Alternative setting':[], 'Full story':[], 'Spin-off':[],
+                'Character':[], 'Other':[]}
+
+        rel_names = rels
+
+        # Not actually tested l m a o
+        for k in rels:
+            for l in rel_links:
+                if l.manga_desc == k:
+                    if l.manga_self_id:
+                        rels[k].append(self.db.query(Manga).filter_by(uid=l.manga_self_id).first())
+                    if l.anime_id:
+                        rels[k].append(self.db.query(Anime).filter_by(uid=l.anime_id).first())
+
+        for k in rels:
+            rel_names[k] = ', '.join(['<a href=/{}/{}/>{}</a>'
+                                      .format(x.__class__.__name__.lower(),
+                                              x.uid,
+                                              x.name) for x in rels[k]])
+
+            self.t.genres = genres
+            self.t.licensors = licensors
+            self.t.producers = producers
+            self.t.manga = manga
+            self.t.rels = rels
+            self.t.rel_names = rel_names
+            self.t.people = people
+            self.t.studios = studios
+            self.write(self.render())

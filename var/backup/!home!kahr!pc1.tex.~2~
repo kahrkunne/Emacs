@@ -1,0 +1,134 @@
+\documentclass{article}
+\usepackage{amssymb}
+\newcommand{\idiv}{\mbox{\bf ~div~}} 
+\newcommand{\imod}{\mbox{\bf ~mod~}} 
+\newcommand{\band}{~\wedge~} 
+\newcommand{\bor}{~\vee~} 
+\newcommand{\true}{\mbox{\bf ~true~}} 
+\newcommand{\false}{\mbox{\bf ~false~}} 
+\newcommand{\IF}{\mbox{\bf if~}} 
+\newcommand{\THEN}{\mbox{\bf ~then~}}
+\newcommand{\ELSE}{\mbox{\bf else~}}
+\newcommand{\END}{\mbox{\bf end}}
+\newcommand{\WHILE}{\mbox{\bf while~}}
+\newcommand{\DO}{\mbox{\bf ~do}}
+\newcommand{\FOR}{\mbox{\bf for~}}
+\newcommand{\TO}{\mbox{\bf ~to}}
+\newcommand{\SKIP}{\mbox{\bf ~skip}}
+\newcommand{\CONST}{\mbox{\bf const~}}
+\newcommand{\ARRAY}{\mbox{\bf ~array~}}
+\newcommand{\OF}{\mbox{\bf ~of~}}
+\newcommand{\VAR}{\mbox{\bf var~}}
+\newcommand{\vf}{\mbox{\sf vf}}
+\newcommand{\ord}{\mbox{\sf ord}}
+\newcommand{\imax}{\mbox{\bf ~max~}}
+\newcommand{\imin}{\mbox{\bf ~min~}}
+\newcommand{\Max}{\mbox{\sf Max}}
+\newcommand{\Min}{\mbox{\sf Min}} 
+
+\begin{document}
+\title{CompSci, Program Correctness, Homework 1}
+\author{Kahr Kunne, S3435342, Group 2}
+\maketitle
+\section*{Exercise 5.13a}
+\begin{tabbing}
+x\=xx\=\kill
+\>\>$\{x+y=Z\}$\\
+\>\>$(*$Let's call our current value of $x$ $x0$, and our current value of $y$ $y0$; then $x0+y0=Z *)$\\
+\>$x := x+a$;\\
+\>\>$(* x = x0+a *)$\\
+\>$y := y-a$\\
+\>\>$(* y = y0-a *)$\\
+\>\>$(* x+y=x0+a+y0-a=x0+y0=Z*)$\\
+\>\>$\{x+y=Z\}$
+\end{tabbing}
+
+\section*{Exercise 5.13b}
+\begin{tabbing}
+x\=xx\=xxx\=xxxx\=\kill
+\>$\{P:x+y=Z\}$\\
+\>$\IF a * b < 0 \THEN$\\
+\>\>$\SKIP$\\
+\>\>\>$\{P \band a \cdot b < 0\}$\\
+\>$\ELSE$\\
+\>\>$\IF a + b = 0 \THEN$\\
+\>\>\>(* calculus: $a + b = -1 + 1 = 0$ *)\\
+\>\>\>$a := -1$\\
+\>\>\>$b := 1$\\
+\>\>\>(* calculus: $-1 * 1 < 0$; logic *)\\
+\>\>\>\>$\{ P \band a \cdot b < 0\}$\\
+\>\>$\ELSE$\\
+\>\>\>(* calculus: $-\frac{a+b}{2} + 3\frac{a+b}{2} = a+b$ *)\\
+\>\>\>$a := -(a+b) \idiv 2$\\
+\>\>\>$b := -3*a$\\
+\>\>\>(* calculus; logic *)\\
+\>\>\>\>$\{P \band a \cdot b < 0\}$\\
+\>\>$\END$ (* collect branches *)\\
+\>\>\>$\{P \band a \cdot b < 0\}$\\
+\>$\END$ (*collect branches *)\\
+\>\>$\{P \band a \cdot b < 0\}$
+\end{tabbing}
+
+\newpage
+
+\section*{Exercise 5.15a}
+\begin{tabbing}
+x\=xx\=xxx\=\kill
+\>\CONST n: $\mathbb{Z}$\\
+\>\>$\{x=X\}$\\
+\>$\IF x >= n \THEN$\\
+\>\>$x := 2*x - n$\\
+\>\>\>(* logic; substitute X *)\\
+\>\>\>$\{x \geq n \band (x = 2 \cdot X - n)\}$\\
+\>$\ELSE$\\
+\>\>$x := 3*n - 2*x + 1$\\
+\>\>\>(* logic; substitute X*)\\
+\>\>\>$\{x \geq n \band (x=3 \cdot n - 2 \cdot X + 1)\}$\\
+\>$\END$ (* collect branches *)\\
+\>\>$\{(x \geq n \band (x=2 \cdot X -n)) \bor (x \geq n \band (x=3 \cdot n - 2 \cdot X + 1))\}$\\
+\>\>(* logic *)\\
+\>\>$\{Q: x \geq n \band ((x=2 \cdot X -n) \bor (x=3 \cdot n - 2 \cdot X + 1))\}$
+\end{tabbing}
+
+\section*{Exercise 5.15b}
+\begin{tabbing}
+x\=xx\=xxx\=\kill
+\>$x = 2 \cdot X - n$\\
+$\equiv$ \{ calculus \}\\
+\>$x+n = 2 \cdot X$\\
+$\equiv$ \{ definition of mod \}\\
+\>$(x+n)$ mod $2 = 0$\\
+\end{tabbing}
+\begin{tabbing}
+x\=xx\=xxx\=\kill
+\>$x = 3 \cdot n - 2 \cdot X + 1$\\
+$\equiv$ \{ calculus \}\\
+\>$x + n = 2 \cdot (2 \cdot n - \cdot x) + 1$\\
+$\equiv$ \{ definition of mod \}\\
+\>$(x+n)$ mod $2 = 1$
+\end{tabbing}
+
+\newpage
+\section*{Exercise 5.15c}
+\begin{tabbing}
+x\=xx\=xxx\=\kill
+\>\CONST n: $\mathbb{Z}$\\
+\>\VAR x\\
+\>\>\{$Q: x \geq n\band ((x=2 \cdot X -n) \bor (x=3 \cdot n - 2 \cdot X + 1))$\}\\
+\>$\IF (x+n) \imod 2 == 0 \THEN$\\
+\>\>\>(* logic *)\\
+\>\>\>$\{ x = 2X - n \}$\\
+\>\>$x := x + n \idiv 2$\\
+\>\>\>(* calculus *)\\
+\>\>\>$\{ x = X\}$\\
+\>$\ELSE$\\
+\>\>\>(* logic *)\\
+\>\>\>$\{ x = 3n - 2X + 1 \}$\\
+\>\>$x := (x - 3*n - 1) \idiv -2$\\
+\>\>\>(* calculus *)\\
+\>\>\>$\{ x = X \}$\\
+\>$\END$ (* collect branches *)\\
+\>\>$\{ x = X \}$
+
+\end{tabbing}
+\end{document}

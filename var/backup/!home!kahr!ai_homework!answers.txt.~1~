@@ -1,0 +1,22 @@
+Usage: ./csp [OPTION]... [FILE]
+Solve the CSP problem defined in FILE using the given options.
+
+-h, -help    Display this help and exit.
+-iconst 1    Make the problem initially node-consistent.
+-iconst 2    Make the problem initially arc-consistent.
+-mrv         Use the heuristic Minimum Remaining Values (MRV).
+-deg         Use the degree heuristic.
+-arc         Keep the problem arc-consistent. Can not be combined with '-fc'
+-fc          Use Forward Checking. Can not be combined with '-arc'.
+
+1.1 The solver finds one solution, namely A=3;B=7;C=2.
+* Minimum Remaining Values does nothing here, since all variables will always have the same number of options.
+* Similarly, the degree heuristic does nothing, since all variables are involved in exactly 2 constraints.
+* Forward checking is beneficial here. For example, we can find an assignment to A or B such that the third constraint (A*B*C = 42) can no longer be satisfied, in which case we can terminate the search. In practice, this brings the number of visited states down from 63254 to 254.
+* Maintaining arc-consistency is the most efficient here. That way, we can reduce the domains of the variables by a lot; for example, none of the variables can be greater than 42, otherwise constraint 3 is not satisfiable. Then, we know that (A+B) can be no more than 42/5, and so on. In practice, by maintaining arc-consistency, we only have to visit 4 states.
+
+1.2 We find 5 solutions
+* Forward checking: Beneficial. For example, we could end up in a state where we have already bought 100 fruits, but spent more or less than 100 euros. In that case, we can call of the search.
+* Arc-consistency: Beneficial, better than forward checking. A big optimization here is that we can immediately constrain the domains of the prices to a single number.
+
+1.3 For chain.csp, 100 solutions exist. The domain of A is [0..99], and then every other value must be equal to A.

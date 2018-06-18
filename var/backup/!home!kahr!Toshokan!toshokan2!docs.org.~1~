@@ -1,0 +1,8 @@
+* Microservices
+** config
+*** Config(conf_name, password)
+**** Arguments:
+***** `conf_name`: Name of configuration to load
+***** `password`: Password to unlock said configuration
+**** Attributes:
+***** `config`: Dict of option names -> values

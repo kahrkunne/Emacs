@@ -1,0 +1,19 @@
+using System;
+using System.Net.Http;
+
+namespace Bencom.Models
+{
+    public class TwitterModel
+    {
+	private static readonly HTTPClient client = new HTTPClient();
+	public TwitterModel(string handle)
+	{
+	    var responseString = await client.GetStringAsync();
+	    
+	}
+
+	public string getMeme(){
+	    return "kek";
+	}
+    }
+}

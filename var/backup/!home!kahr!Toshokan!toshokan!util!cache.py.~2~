@@ -1,0 +1,61 @@
+import sys
+import os
+import logging
+from calendar import timegm
+from collections import defaultdict
+import datetime
+
+sys.path.append(os.path.dirname(os.getcwd()))
+
+from app import models
+
+default_attrs = defaultdict(list)
+default_attrs['anime'] = ['title', 'description', 'mal_id', 'synonyms', 'num_episodes',
+                          'kind', 'status', 'start_date', 'end_date', 'flags', 'source',
+                          'duration', 'rating', 'season', 'timeslot']
+default_attrs['manga'] = ['title', 'description', 'mal_id', 'synonyms', 'num_volumes',
+                          'num_chapters', 'kind', 'start_date', 'end_date', 'flags']
+default_attrs['person'] = ['name', 'description', 'mal_id', 'given_name', 'family_name',
+                           'birthday', 'alt_names', 'flags']
+default_attrs['character'] = ['name', 'description', 'mal_id']
+default_attrs['genre'] = ['name', 'description', 'mal_id']
+default_attrs['song'] = ['name', 'description']
+default_attrs['image'] = ['image_hash']
+
+def update_objs(cache, objs, attrs=None):
+    for obj in objs:
+        update_obj(cache, obj, attrs)
+
+def update_obj(cache, obj, attrs=None):
+    objname = obj.__class__.__name__.lower()
+    attrs = attrs if attrs else default_attrs[objname]
+
+    if not attrs:
+        logging.getLogger("Toshokan").warning('Tried to cache {} with uid {} but no attributes were provided'.format(objname, obj.uid))
+
+    id_string = objname + '.' + str(obj.uid) + '.'
+    for attr in attrs:
+        val = getattr(obj, attr)
+        if type(val) == datetime.date or type(val) == datetime.datetime:
+            val = timegm(val.timetuple())
+        cache[id_string + attr] = val
+
+
+def update_cache(cache, session):
+    animes = session.query(models.Anime)
+    mangas = session.query(models.Manga)
+    people = session.query(models.Person)
+    characters = session.query(models.Character)
+    genres = session.query(models.Genre)
+    songs = session.query(models.Song)
+    images = session.query(models.Image)
+
+    update_objs(cache, animes)
+    update_objs(cache, mangas)
+    update_objs(cache, people)
+    update_objs(cache, characters)
+    update_objs(cache, genres)
+    update_objs(cache, songs)
+    update_objs(cache, images)
+
+    cache['outOfDate'] = False

@@ -1,0 +1,9 @@
+public class Sword extends Equipable {
+    public Sword(String description){
+	super(description, 0);
+    }
+
+    public int getDamage(){
+	return 10 * ((1 - Math.pow(0.5, this.getEnchantment() - 1))/0.5);
+    }
+}

@@ -1,0 +1,13 @@
+from ..models import Anime
+from . import Page
+from .templates.topanime import topanime
+
+class TopAnime(Page):
+    template = topanime
+
+    @tornado.web.addslash
+    def get(self):
+        # TODO this might be too slow; maybe cache?
+        self.t.top_anime = [[x, self.db.query(Anime).filter_by(uid=x).first().name] for x in self.recengine.rec(users=['__nonexistant_user__'])]
+        self.write(self.render())
+        

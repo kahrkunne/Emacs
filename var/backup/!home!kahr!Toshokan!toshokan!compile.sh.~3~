@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+cd templates/
+rm ../app/pages/templates/*
+cheetah compile *
+mv *.py ../app/pages/templates/

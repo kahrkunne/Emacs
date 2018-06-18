@@ -1,0 +1,9 @@
+public class Room {
+    private String description;
+    public Room(String kek) {
+	description = kek;
+    }
+    public String getDescription(){
+	return this.description;
+    }
+}

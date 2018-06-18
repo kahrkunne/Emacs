@@ -1,0 +1,43 @@
+package graphEditor.controller.button;
+
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
+import java.util.Observable;
+import java.util.Observer;
+
+import graphEditor.controller.undoredo.DeleteNodeEdit;
+import graphEditor.model.GraphVertex;
+import graphEditor.view.GraphPanel;
+
+
+public class DeleteNodeAction extends AbstractAction implements Observer {
+    private GraphPanel panel;
+
+    public DeleteNodeAction(String name, GraphPanel panel) {
+        super(name);
+        this.panel = panel;
+        panel.getModel().addObserver(this);
+    }
+
+    private void fixEnabled() {
+        if (panel.getModel().getSelected() != null) {
+            setEnabled(true);
+        } else {
+            setEnabled(false);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        GraphVertex v = panel.getModel().getSelected();
+        if (v != null) {
+            panel.getModel().getUndoManager().addEdit(new DeleteNodeEdit(v, panel.getModel()));
+            panel.getModel().removeVertex(v);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        fixEnabled();
+    }
+}

@@ -1,0 +1,286 @@
+from collections import defaultdict
+from datetime import datetime
+from calendar import timegm
+import concurrent
+import pytz
+import asyncio
+
+import tornado
+from tornado.web import HTTPError
+from tornado import gen
+
+from ..models import Anime, Link, Person, Character, Company, Song, Manga, Genre, Image, User
+from . import Page
+from .templates.anime_page import anime_page
+from .templates.top_anime_page import top_anime_page
+
+import tornado.gen
+import tornado.concurrent
+
+executor = concurrent.futures.ThreadPoolExecutor(8)
+
+class AnimePage(Page):
+    template = anime_page
+
+    @tornado.web.addslash
+    @gen.coroutine
+    def get(self, uid, title):
+        # TODO test better
+        user = self.current_user['name']
+        if not user:
+            user = '__nonexistent_user__'
+
+        if self.is_api_get():
+            get_links = self.get_argument('get_links', default="false") == "true"
+
+            if uid:
+                anime_ids = [uid]
+                animes = yield self.async_db_get('tshk_anime', uid, '*', fetch='one')
+            else:
+                anime_ids = self.get_argument('anime_ids', default=None)
+                if not anime_ids:
+                    raise HTTPError(400)
+                else:
+                    anime_ids = anime_ids.split('?')[0].split(',')
+
+                animes = yield self.async_db_get('tshk_anime', anime_ids, '*')
+
+            objs = defaultdict(lambda: defaultdict(list))
+
+            for anime in animes:
+                data = objs[anime[13]]
+                data['uid'] = anime[13]
+                data['title'] = anime[14]
+                data['type'] = anime[3]
+                data['status'] = anime[4]
+                data['num_episodes'] = anime[2]
+                data['season'] = anime[11]
+                data['description'] = anime[15]
+                data['start_date'] = timegm(anime[5].timetuple()) if anime[5] else 0
+                data['end_date'] = timegm(anime[6].timetuple()) if anime[6] else 0
+                data['flags'] = anime[7]
+                data['source'] = anime[8]
+                data['duration'] = anime[9]
+                data['rating'] = anime[10]
+                data['timeslot'] = anime[12]
+                data['synonyms'] = anime[1]
+
+            if get_links:
+                c = yield self.async_db.execute("SELECT * FROM tshk_link WHERE anime_id IN {};"
+                                                .format('(' + ', '.join(anime_ids) + ')'))
+                links = c.fetchall()
+
+                for l in links:
+                    data = objs[l[1]]
+                    if l[10] and l[7]:
+                        data['cast'].append({'person':{'id':l[10],
+                                                       'name':self.cache_get('person', l[10], 'name'),
+                                                       'description':l[12]},
+                                             'character':{'id':l[7],
+                                                          'name':self.cache_get('character', l[7], 'name'),
+                                                          'description':l[9]}})
+                    elif l[10]:
+                        data['other_people'].append({'person':{'id':l[10],
+                                                               'name':self.cache_get('person', l[10], 'name'),
+                                                               'description':l[12]}})
+                    elif l[7]:
+                        data['cast'].append({'character':{'id':l[7],
+                                                          'name':self.cache_get('person', l[7], 'name'),
+                                                          'description':l[9]}})
+
+                    elif l[22]:
+                        data['companies'].append({'company': {'id':l[22],
+                                                              'name':self.cache_get('person', l[22], 'name'),
+                                                              'description':l[24]}})
+                    elif l[19]:
+                        data['songs'].append({'song': {'id':l[19],
+                                                       'name':self.cache_get('person', l[19], 'name'),
+                                                       'description':l[21]}})
+                    elif l[16]:
+                        data['genres'].append({'genre':{'id':l[16],
+                                                        'name':self.cache_get('person', l[16], 'name')}})
+                    elif l[2]:
+                        data['related_anime'].append({'anime': {'description':l[3],
+                                                                'id':l[2],
+                                                                'title':self.cache_get('anime', l[2], 'name')}})
+                    elif l[4]:
+                        data['related_manga'].append({'manga': {'description': l[6],
+                                                                'id': l[4],
+                                                                'title':self.cache_get('manga', l[4], 'title')}})
+                    elif l[30]:
+                        data['images'].append({'image': {'filename': self.cache_get('image', l[30], 'image_hash'),
+                                                         'id':l[30]}})
+                        if l[32] == 'main':
+                            data['main_image'] = {'filename':self.cache_get('image', l[30], 'image_hash'),
+                                                  'id':l[30]}
+
+            self.finish({'data':[objs[x] for x in objs.keys()]})
+
+        elif self.is_web_get():
+            if not uid:
+                template = top_anime_page
+                self.setup_template(template)
+                self.t.top_anime = []
+                self.t.user_obj = self.db.query(User).filter_by(uid=self.t.user['id']).first()
+
+                anime_ids = self.recengine.rec(users=['__nonexistent_user__'], k=100)
+                links = self.db.query(Link).filter(Link.anime_id.in_(anime_ids), Link.image_desc == 'main').all()
+                for x in anime_ids:
+                    anime = self.db.query(Anime).filter_by(uid=x).first()
+                    for link in links:
+                        if link.anime_id == x and link.image_desc == 'main':
+                            # FIXME what if there is no main image?
+                            img = link.image.image_hash
+
+                            self.t.top_anime.append([anime, img])
+
+                self.write(self.render())
+            else:
+                anime = self.db.query(Anime).filter_by(uid=uid).first()
+                data = defaultdict(list)
+                data['rels'] = defaultdict(list)
+                data['images'] = []
+
+                for l in anime.links:
+                    if l.person_id and l.character_id:
+                        data['vas'].append((l.person, l.character, l.character_desc, l.person_desc))
+                    elif l.person_id:
+                        data['otherpeople'].append((l.person, l.anime_desc))
+                    elif l.company_id:
+                        data[l.company_desc.lower() + 's'].append(l.company)
+                    elif l.song_id:
+                        data['songs'].append((l.song, l.song_desc))
+                    elif l.genre_id:
+                        data['genres'].append(l.genre)
+                    elif l.anime_self_id:
+                        data['rels'][l.anime_desc].append(l.anime_self)
+                    elif l.manga_id:
+                        data['rels'][l.anime_desc].append(l.manga)
+                    elif l.image_id:
+                        data['images'].append(l.image)
+                        if l.image_desc == 'main':
+                            main_img = l.image
+
+                self.t.sakura_score = self.recengine.sakura_score(user, anime.uid)
+
+                self.t.main_img = main_img
+
+                self.t.anime = anime
+                self.t.data = data
+                self.write(self.render())
+                self.finish()
+
+        else:
+            raise HTTPError(406)
+
+    def put(self, uid, title):
+        # TODO untested
+        self.assert_api_compliant()
+        self.verify_user_name('__admin__')
+
+        try:
+            anime = self.db.query(Anime).filter_by(uid=uid).first()
+            data = self.get_json_argument()
+            new_anime = Anime(description=data['description'],
+                              mal_id=int(data['mal_id']) if data['mal_id'] else anime.mal_id if anime.mal_id else None,
+                              synonyms=data['synonyms'], # TODO process properly, once GET api changes
+                              num_episodes=int(data['num_episodes']),
+                              kind=data['type'],
+                              status=data['status'],
+                              start_date=datetime.fromtimestamp(int(data['start_date']), pytz.UTC),
+                              end_date=datetime.fromtimestamp(int(data['end_date']), pytz.UTC),
+                              flags=data['flags'],
+                              source=data['source'],
+                              duration=int(data['duration']),
+                              rating=data['rating'],
+                              season=data['season'],
+                              timeslot=data['timeslot'])
+            if uid:
+                new_anime.uid = uid
+
+            if anime:
+                for l in anime.links:
+                    self.db.delete(l)
+                    self.db.delete(anime)
+
+            self.db.add(new_anime)
+
+            # FIXME IMPORTANT this part might not always respect proper description guidelines,
+            # i.e. it might not set some descriptions which it should.
+            # In general, this should be standardized more!
+            for c in data['cast']:
+                # Specifically, anime_desc should be set to *something* here, but I don't know what.
+                if c['person']:
+                    self.db.add(Link(anime_id=uid,
+                                     person_id=c['person']['id'],
+                                     person_desc=c['person']['description'],
+                                     character_id=c['character']['id'],
+                                     character_desc=c['character']['description']))
+                else:
+                    self.db.add(Link(anime_id=uid,
+                                     character_id=c['character']['id'],
+                                     character_desc=c['character']['description']))
+
+            for p in data['other_people']:
+                self.db.add(Link(anime_id=uid,
+                                 person_id=p['person']['id'],
+                                 anime_desc=p['person']['description'],
+                                 person_desc=p['person']['description']))
+
+            for c in data['companies']:
+                self.db.add(Link(anime_id=uid,
+                                 company_id=c['company']['id'],
+                                 company_desc=c['company']['description'],
+                                 anime_desc=c['anime']['description']))
+
+            for s in data['songs']:
+                self.db.add(Link(anime_id=uid,
+                                 song_id=s['song']['id'],
+                                 song_desc=s['song']['description'],
+                                 anime_desc=s['song']['description']))
+
+            for g in data['genres']:
+                self.db.add(Link(anime_id=uid,
+                                 genre_id=g['genre']['id'],
+                                 genre_desc=g['genre']['description'],
+                                 anime_desc=g['genre']['description']))
+
+            for a in data['related_anime']:
+                self.db.add(Link(anime_id=uid,
+                                 anime_self_id=a['anime']['id'],
+                                 anime_desc=a['anime']['description'],
+                                 anime_self_desc=a['anime']['description']))
+
+            for m in data['related_manga']:
+                self.db.add(Link(anime_id=uid,
+                                 manga_id=m['manga']['id'],
+                                 anime_desc=m['manga']['description'],
+                                 manga_desc=m['manga']['description']))
+
+            for i in data['images']:
+                # TODO images might have descriptions other than just 'main' or None
+                desc = 'main' if i['image']['id'] == data['main_image']['id'] else None
+                self.db.add(Link(anime_id=uid,
+                                 image_id=i['image']['id'],
+                                 image_desc=desc,
+                                 anime_desc=desc))
+
+            self.db.commit()
+        except:
+            self.db.rollback()
+            raise HTTPError(400)
+
+    def delete(self, uid, title):
+        # TODO test
+        self.assert_user_name('__admin__')
+        try:
+            anime = self.db.query(Anime).filter_by(uid=uid).first()
+            assert anime
+            for l in anime.links:
+                self.db.delete(l)
+
+            self.db.delete(anime)
+            self.db.commit()
+        except:
+            self.db.rollback()
+            raise HTTPError(400)

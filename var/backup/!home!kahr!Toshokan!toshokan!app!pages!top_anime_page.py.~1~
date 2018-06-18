@@ -1,0 +1,24 @@
+import tornado
+
+from ..models import Anime, Link
+from . import Page
+from .templates.top_anime_page import top_anime_page
+
+class TopAnimePage(Page):
+    template = top_anime_page
+
+    @tornado.web.addslash
+    def get(self):
+        self.t.top_anime = []
+        anime_ids = self.recengine.rec(users=['__nonexistent_user__'], k=100)['anime_id']
+        links = self.db.query(Link).filter(Link.anime_id.in_(anime_ids), Link.image_desc == 'main').all()
+        for x in anime_ids:
+            anime = self.db.query(Anime).filter_by(uid=x).first()
+            for link in links:
+                if link.anime_id == x and link.image_desc == 'main':
+                    # FIXME what if there is no main image?
+                    img = link.image.image_hash
+
+            self.t.top_anime.append([x, anime.name, img])
+
+        self.write(self.render())

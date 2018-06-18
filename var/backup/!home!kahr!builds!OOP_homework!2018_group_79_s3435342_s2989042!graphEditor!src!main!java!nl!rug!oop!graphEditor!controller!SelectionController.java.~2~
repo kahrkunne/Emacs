@@ -1,0 +1,102 @@
+package nl.rug.oop.graphEditor.controller;
+
+import nl.rug.oop.graphEditor.model.GraphVertex;
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+public class SelectionController implements MouseListener, MouseMotionListener {
+    private GraphPanel panel;
+    private boolean pressed = false, selected = false;
+    private long start, end;
+    private GraphVertex currentVertex;
+
+    public SelectionController(GraphPanel panel) {
+        this.panel = panel;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        for (GraphVertex v : panel.getModel().getVertices()) {
+            if (e.getX() > v.getX() &&
+                    e.getX() < v.getX() + v.getHeight() &&
+                    e.getY() > v.getY() &&
+                    e.getY() < v.getY() + v.getWidth()) {
+                v.setSelected(!(v.isSelected()));
+		this.currentVertex = v;
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        pressed = true;
+        for (GraphVertex v : panel.getModel().getVertices()) {
+            if (e.getX() > v.getX() &&
+                    e.getX() < v.getX() + v.getHeight() &&
+                    e.getY() > v.getY() &&
+<<<<<<< HEAD
+                    e.getY() < v.getY() + v.getWidth()) {
+                v.setSelected(!(v.isSelected()));
+		this.currentVertex = v;
+=======
+                    e.getY() < v.getY() + v.getWidth() &&
+                    !selected) {
+                v.setSelected(true);
+                selected = true;
+            } else {
+                v.setSelected(false);
+>>>>>>> 34d63ba1489027ad40243819eaca3e828af6cf0e
+            }
+        }
+        start = System.currentTimeMillis();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        this.end = System.currentTimeMillis();
+        if (pressed && (start - end) > 500) {
+            for (GraphVertex v : panel.getModel().getVertices()) {
+                if (v == this.currentVertex) {
+                    v.setX(e.getX() - v.getHeight() / 2);
+                    v.setY(e.getY() - v.getWidth() / 2);
+<<<<<<< HEAD
+=======
+                    selected = false;
+                    v.setSelected(false);
+>>>>>>> 34d63ba1489027ad40243819eaca3e828af6cf0e
+                }
+            }
+            pressed = false;
+        }
+        selected = false;
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (pressed) {
+            for (GraphVertex v : panel.getModel().getVertices()) {
+                if (v == this.currentVertex) {
+                    v.setX(e.getX() - v.getHeight() / 2);
+                    v.setY(e.getY() - v.getWidth() / 2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+    }
+}

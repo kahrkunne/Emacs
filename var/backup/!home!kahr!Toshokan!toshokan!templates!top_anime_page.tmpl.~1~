@@ -1,0 +1,17 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#raw
+#end raw
+#end def
+
+#def main
+<div id="top-anime">
+    #for a in $topanime
+	$a[1] <br>
+    #end for
+</div>
+#end def

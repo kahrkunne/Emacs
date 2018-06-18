@@ -1,0 +1,48 @@
+#from .layout import layout
+#extends layout
+
+#def head
+#end def
+
+#def main
+<div class="row">
+    <div class="col-2">
+	<div class="settings-nav">
+	    <ul class="nav nav-pills flex-column">
+		<li class="nav-item">
+		    <a class="nav-link active" data-toggle="tab" role="tab" href="#general">General</a>
+		</li>
+		<li class="nav-item">
+		    <a class="nav-link" data-toggle="tab" role="tab" href="#animelist">Animelist</a>
+		</li>
+	    </ul>
+	</div>
+    </div>
+    <div class="col">
+	<div class="tab-content">
+	    <div class="tab-pane active" id="general" role="tabpanel">
+		profile picture
+		<input type="file" id="profile-picture">
+		<br>
+		<button type="button" class="btn btn-primary" id="import-profile-picture">Upload</button>
+
+	    </div>
+	    <div class="tab-pane" id="animelist" role="tabpanel">
+		<div class="form-group">
+		    <h4><b>Display settings</b></h4>
+		    <div><input id="animelist-private" type="checkbox"> Private</div>
+		    <b>Columns</b><br>
+		    <div><input id="animelist-display-progress" type="checkbox"> Progress</div>
+		    <div><input id="animelist-display-score" type="checkbox"> Score</div>
+		    <div><input id="animelist-display-type" type="checkbox"> Type</div>
+		    <div><input id="animelist-display-start-date" type="checkbox"> Start date</div>
+		    <div><input id="animelist-display-end-date" type="checkbox"> End date</div>
+		    <div><input id="animelist-display-num-rewatches" type="checkbox"> Number of rewatches</div>
+		    <br>
+		    <button type="button" class="btn btn-primary" id="settings-animelist-display-save-button">Save changes</button>
+		</div>
+	    </div>
+	</div>
+    </div>
+</div>
+#end def

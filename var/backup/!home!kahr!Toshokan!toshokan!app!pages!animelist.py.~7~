@@ -1,0 +1,219 @@
+from calendar import timegm
+import pytz
+from datetime import datetime
+
+from tornado.web import HTTPError
+
+from . import Page
+from ..models import User, Anime, AnimeEntry
+
+from .templates.animelist import animelist
+
+class AnimeList(Page):
+    template = animelist
+
+    def get(self, username, item):
+        user = self.db.query(User).filter_by(name=username.lower()).first()
+        if not user:
+            raise HTTPError(404)
+
+        accept = self.request.headers.get('Accept').split(',')
+
+        if self.API_MIME_TYPE_PUBLIC in accept:
+            if item:
+                item = int(item)
+                # Not necessary, only for speed!
+                alist = [x for x in user.animelist if x.anime_id == item]
+            else:
+                alist = user.animelist
+
+            self.set_header('Content-Type', self.API_MIME_TYPE_PUBLIC)
+            if user.animelist_private and not self.get_current_user()['id'] == str(user.uid):
+                raise HTTPError(401)
+
+            json_output = []
+            item_output = {}
+            for entry in alist:
+                if item:
+                    if entry.anime_id == item:
+                        item_output = {'score': entry.score,
+                                       'start_date': timegm(entry.start_date.timetuple())
+                                       if entry.start_date else 0,
+                                       'end_date': timegm(entry.end_date.timetuple())
+                                       if entry.end_date else 0,
+                                       'num_episodes': entry.num_episodes,
+                                       'num_rewatches': entry.num_rewatches,
+                                       'comments': entry.comments,
+                                       'status': entry.status,
+                                       'total_episodes': entry.anime.num_episodes,
+                                       'username': username,
+                                       'type': entry.anime.kind,
+                                       'name': entry.anime.name,
+                                       'anime_id': entry.anime.uid,
+                                       'last_updated':timegm(entry.last_updated.timetuple())
+                                       if entry.last_updated else 0}
+                else:
+                    json_output.append({'score': entry.score,
+                                        'start_date': timegm(entry.start_date.timetuple())
+                                        if entry.start_date else 0,
+                                        'end_date': timegm(entry.end_date.timetuple())
+                                        if entry.end_date else 0,
+                                        'num_episodes': entry.num_episodes,
+                                        'num_rewatches': entry.num_rewatches,
+                                        'comments': entry.comments,
+                                        'status': entry.status,
+                                        'total_episodes': entry.anime.num_episodes,
+                                        'username': username,
+                                        'type': entry.anime.kind,
+                                        'name': entry.anime.name,
+                                        'anime_id': entry.anime.uid,
+                                        'last_updated':timegm(entry.last_updated.timetuple())
+                                        if entry.last_updated else 0})
+
+            if item:
+                self.write({'data': item_output})
+            else:
+                self.write({'data': json_output})
+
+        elif 'text/html' in accept:
+            self.write(self.render())
+        else:
+            raise HTTPError(406)
+
+    def put(self, username, item):
+        content_type = self.request.headers.get('Content-type').split(',')
+        if self.API_MIME_TYPE_PUBLIC not in content_type:
+            raise HTTPError(406)
+        elif len(self.request.headers.get('Content-type').split(';')) > 1:
+            raise HTTPError(415)
+
+        try:
+            user = self.db.query(User).filter_by(name=username.lower()).first()
+        except:
+            raise HTTPError(404)
+
+        try:
+            assert username == self.get_current_user()['name']
+        except:
+            raise HTTPError(401)
+
+        try:
+            our_ids = [x[0] for x in self.db.query(AnimeEntry.anime_id).filter_by(user_id=user.uid).all()]
+            is_import = False
+
+            if item:
+                entries = [{'anime_id': int(item),
+                            'score': self.get_json_argument('score'),
+                            'start_date': self.get_json_argument('start_date'),
+                            'end_date': self.get_json_argument('end_date'),
+                            'num_rewatches': self.get_json_argument('num_rewatches'),
+                            'num_episodes': self.get_json_argument('num_episodes'),
+                            'status': self.get_json_argument('status'),
+                            'comments': self.get_json_argument('comments')}]
+            else:
+                entries = self.get_json_argument('entries')
+                is_import = self.get_json_argument('import', default=False)
+                succeeded = []
+                failed = []
+
+            for uentry in entries:
+                try:
+                    anime = self.db.query(Anime).filter_by(uid=int(uentry['anime_id'])).first()
+                    score = round(float(uentry['score']), 2)
+                    start_date = datetime.fromtimestamp(int(uentry['start_date']), pytz.UTC)
+                    end_date = datetime.fromtimestamp(int(uentry['end_date']), pytz.UTC)
+                    num_rewatches = int(uentry['num_rewatches'])
+                    num_episodes = int(uentry['num_episodes'])
+                    status = int(uentry['status'])
+                    comments = uentry['comments']
+
+                    if timegm(start_date.timetuple()) == 0:
+                        start_date = None
+
+                    if timegm(end_date.timetuple()) == 0:
+                        end_date = None
+
+                    entry = AnimeEntry(user_id=user.uid,
+                                       anime=anime,
+                                       score=score,
+                                       start_date=start_date,
+                                       end_date=end_date,
+                                       num_episodes=num_episodes,
+                                       num_rewatches=num_rewatches,
+                                       comments=comments,
+                                       status=status,
+                                       verify='lenient' if is_import else 'strict')
+
+                    if anime.uid in our_ids:
+                        # Do not replace on import
+                        if is_import:
+                            continue
+                        old_entry = self.db.query(AnimeEntry).filter_by(anime_id=anime.uid).first()
+                        entry.uid = old_entry.uid
+                        self.db.delete(old_entry)
+
+                    entry.last_updated = datetime.utcnow()
+
+                    self.db.add(entry)
+
+                    if is_import:
+                        succeeded.append(uentry['anime_id'])
+                except Exception as e:
+                    # Some incorrect entries are allowed on imports
+                    if is_import:
+                        failed.append(uentry['anime_id'])
+                        continue
+                    else:
+                        self.db.rollback()
+                        raise HTTPError(400)
+
+            # This is outside the for loop
+            self.db.commit()
+            if item:
+                self.write({'data':{'user_id': user.uid,
+                                    'anime_id': anime.uid,
+                                    'score': score,
+                                    'start_date': timegm(start_date.timetuple()) if start_date else 0,
+                                    'end_date': timegm(end_date.timetuple()) if end_date else 0,
+                                    'num_episodes': num_episodes,
+                                    'num_rewatches': num_rewatches,
+                                    'comments': comments,
+                                    'status': status,
+                                    'last_updated': timegm(entry.last_updated.timetuple()) if entry.last_updated else 0}})
+            elif is_import:
+                self.write({'data':{'succeeded': succeeded, 'failed':failed}})
+
+        except Exception as e:
+            raise HTTPError(400)
+
+    def delete(self, username, item):
+        content_type = self.request.headers.get('Content-type').split(',')
+        if self.API_MIME_TYPE_PUBLIC not in content_type:
+            raise HTTPError(406)
+        elif len(self.request.headers.get('Content-type').split(';')) > 1:
+            raise HTTPError(415)
+
+        try:
+            user = self.db.query(User).filter_by(name=username.lower()).first()
+            if item:
+                entries = [self.db.query(AnimeEntry).filter_by(anime_id=int(item), user_id=user.uid).first()]
+                assert entries[0]
+        except:
+            raise HTTPError(404)
+
+        try:
+            assert username == self.get_current_user()['name']
+        except:
+            raise HTTPError(401)
+
+        try:
+            if not item:
+                entries = self.db.query(AnimeEntry).filter_by(user_id=user.uid)
+
+            for entry in entries:
+                self.db.delete(entry)
+
+            self.db.commit()
+        except:
+            # FIXME this code will probably never be reached
+            raise HTTPError(400)

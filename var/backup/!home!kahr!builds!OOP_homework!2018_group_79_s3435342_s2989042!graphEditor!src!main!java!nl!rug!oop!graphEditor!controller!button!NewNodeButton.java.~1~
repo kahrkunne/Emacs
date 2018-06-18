@@ -1,0 +1,19 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import javax.swing.JButton;
+import javax.swing.AbstractButton;
+import java.awt.event.KeyEvent;
+
+public class NewNodeButton extends JButton {
+    private void setButtonProperties() {
+        setVerticalTextPosition(AbstractButton.CENTER);
+        setHorizontalTextPosition(AbstractButton.CENTER);
+        setMnemonic(KeyEvent.VK_N);
+        setToolTipText("new node");
+    }
+
+    public NewNodeButton() {
+        super(new NewNodeAction());
+        setButtonProperties();
+    }
+}

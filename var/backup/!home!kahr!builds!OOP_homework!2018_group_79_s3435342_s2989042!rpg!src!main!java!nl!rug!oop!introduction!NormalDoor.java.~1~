@@ -1,0 +1,5 @@
+public class NormalDoor extends Door {
+    public NormalDoor(String descriptiion, Room r){
+	super(description, r);
+    }
+}

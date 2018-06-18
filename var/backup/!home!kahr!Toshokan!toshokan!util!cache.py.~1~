@@ -1,0 +1,3 @@
+from ..app import models
+def update_cache(cache, session):
+    pass

@@ -1,0 +1,15 @@
+public class GraphEdge {
+    private ArrayList<GraphVertex> vertices;
+
+    public GraphEdge(ArrayList<GraphVertex> vertices){
+	this.vertices = vertices;
+    }
+
+    public void setVertices(arrayList<GraphVertex> vertices){
+	this.vertices = vertices;
+    }
+
+    public ArrayList<GraphVertex> getVertices(){
+	return this.vertices;
+    }
+}

@@ -1,0 +1,32 @@
+len([],0).
+len([H|T],N) :- len(T,N1), N is N1+1.
+
+member([H|T], N) :- H is N.
+member([H|T], N) :- member(T, N).
+
+concat([], L, L).
+concat([H|XT], Y, [H|LT]) :- concat(XT,Y,LT).
+
+reverse([],[]).
+reverse([H|T], R) :- reverse(T, A), concat(A, [H], R).
+
+palindrome(L) :- reverse(L, L).
+
+path(A,B) :- connected(B,A).
+path(A,B) :- connected(A,B).
+path(X,Z) :- connected(X,Y), connected(Y,Z).
+connected(B,A) :- connected(A,B).
+connected(a,b).
+connected(b,f).
+connected(f,e).
+connected(f,j).
+connected(j,k).
+connected(k,g).
+connected(g,c).
+connected(c,d).
+connected(d,h).
+connected(h,l).
+connected(l,p).
+connected(o,n).
+connected(n,m).
+connected(m,i).

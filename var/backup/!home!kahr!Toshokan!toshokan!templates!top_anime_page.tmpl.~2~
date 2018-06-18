@@ -1,0 +1,27 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#raw
+#end raw
+#end def
+
+#def main
+<div id="top-anime">
+    Don't take this page too seriously, the results aren't that important. It's just a demo page. <br>
+    #for a in $top_anime
+	<div class="row mt-2">
+	    <div class="col-1 pr-1">
+		<img class="img-responsive" style="width:100%;" src="/static/img/$a[1]">
+	    </div>
+	    <div style="width:100%;" class="col justify-content-right align-self-center feed-text">
+		<a href="/anime/$a[0].uid">$a[0].name</a><br>
+		$a[0].season<br>
+		$a[0].status<br>
+	    </div>
+	</div>
+    #end for
+</div>
+#end def

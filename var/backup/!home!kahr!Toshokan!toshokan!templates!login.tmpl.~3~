@@ -1,0 +1,30 @@
+#import json
+
+#from .layout import layout
+#extends layout
+#def main
+
+#if not $varExists('email')
+    #set email = ""
+#end if
+#if not $varExists('errors')
+    #set errors = ""
+#end if
+
+<h2 class="registerform">Login</h2>
+<form method="post">
+    <ul class="userform">
+        <li class="userform">
+            <input class="userform" name="email" type="email" maxlength="128" required value="$email">
+            <label class="userform" for="email">Email</label>
+        </li>
+        <li class="userform">
+            <input class="userform" name="password" type="password" required pattern="[\s\S]{4,64}" maxlength="64">
+            <label class="userform" value="password" for="password">Password</label>
+        </li>
+    </ul>
+    <h6 class="error" style="text-align:center;">$errors</h6>
+    <input class="button" type="submit" value="Login">
+</form>
+
+#end def

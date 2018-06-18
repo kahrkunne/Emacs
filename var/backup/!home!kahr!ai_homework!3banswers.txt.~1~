@@ -1,0 +1,23 @@
+3. a.
+grandfather(X, lot).
+The answer is Terach
+
+b.
+grandfather(terach, X).
+The answers are Isaac, Milcah, Yiscah and Lot.
+
+4. a.
+plus(s(s(s(0))), s(s(0)), s(s(s(s(s(0)))))).
+true.
+
+b.
+plus(s(s(s(0))), s(s(0)), s(s(s(s(s(s(0))))))).
+false.
+
+c.
+even(0).
+even(s(s(X))) :- even(X).
+
+odd(1).
+odd(s(s(X))) :- odd(X).
+

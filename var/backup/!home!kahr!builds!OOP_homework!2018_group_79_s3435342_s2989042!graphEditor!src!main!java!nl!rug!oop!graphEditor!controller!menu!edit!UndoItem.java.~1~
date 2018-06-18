@@ -1,0 +1,17 @@
+package nl.rug.oop.graphEditor.controller.menu.edit;
+
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+
+public class UndoItem extends JMenuItem {
+    private void setItemProperties() {
+        setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
+    }
+
+    public UndoItem() {
+        super(new UndoAction("Undo"));
+        setItemProperties();
+    }
+}

@@ -1,0 +1,66 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#raw
+<script id="animelist-section-template" type="x-tmpl-mustache" language="text" type="text/html">
+    {{#title}}<b>{{title}}</b>{{/title}}
+    <table class="table table-sm borderless animelist-table p-0">
+	<thead>
+	    <th class=""><a href="javascript:;" class="sort-title">Title</a></th>
+	    {{#animelist_display_progress}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-progress">Progress</a></th>
+	    {{/animelist_display_progress}}
+	    {{#animelist_display_score}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-score">Score</a></th>
+	    {{/animelist_display_score}}
+	    {{#animelist_display_type}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-type">Type</a></th>
+	    {{/animelist_display_type}}
+	    {{#animelist_display_start_date}}
+	    <th class="text-center" style="width:6em"><a href="javascript:;" class="sort-start-date">Start date</a></th>
+	    {{/animelist_display_start_date}}
+	    {{#animelist_display_end_date}}
+	    <th class="text-center" style="width:6em"><a href="javascript:;" class="sort-end-date">End date</a></th>
+	    {{/animelist_display_end_date}}
+	    {{#animelist_display_num_rewatches}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-num-rewatches">Rewatches</a></th>
+	    {{/animelist_display_num_rewatches}}
+	</thead>
+	<tbody>
+	    {{#alist}}
+	    <tr class="entry-{{anime_id}}">
+		<td>
+		    <!-- TODO proper styling for this -->
+		    <a href="/anime/{{anime_id}}" style="color:rgb(33,37,41);">{{title}}</a>
+		    {{#edit}}<span class="animelist-edit-button"><a href="javascript:;" class="edit-{{anime_id}}">Edit</a></div>{{/edit}}
+		</td>
+		{{#animelist_display_progress}}
+		<td class="text-center">{{num_episodes}}/{{total_episodes}}<a href="javascript:;" {{#plus}}{{#edit}}class="plus1-{{anime_id}}">+{{/edit}}{{/plus}}</a></td>{{/animelist_display_progress}}
+		{{#animelist_display_score}}<td class="text-center">{{#score}}{{score}}{{/score}}</td>{{/animelist_display_score}}
+		{{#animelist_display_type}}<td class="text-center">{{type}}</td>{{/animelist_display_type}}
+		{{#animelist_display_start_date}}<td class="text-center">{{readable_start_date}}</td>{{/animelist_display_start_date}}
+		{{#animelist_display_end_date}}<td class="text-center">{{readable_end_date}}</td>{{/animelist_display_end_date}}
+		{{#animelist_display_num_rewatches}}<td class="text-center">{{num_rewatches}}</td>{{/animelist_display_num_rewatches}}
+	    </tr>
+	    {{/alist}}
+	</tbody>
+    </table>
+</script>
+#end raw
+#end def
+
+#def main
+
+<div>
+    <input name="animelist-search" id="animelist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+	
+</div>
+
+<div id="animelist">
+
+</div>
+
+#end def

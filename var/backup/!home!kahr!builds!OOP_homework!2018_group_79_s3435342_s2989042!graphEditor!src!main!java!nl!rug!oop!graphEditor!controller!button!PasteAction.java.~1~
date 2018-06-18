@@ -1,0 +1,49 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import nl.rug.oop.graphEditor.model.GraphVertex;
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import java.awt.event.ActionEvent;
+import java.util.Observable;
+import java.util.Observer;
+
+public class PasteAction extends AbstractAction implements Observer {
+    private GraphPanel panel;
+
+    public PasteAction(String name, GraphPanel panel) {
+        super(name);
+        this.panel = panel;
+        setEnabled(false);
+        panel.getModel().addObserver(this);
+    }
+
+    public PasteAction(String name, Icon img, GraphPanel panel) {
+        super(name, img);
+        this.panel = panel;
+        setEnabled(false);
+        panel.getModel().addObserver(this);
+    }
+
+    private void fixEnabled() {
+        if (panel.getCopyPasteBuffer().paste() != null) {
+            setEnabled(true);
+        } else {
+            setEnabled(false);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        GraphVertex toBePasted = panel.getCopyPasteBuffer().paste();
+        if (toBePasted != null) {
+            panel.getModel().addVertex(toBePasted);
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        fixEnabled();
+    }
+}

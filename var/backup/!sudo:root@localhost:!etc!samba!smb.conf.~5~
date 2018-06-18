@@ -1,0 +1,25 @@
+[global]
+	workgroup = workgroup
+	server string = Server van Kahr
+	server role = standalone server
+	hosts allow = ALL
+	log file = /usr/local/samba/var/log.%m
+	max log size = 50
+	dns proxy = no
+	security = user
+;	encrypt passwords = yes
+	guest ok = yes
+;	guest account = nobody
+
+[kahr]
+	path = /home/kahr
+;	writable = no
+;	browseable = yes
+	valid users = kahr
+
+[test]
+	comment = eafefawef
+	path = /root/test
+	read only = no
+;	browseable = yes
+	guest ok = yes

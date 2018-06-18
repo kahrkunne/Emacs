@@ -1,0 +1,146 @@
+#!/usr/bin/python3.6
+import sys
+import os
+import secrets
+import logging
+import atexit
+
+from redis import Redis
+from pottery import RedisDict
+import momoko
+import turicreate as tc
+import tornado.ioloop
+import tornado.web
+import tornado.options
+from tornado.web import url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import app.pages as pages
+from app.conf import load_conf, save_conf
+from app.recengine import RecEngine
+from app.models import User, Anime, AnimeEntry
+import util
+
+from constants import (API_MIME_TYPE_PUBLIC, API_MIME_TYPE_ADMIN)
+
+# TODO proper settings
+new_model = False
+
+atexit.register(lambda: logging.getLogger("Toshokan").info('Shutting down!'))
+
+def make_app(session, conf, async_session):
+    explicit_data = {'user':[], 'anime_id':[], 'score':[]}
+    implicit_data = {'user':[], 'anime_id':[], 'score':[]}
+    if new_model:
+        users = session.query(User)
+        for user in users:
+            alist = user.animelist
+            for entry in alist:
+                implicit_data['user'].append(user.name)
+                implicit_data['anime_id'].append(entry.anime.uid)
+                implicit_data['score'].append(1.0)
+                if entry.score > 0:
+                    explicit_data['user'].append(user.name)
+                    explicit_data['anime_id'].append(entry.anime.uid)
+                    explicit_data['score'].append(entry.score)
+
+    explicit_data = tc.SFrame(explicit_data)
+    implicit_data = tc.SFrame(implicit_data)
+
+    recengine = RecEngine(session,
+                          explicit_data=explicit_data,
+                          implicit_data=implicit_data,
+                          new_model=new_model)
+    app_config = {'db': session, 'async_db': async_session, 'conf':conf, 'recengine':recengine,
+                  'API_MIME_TYPE_PUBLIC':API_MIME_TYPE_PUBLIC, 'API_MIME_TYPE_ADMIN':API_MIME_TYPE_ADMIN,
+                  'cache_obj':util.update_obj, 'cache_objs':util.update_objs,}
+    return tornado.web.Application(
+        [
+            url(r"/logout/?", pages.Logout, {**app_config, **{'name':'logout'}}, name="logout"),
+            url(r"/?", pages.Home, {**app_config, **{'name':'home'}}, name="home"),
+            url(r"/animelist/([\w-]+)/?(\d+)?/?", pages.AnimeList, {**app_config, **{'name':'animelist'}}, name="animelist"),
+            url(r"/mangalist/([\w-]+)/?(\d+)?/?", pages.MangaList, {**app_config, **{'name':'mangalist'}}, name="mangalist"),
+            url(r"/anime/?(\d+)?/?(.*)?", pages.AnimePage, {**app_config, **{'name':'anime'}}, name="anime"),
+            url(r"/manga/?(\d+)?/?(.*)?", pages.MangaPage, {**app_config, **{'name':'manga'}}, name="manga"),
+            url(r"/person/(\d+)/?(.*)", pages.PersonPage, {**app_config, **{'name':'person'}}, name="person"),
+            url(r"/character/(\d+)/?(.*)", pages.CharacterPage, {**app_config, **{'name':'character'}}, name="character"),
+            url(r"/search/?", pages.Search, {**app_config, **{'name':'search'}}, name="search"),
+            url(r"/login/?", pages.Login, {**app_config, **{'name':'login'}}, name="login"),
+            url(r"/register/?", pages.Register, {**app_config, **{'name':'register'}}, name="register"),
+            url(r"/user/([\w-]+)/settings/?([\w-]+)?/?", pages.Settings, {**app_config, **{'name':'settings'}}, name="settings"),
+            url(r"/user/([\w-]+)/dashboard/?", pages.Dashboard, {**app_config, **{'name':'dashboard'}}, name="dashboard"),
+            url(r"/user/([\w-]+)/import/?", pages.AnimelistImport, {**app_config, **{'name':'import'}}, name="import"),
+            url(r"/recommendations/([\w-]+)/?(\d+)?/?", pages.Recommendations, {**app_config, **{'name':'recommendations'}}, name="recommendations"),
+        ],
+        static_path=os.path.join(os.path.dirname(__file__), "res"),
+        debug=conf['debug'],
+        autoreload=False,
+        cookie_secret=conf["secret"],
+        login_url="/login")
+
+if __name__ == "__main__":
+    conf = load_conf(sys.argv[1])
+    if not conf.get("secret"):
+        conf["secret"] = secrets.token_hex(128)
+        save_conf(sys.argv[1], conf)
+
+    sys.argv[1] = None
+
+    engine = create_engine('postgresql://%s:%s@%s:%s/%s' %
+                           (conf['db']['user'], conf['db']['pw'], conf['db']['address'],
+                            conf['db']['port'], conf['db']['database']), echo=False)
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    conf['cache'] = RedisDict(redis=Redis.from_url('http://localhost:6379/'), key='toshokan')
+
+    if 'outOfDate' not in conf['cache'] or conf['cache']['outOfDate']:
+        util.update_cache(conf['cache'], session)
+
+    ioloop = tornado.ioloop.IOLoop.current()
+
+    async_session = momoko.Pool(
+        dsn='dbname={} user={} host={} port={} password={}'.format(conf['db']['database'],
+                                                                   conf['db']['user'],
+                                                                   conf['db']['address'],
+                                                                   conf['db']['port'],
+                                                                   conf['db']['pw']),
+        size=1,
+        ioloop=ioloop,
+    )
+
+    future = async_session.connect()
+    ioloop.add_future(future, lambda f: ioloop.stop())
+    ioloop.start()
+
+    for i in conf['ports']:
+        logger = logging.getLogger("Toshokan")
+        conf['logger'] = logger
+
+        formatter = logging.Formatter('%(asctime)s - [' + str(conf['ports'].index(i)) + '] %(name)s - %(levelname)s - %(message)s')
+
+        logger.setLevel(logging.DEBUG)
+
+        debug_fh = logging.FileHandler('debug.log')
+        debug_fh.setLevel(logging.DEBUG)
+        debug_fh.setFormatter(formatter)
+
+        info_fh = logging.FileHandler('log.log')
+        info_fh.setLevel(logging.INFO)
+        info_fh.setFormatter(formatter)
+
+        logger.addHandler(debug_fh)
+        logger.addHandler(info_fh)
+
+        for l in ['tornado.application', 'tornado.access', 'tornado.general']:
+            logger = logging.getLogger(l)
+            logger.addHandler(debug_fh)
+            logger.addHandler(info_fh)
+
+        conf['logger'].info('Starting up!')
+        app = make_app(session, conf, async_session)
+        app.listen(i)
+
+    ioloop.start()

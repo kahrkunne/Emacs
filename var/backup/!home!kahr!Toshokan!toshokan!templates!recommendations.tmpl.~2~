@@ -1,0 +1,13 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#raw
+#end raw
+#end def
+
+#def main
+<div id="recommendations"></div>
+#end def

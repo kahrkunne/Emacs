@@ -1,0 +1,41 @@
+import tornado
+
+from ..models import Link, Person, Character, Anime
+from . import Page
+from .templates.person_page import person_page
+
+class PersonPage(Page):
+
+    template = person_page
+
+    @tornado.web.addslash
+    def get(self, uid, title):
+        person = self.db.query(Person).filter_by(uid=uid).first()
+        links = self.db.query(Link).filter_by(person_id=uid).all()
+        varoles = []
+        otherpeople = []
+
+        for l in links:
+            if l.character_id:
+                varoles.append((self.db.query(Anime).filter_by(uid=l.anime_id).first(),
+                                self.db.query(Character).filter_by(uid=l.character_id).first()))
+            else:
+                otherpeople.append((self.db.query(Anime).filter_by(uid=l.anime_id).first(),
+                                    l.person_desc))
+        vacls = ''
+        pcls = ''
+
+        if varoles:
+            vacls = 'active'
+        else:
+            pcls = 'active'
+
+        if person:
+            self.t.vacls = vacls
+            self.t.pcls = pcls
+            self.t.person = person
+            self.t.varoles = varoles
+            self.t.otherpeople = otherpeople
+            self.write(self.render())
+        else:
+            self.write('Not Found.')

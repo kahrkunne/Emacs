@@ -1,0 +1,15 @@
+public class Shopkeeper extends Person {
+    /**
+     * Shopkeeper
+     * A shopkeeper
+     * @author: Kahr Kunne, Gijs Erens
+     */
+
+    public Shopkeeper(String description, Room r, ArrayList<Item> items){
+	super(description, r, items);
+    }
+
+    public void interact(Player p){
+	Item item = self.removeItem(0);
+    }
+}

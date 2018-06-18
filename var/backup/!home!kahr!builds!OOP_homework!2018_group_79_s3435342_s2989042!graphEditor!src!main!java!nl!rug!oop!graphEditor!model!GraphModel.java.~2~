@@ -1,0 +1,137 @@
+package nl.rug.oop.graphEditor.model;
+
+import javax.swing.undo.UndoManager;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+
+public class GraphModel extends Observable implements Observer {
+    private ArrayList<GraphVertex> vertices;
+    private ArrayList<GraphEdge> edges;
+    private UndoManager undoManager;
+
+    public GraphModel() {
+        this.vertices = new ArrayList<>();
+        this.edges = new ArrayList<>();
+    }
+
+    public GraphModel(String filename) {
+        load(filename);
+    }
+
+    public ArrayList<GraphVertex> getVertices() {
+        return vertices;
+    }
+
+    public ArrayList<GraphEdge> getEdges() {
+        return edges;
+    }
+
+    public void addVertex(GraphVertex v) {
+        this.vertices.add(v);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void addEdge(GraphEdge e) {
+        this.edges.add(e);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void removeVertex(GraphVertex v) {
+        this.vertices.remove(v);
+        for (GraphEdge e : this.edges) {
+            if (e.getVertices().contains(v)) {
+                removeEdge(e);
+            }
+        }
+    }
+
+    public void removeEdge(GraphEdge e) {
+        this.edges.remove(e);
+        setChanged();
+        notifyObservers();
+    }
+
+    /* This will be needed later for EXPORT
+    public void printVertices() {
+        for(GraphVertex v : this.vertices) {
+            System.out.println(String.format("%d %d %d %d %s", v.getX(), v.getY(), v.getHeight(), v.getWidth(), v.getName()));
+        }
+    }
+
+    public void printEdges() {
+
+    }*/
+
+    public void save(String filename) {
+        ArrayList<String> lines = new ArrayList<>();
+        lines.add(String.format("%d %d", this.vertices.size(), this.edges.size()));
+
+        for (GraphVertex v : this.vertices) {
+            lines.add(String.format("%d %d %d %s %s", v.getX(), v.getY(), v.getHeight(), v.getWidth(), v.getName()));
+        }
+
+        for (GraphEdge e : this.edges) {
+            ArrayList<GraphVertex> vertices = e.getVertices();
+            lines.add(String.format("%d %d", this.vertices.indexOf(vertices.get(0)), this.vertices.indexOf(vertices.get(1))));
+        }
+
+        Path file = Paths.get(filename);
+        try {
+            Files.write(file, lines, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            System.err.println("An unexpected error occurred!");
+            e.printStackTrace();
+        }
+    }
+
+    public void load(String filename) {
+        this.vertices = new ArrayList<>();
+        this.edges = new ArrayList<>();
+
+        try {
+            FileReader reader = new FileReader(filename);
+            BufferedReader buffReader = new BufferedReader(reader);
+            String line = buffReader.readLine();
+            String[] tokens = line.split(" ");
+            int numVertices = Integer.parseInt(tokens[0]);
+            int numEdges = Integer.parseInt(tokens[1]);
+
+            for (int i = 0; i < numVertices; i++) {
+                String localLine = buffReader.readLine();
+                String[] localTokens = localLine.split(" ");
+                addVertex(new GraphVertex(this, Integer.parseInt(localTokens[0]),
+                        Integer.parseInt(localTokens[1]),
+                        Integer.parseInt(localTokens[2]),
+                        Integer.parseInt(localTokens[3]),
+                        localTokens[4]));
+            }
+
+            for (int i = 0; i < numEdges; i++) {
+                String localLine = buffReader.readLine();
+                String[] localTokens = localLine.split(" ");
+                GraphVertex vertice1 = vertices.get(Integer.parseInt(localTokens[0]));
+                GraphVertex vertice2 = vertices.get(Integer.parseInt(localTokens[1]));
+                addEdge(new GraphEdge(this, vertice1, vertice2));
+            }
+        } catch (IOException e) {
+            System.err.println("An unexpected error occurred!");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(Observable observed, Object message) {
+        setChanged();
+        notifyObservers();
+    }
+}

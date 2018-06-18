@@ -1,0 +1,2241 @@
+$(document).ready(function() {
+    animelist = {}
+    mangalist = {}
+    /* TODO 
+     * Right now the user is being injected into the page
+     * Is this right? If so, maybe other things should be injected too
+     * Otherwise we should get the user from some API
+     */
+    datepickerSettings = {
+	format: 'dd/mm/yyyy',
+	autoclose: true,
+	disableTouchKeyboard: true,
+	endDate: new Date()
+    };
+
+    $(document).on('keyup', '#qbox', function(){
+	timer && clearTimeout(timer);
+	timer = setTimeout(search, 50);
+    });
+    $(document).on('click', '#qbox', function(){
+	timer && clearTimeout(timer);
+	timer = setTimeout(search, 10);
+    });
+
+
+    // Parse the URL
+    url_parts = []
+    tmp_parts = window.location.href.split('/')
+    for (var part in tmp_parts){
+	url_parts.push(tmp_parts[part].split('?')[0].replace('#',''));
+    }
+
+    $("#navlogin").submit(navlogin);
+    $("#navlogout").submit(logout);
+
+    // FIXME this is ugly; code duplication
+    $('#login').submit(function(e){
+	e.preventDefault();
+	var loginInformation = $('#login').serializeArray()
+	login(JSON.stringify({'data':{'account':loginInformation[0]['value'],
+				      'password':loginInformation[1]['value']}}),
+	      function(out){
+		  user = out;
+		  location.reload(); // TODO redirect user, or something?
+	      }, function(){
+		  errorMessage('Failed to log in.')
+	      }); // TODO more detailed message
+    });
+
+    publicAPIVer = "application/vnd.toshokan.toshokan.public-v1+json";
+
+    // FIXME this shouldn't be used anymore
+    timeOffset = new Date().getTimezoneOffset()*60*1000;
+
+    setup();
+});
+
+function setup(){
+    // Parse the URL, and set global variables as required
+    var url_parts = []
+    var tmp_parts = window.location.href.split('/')
+    for (var part in tmp_parts){
+	url_parts.push(tmp_parts[part].split('?')[0].replace('#',''));
+    }
+
+    if(url_parts[3] == 'animelist'){
+	$('#animelist-edit-start-date').datepicker(datepickerSettings);
+	$('#animelist-edit-end-date').datepicker(datepickerSettings);
+	var timer;
+
+	$(document).on('keyup', '#animelist-search', function(){
+	    timer && clearTimeout(timer);
+	    timer = setTimeout(function(){
+		reverse = !reverse; //Compensate for reversing done by renderAnimeList
+		renderList('anime', currentSort, animelist);
+	    }, 200);
+	});
+
+	// For sorting of anime list
+	currentSort = null;
+	reverse = false;
+
+	// Settings for the owner of this anime list
+	var animelistName = url_parts[4].split('?')[0];
+	getSettings(animelistName, function(s){
+	    animelistSettings = s['data'];
+	});
+
+	getAnimeList(animelistName, function(al){
+	    animelist = processList(al);
+	}, function(error){
+	    animelist = {};
+	});
+
+	$(document).ajaxStop(function(){
+	    $(document).off('ajaxStop');
+	    setupAnimeListPage('title')
+	});
+
+    } else if(url_parts[3] == 'mangalist') {
+	$('#mangalist-edit-start-date').datepicker(datepickerSettings);
+	$('#mangalist-edit-end-date').datepicker(datepickerSettings);
+	var timer;
+	$(document).on('keyup', '#mangalist-search', function(){
+	    timer && clearTimeout(timer);
+	    timer = setTimeout(function(){
+		reverse = !reverse;
+		renderList('manga', currentSort, mangalist);
+	    }, 200);
+	});
+
+	currentSort = null;
+	reverse = false;
+
+	// Settings for the owner of this manga list
+	var mangalistName = url_parts[4].split('?')[0];
+	getSettings(mangalistName, function(s){
+	    mangalistSettings = s['data'];
+	});
+
+	getMangaList(mangalistName, function(ml){
+	    mangalist = processList(ml);
+	}, function(error){
+	    mangalist = {};
+	});
+
+	$(document).ajaxStop(function(){
+	    $(document).off('ajaxStop');
+	    setupMangaListPage('title')
+	});
+
+    } else if(url_parts[3] == 'user' && url_parts[5] == 'settings'){
+	getSettings(user['name'], function(s){
+	    settings = s['data']
+	    setupSettingsPage();
+	});
+
+    } else if(url_parts[3] == 'user' && url_parts[5] == 'dashboard'){
+	currentSort = 'progress';
+	reverse = false;
+	getSettings(user['name'], function(s){
+	    settings = s['data'];
+	});
+
+	getAnimeList(user['name'], function(al){
+	    animelist = processList(al);
+	});
+
+	getMangaList(user['name'], function(ml){
+	    mangalist = processList(ml);
+	});
+
+	$(document).ajaxStop(function(){
+	    $(document).off('ajaxStop');
+	    setupDashboardPage();
+	});
+
+
+    } else if(url_parts[3] == 'user' && url_parts[5] == 'import'){
+	setupImportPage();
+
+    } else if(url_parts[3] == 'recommendations'){
+	getSettings(user['name'], function(s){
+	    settings = s['data']
+
+	});
+
+	getRecommendations(user['name'], function(r){
+	    console.log(r['data'])
+	    explicit_recommendations = r['data']['explicit'];
+	    implicit_recommendations = r['data']['implicit'];
+	}, function(e){}, number=30);
+
+	$(document).ajaxStop(function(){
+	    $(document).off('ajaxStop');
+	    setupRecommendationsPage();
+	});
+	
+    } else if(url_parts[3] == 'anime' && url_parts[4]){
+	$('#animelist-edit-start-date').datepicker(datepickerSettings);
+	$('#animelist-edit-end-date').datepicker(datepickerSettings);
+	if(user['name'] == null){
+	    settings = {'error':'no_user'};
+	    thisEntry = {'error':'no_user'};
+	    setupAnimePage();
+	} else {
+	    getSettings(user['name'], function(s){
+		settings = s['data'];
+	    });
+
+	    getAnimeEntry(user['name'], url_parts[4], function(e){
+		thisEntry = e['data'];
+	    });
+
+	    $(document).ajaxStop(function(){
+		$(document).off('ajaxStop');
+		setupAnimePage();
+	    });
+	}
+	
+    } else if (url_parts[3] == 'manga' && url_parts[4]){
+	if(user['name'] == null){
+	    settings = {'error':'no_user'};
+	    thisEntry = {'error':'no_user'};
+	    setupMangaPage();
+	} else {
+	    getSettings(user['name'], function(s){
+		settings = s['data'];
+	    });
+
+	    getMangaEntry(user['name'], url_parts[4], function(e){
+		thisEntry = e['data'];
+	    });
+
+	    $(document).ajaxStop(function(){
+		$(document).off('ajaxStop');
+		setupMangaPage();
+	    });
+	}
+
+    } else {
+	finishSetup();
+    }
+}
+
+function setupAnimePage(){
+    if(thisEntry['error'] == 'no_user'){
+	$('#anime-page-controls').hide();
+	finishSetup();
+	return
+    }
+    $('#animelist-controls').empty();
+    if(thisEntry['status'] == undefined){
+	$('#animelist-controls').append('<button class="btn btn-primary" id="add-anime">Add Anime</button>')
+	$('#add-anime').click(function(){
+	    thisEntry = {
+		'anime_id':parseInt(url_parts[4]),
+		'status':0,
+		'comments':'',
+		'start_date':moment.utc().unix(),
+		'end_date':0,
+		'num_episodes':0,
+		'num_rewatches':0,
+		'score':0,
+		'username':user['name'],
+		'last_updated':Infinity // FIXME ugly
+	    };
+	    addAnimeEntry(thisEntry, function(e){
+		thisEntry['last_updated'] = e['data']['last_updated'];
+		thisEntry['total_episodes'] = e['data']['total_episodes'];
+		thisEntry['name'] = e['data']['name'];
+		setupAnimePage();
+	    });
+	});
+    } else {
+	var base = $('#animelist-controls-template').html();
+	Mustache.parse(base);
+	var section = Mustache.render(base, {});
+	$('#animelist-controls').append(section);
+
+	$('#animelist-control-status').val(statusToText[thisEntry['status']]);
+	$('#animelist-control-num-episodes').val(thisEntry['num_episodes']);
+	$('#animelist-control-score').val(thisEntry['score'] != 0.00 ? parseFloat(thisEntry['score']).toFixed(2) : '');
+	$('#anime-page-max-eps').empty();
+	$('#anime-page-max-eps').append('/ '+ (thisEntry['total_episodes'] ? thisEntry['total_episodes'] : '?'));
+
+	if(thisEntry['num_episodes'] != thisEntry['total_episodes']){
+	    $('#anime-page-plus1').removeClass('disabled');
+	    $('#anime-page-plus1').click(incrementAnimeEntry(thisEntry, function(entry){
+		thisEntry = entry;
+		setupAnimePage();
+	    }));
+	} else {
+	    $('#anime-page-plus1').addClass('disabled');
+	}
+
+	$('#animelist-control-save-button').click(function(){
+	    // TODO changing start date if status changes from "plan to watch" to "watching"
+	    // TODO changing end date if status changes to "completed"
+	    var newEntry = Object.assign({}, thisEntry);
+	    newEntry['status'] = textToStatus[$('#animelist-control-status').val()];
+	    newEntry['num_episodes'] = parseInt($('#animelist-control-num-episodes').val());
+	    newEntry['score'] = parseFloat($('#animelist-control-score').val() ? $('#animelist-control-score').val() : 0).toFixed(2);
+	    if(newEntry['score'] == '0.00'){
+		newEntry['score'] = 0;
+	    }
+
+	    if(newEntry['status'] == 1){
+		newEntry['num_episodes'] = newEntry['total_episodes'];
+	    } else if(newEntry['status'] == 0 && newEntry['num_episodes'] != 0){
+		newEntry['status'] = 2;
+	    } else if(newEntry['score'] != 0 && newEntry['status'] == 0){
+		newEntry['status'] = 1;
+	    }
+
+	    addAnimeEntry(newEntry, function(e){
+		newEntry['last_updated'] = e['data']['last_updated'];
+		thisEntry = newEntry;
+		setupAnimePage();
+		successMessage('Saved.');
+		return
+	    }, function(e){
+		if(e['error'] == 'last_updated'){
+		    thisEntry = e;
+		    thisEntry['error'] = undefined;
+		    errorMessage('Local data out of date.');
+		} else {
+		    errorMessage('Invalid data.');
+		}
+
+	    setupAnimePage();
+	    });
+	});
+
+	$('#animelist-control-edit-button').click(editAnimeEntry(thisEntry, function(entry){
+	    thisEntry = entry;
+	    setupAnimePage();
+	}));
+    }
+
+    finishSetup();
+}
+
+function setupMangaPage(){
+    if(thisEntry['error'] == 'no_user'){
+	$('#manga-page-controls').hide();
+	finishSetup();
+	return
+    }
+    $('#mangalist-controls').empty();
+    if(thisEntry['status'] == undefined){
+	$('#mangalist-controls').append('<button class="btn btn-primary" id="add-manga">Add Manga</button>')
+	$('#add-manga').click(function(){
+	    thisEntry = {
+		'manga_id':parseInt(url_parts[4]),
+		'status':0,
+		'comments':'',
+		'start_date':moment.utc().unix(),
+		'end_date':0,
+		'num_chapters':0,
+		'num_volumes': 0,
+		'num_rereads':0,
+		'score':0,
+		'username':user['name'],
+		'last_updated':Infinity // FIXME ugly
+	    };
+	    addMangaEntry(thisEntry, function(e){
+		thisEntry['last_updated'] = e['data']['last_updated'];
+		thisEntry['total_chapters'] = e['data']['total_chapters'];
+		thisEntry['total_volumes'] = e['data']['total_volumes'];
+		thisEntry['name'] = e['data']['name'];
+		setupMangaPage();
+	    });
+	});
+    } else {
+	var base = $('#mangalist-controls-template').html();
+	Mustache.parse(base);
+	var section = Mustache.render(base, {});
+	$('#mangalist-controls').append(section);
+
+	$('#mangalist-control-status').val(mangaStatusToText[thisEntry['status']]);
+	$('#mangalist-control-num-chapters').val(thisEntry['num_chapters']);
+	$('#mangalist-control-num-volumes').val(thisEntry['num_volumes']);
+	$('#mangalist-control-score').val(thisEntry['score'] != 0.00 ? parseFloat(thisEntry['score']).toFixed(2) : '');
+	$('#mangalist-page-max-chapters').empty();
+	$('#mangalist-page-max-volumes').empty();
+	$('#manga-page-max-chapters').append('/ '+ (thisEntry['total_chapters'] ? thisEntry['total_chapters'] : '?'));
+	$('#manga-page-max-volumes').append('/ '+ (thisEntry['total_volumes'] ? thisEntry['total_volumes'] : '?'));
+	
+	if(thisEntry['num_chapters'] != thisEntry['total_chapters']){
+	    $('#manga-page-plus1-c').removeClass('disabled');
+	    $('#manga-page-plus1-c').click(incrementMangaEntry(thisEntry, function(entry){
+		thisEntry = entry;
+		setupMangaPage();
+	    }, 'num_chapters'));
+	} else {
+	    $('#manga-page-plus1-c').addClass('disabled');
+	}
+
+	if(thisEntry['num_volumes'] != thisEntry['total_volumes']){
+	    $('#manga-page-plus1-v').removeClass('disabled');
+	    $('#manga-page-plus1-v').click(incrementMangaEntry(thisEntry, function(entry){
+		thisEntry = entry;
+		setupMangaPage();
+	    }, 'num_volumes'));
+	} else {
+	    $('#manga-page-plus1-v').addClass('disabled');
+	}
+
+
+	$('#mangalist-control-save-button').click(function(){
+	    // TODO changing start date if status changes from "plan to watch" to "watching"
+	    // TODO changing end date if status changes to "completed"
+	    var newEntry = Object.assign({}, thisEntry);
+	    newEntry['status'] = textToStatus[$('#mangalist-control-status').val()];
+	    newEntry['num_chapters'] = parseInt($('#mangalist-control-num-chapters').val());
+	    newEntry['num_volumes'] = parseInt($('#mangalist-control-num-volumes').val());
+	    newEntry['score'] = parseFloat($('#mangalist-control-score').val() ? $('#mangalist-control-score').val() : 0).toFixed(2);
+	    if(newEntry['score'] == '0.00'){
+		newEntry['score'] = 0;
+	    }
+
+	    if(newEntry['status'] == 1){
+		newEntry['num_chapters'] = newEntry['total_chapters'];
+		newEntry['num_volumes'] = newEntry['total_volumes'];
+	    } else if(newEntry['status'] == 0 && newEntry['num_episodes'] != 0){
+		newEntry['status'] = 2;
+	    } else if(newEntry['score'] != 0 && newEntry['status'] == 0){
+		newEntry['status'] = 1;
+	    }
+
+	    addMangaEntry(newEntry, function(e){
+		newEntry['last_updated'] = e['data']['last_updated'];
+		thisEntry = newEntry;
+		setupMangaPage();
+		successMessage('Saved.');
+		return
+	    }, function(e){
+		if(e['error'] == 'last_updated'){
+		    thisEntry = e;
+		    thisEntry['error'] = undefined;
+		    errorMessage('Local data out of date.');
+		} else {
+		    errorMessage('Invalid data.');
+		}
+
+	    setupMangaPage();
+	    });
+	});
+
+	$('#mangalist-control-edit-button').click(editMangaEntry(thisEntry, function(entry){
+	    thisEntry = entry;
+	    setupMangaPage();
+	}));
+    }
+
+    finishSetup();
+}
+
+function processList(l){
+    var list = {0:[],1:[],2:[],3:[],4:[]};
+    for (var item in l['data']){
+	list[l['data'][item]['status']].push(l['data'][item]);
+    }
+
+    for (var key1 in list){
+	for (var key2 in list[key1]){
+	    entry = list[key1][key2];
+	    var start_date = new Date(entry['start_date']*1000 - timeOffset);
+	    var end_date = new Date(entry['end_date']*1000 - timeOffset);
+	    list[key1][key2]['readable_start_date'] = format_date(start_date);
+	    list[key1][key2]['readable_end_date'] = format_date(end_date);
+
+	    list[key1][key2]['score'] = parseFloat(list[key1][key2]['score']).toFixed(2);
+	    if(list[key1][key2]['score'] == "0.00"){
+		list[key1][key2]['score'] = 0;
+	    }
+	}
+    }
+
+    list = Object.assign({}, list);
+
+    return list
+}
+
+
+function renderAnimeListSection(title, alist, cat, obj, settings){
+    if(alist.length == 0){
+	return;
+    }
+
+    var base = $('#animelist-section-template').html();
+    Mustache.parse(base);
+    var section = Mustache.render(base, {
+	title:title,
+	alist:alist,
+	animelist_display_progress:animelistSettings['animelist_display_progress'],
+	animelist_display_score:animelistSettings['animelist_display_score'],
+	animelist_display_type:animelistSettings['animelist_display_type'],
+	animelist_display_start_date:animelistSettings['animelist_display_start_date'],
+	animelist_display_end_date:animelistSettings['animelist_display_end_date'],
+	animelist_display_num_rewatches:animelistSettings['animelist_display_num_rewatches'],
+	plus: cat != "Completed",
+	edit:Boolean(user['name'])
+    });
+
+    obj.append(section);
+}
+
+function renderMangaListSection(title, mlist, cat, obj, settings){
+    if(mlist.length == 0){
+	return;
+    }
+
+    var base = $('#mangalist-section-template').html();
+    Mustache.parse(base);
+    var section = Mustache.render(base, {
+	title:title,
+	mlist:mlist,
+	mangalist_display_progress:mangalistSettings['mangalist_display_progress'],
+	mangalist_display_score:mangalistSettings['mangalist_display_score'],
+	mangalist_display_type:mangalistSettings['mangalist_display_type'],
+	mangalist_display_start_date:mangalistSettings['mangalist_display_start_date'],
+	mangalist_display_end_date:mangalistSettings['mangalist_display_end_date'],
+	mangalist_display_num_rewatches:mangalistSettings['mangalist_display_num_rewatches'],
+	plus: cat != "Completed",
+	// FIXME this will display edit for other users? needs to be more sophisticated:tm:
+	edit:Boolean(user['name'])
+    });
+
+    obj.append(section);
+}
+
+
+function incrementAnimeEntry(entry, render){
+    // FIXME maybe generalize to work for other lists?
+    return function(){
+	var tempEntry = Object.assign({}, entry)
+	tempEntry['num_episodes'] += 1;
+
+	if(entry['status'] == 0){
+	    tempEntry['status'] = 2;
+	}
+
+	if(tempEntry['num_episodes'] == tempEntry['total_episodes']){
+	    tempEntry['status'] = 1;
+	}
+
+	addAnimeEntry(tempEntry, function(e){
+	    entry['num_episodes'] = tempEntry['num_episodes'];
+	    entry['last_updated'] = e['data']['last_updated'];
+
+	    if(Object.keys(animelist).length != 0){
+		if(entry['status'] == 0){
+		    animelist[2].push(entry);
+		    animelist[0].splice(animelist[0].indexOf(entry), 1);
+		}
+
+		if(entry['num_episodes'] == entry['total_episodes']){
+		    animelist[entry['status']].splice(animelist[entry['status']].indexOf(entry), 1);
+		    animelist[1].push(entry);
+		}
+	    }
+
+	    entry['status'] = tempEntry['status'];
+
+	    render(entry);
+	}, function(e){
+	    // FIXME this whole animelist business should be implemented in render()
+	    if(Object.keys(animelist).length != 0 && e['last_updated']){
+		animelist[entry['status']].splice(animelist[entry['status']].indexOf(entry), 1);
+		animelist[e['status']].push(e)
+		render(e);
+	    } else {
+		render(entry);
+	    }
+	    errorMessage('Error.')
+	});
+    }
+}
+
+function incrementMangaEntry(entry, render, thing){
+    // FIXME maybe generalize to work for other lists?
+    return function(){
+	var tempEntry = Object.assign({}, entry)
+	tempEntry[thing] += 1;
+
+	if(entry['status'] == 0){
+	    tempEntry['status'] = 2;
+	}
+
+	if(tempEntry['num_volumes'] == tempEntry['total_volumes']
+	  || tempEntry['num_chapters'] == tempEntry['total_chapters']){
+	    tempEntry['status'] = 1;
+	    tempEntry['num_chapters'] = tempEntry['total_chapters'];
+	    tempEntry['num_volumes'] = tempEntry['total_volumes'];
+	}
+
+	addMangaEntry(tempEntry, function(e){
+	    entry['num_chapters'] = tempEntry['num_chapters'];
+	    entry['num_volumes'] = tempEntry['num_volumes'];
+	    entry['last_updated'] = e['data']['last_updated'];
+
+	    if(Object.keys(mangalist).length != 0){
+		if(entry['status'] == 0){
+		    mangalist[2].push(entry);
+		    mangalist[0].splice(mangalist[0].indexOf(entry), 1);
+		}
+
+		if(entry['num_chapters'] == entry['total_chapters']
+		  && entry['num_volumes'] == entry['total_volumes']){
+		    mangalist[entry['status']].splice(mangalist[entry['status']].indexOf(entry), 1);
+		    mangalist[1].push(entry);
+		}
+	    }
+
+	    entry['status'] = tempEntry['status'];
+
+	    render(entry);
+	}, function(e){
+	    // FIXME this whole animelist business should be implemented in render()
+	    if(Object.keys(mangalist).length != 0 && e['last_updated']){
+		mangalist[entry['status']].splice(mangalist[entry['status']].indexOf(entry), 1);
+		mangalist[e['status']].push(e)
+		render(e);
+	    } else {
+		render(entry);
+	    }
+	    errorMessage('Error.')
+	});
+    }
+}
+
+function editAnimeEntry(entry, render){
+    // TODO make using `animelist` global variable optional
+    // (in a more sensible way?)
+    return function(){
+	function editSubmit(){
+	    // TODO changing start date if status changes from "plan to watch" to "watching"
+	    newEntry = Object.assign({}, entry);
+	    newEntry['start_date'] = $('#animelist-edit-start-date').val() ? stringToUnixUTC($('#animelist-edit-start-date').val()) : 0;
+	    newEntry['end_date'] = $('#animelist-edit-end-date').val() ? stringToUnixUTC($('#animelist-edit-end-date').val()) : 0;
+	    newEntry['status'] = textToStatus[$('#animelist-edit-status').val()];
+	    newEntry['num_episodes'] = parseInt($('#animelist-edit-num-episodes').val());
+	    // FIXME ugly
+	    newEntry['score'] = parseFloat($('#animelist-edit-score').val() ? $('#animelist-edit-score').val() : 0).toFixed(2);
+	    if(newEntry['score'] == '0.00'){
+		newEntry['score'] = 0;
+	    }
+	    newEntry['num_rewatches'] = parseInt($('#animelist-edit-num-rewatches').val());
+	    newEntry['comments'] = $('#animelist-edit-comments').val();
+
+	    var start_date = new Date(newEntry['start_date']*1000 - timeOffset);
+	    var end_date = new Date(newEntry['end_date']*1000 - timeOffset);
+	    newEntry['readable_start_date'] = format_date(start_date);
+	    newEntry['readable_end_date'] = format_date(end_date);
+	    
+	    addAnimeEntry(newEntry, function(e){
+		newEntry['last_updated'] = e['data']['last_updated'];
+		if(Object.keys(animelist).length != 0){
+		    remove(animelist[entry['status']], entry);
+		    animelist[newEntry['status']].push(newEntry);
+		}
+		render(newEntry);
+		return
+	    }, function(e){
+		if(e['error'] == 'last_updated'){
+		    e['error'] = undefined;
+		    animelist[entry['status']].splice(animelist[entry['status']].indexOf(entry), 1);
+		    animelist[e['status']].push(e)
+		    errorMessage('Local data out of date.');
+		} else {
+		    errorMessage('Invalid data.');
+		}
+		render(entry);
+	    });
+	    
+	    $('#animelist-edit-modal').modal('hide');
+	}
+	function editDelete(){
+	    deleteAnimeEntry(entry, function(e){
+		if(Object.keys(animelist).length != 0){
+		    remove(animelist[entry['status']], entry);
+		}
+		render({});
+	    }, function(e){
+		errorMessage('Error.');
+		render({});
+	    });
+
+	    $('#animelist-edit-modal').modal('hide');
+	}
+
+	$('#animelist-edit-form').submit(editSubmit);
+
+	$('#animelist-edit-save-button').off('click');
+	$('#animelist-edit-delete-button').off('click');
+	var start_date = new Date(entry['start_date']*1000 - timeOffset);
+	var end_date = new Date(entry['end_date']*1000 - timeOffset);
+	
+	$('#animelist-edit-start-date').val(format_date(start_date));
+	$('#animelist-edit-end-date').val(format_date(end_date));
+	$('#animelist-edit-status').val(statusToText[entry['status']]);
+	$('#animelist-edit-num-episodes').val(entry['num_episodes']);
+	$('#animelist-edit-score').val(entry['score'] != 0.00 ? parseFloat(entry['score']).toFixed(2) : '');
+	$('#animelist-edit-num-rewatches').val(entry['num_rewatches']);
+	$('#animelist-edit-comments').val(entry['comments']);
+
+	$('#animelist-edit-modal').modal({backdrop: 'static'});
+
+	$('#animelist-edit-save-button').click(editSubmit);
+	$('#animelist-edit-modal-title').html(entry['title']);
+	$('#animelist-edit-delete-button').click(editDelete);
+    }
+}
+
+function editMangaEntry(entry, render){
+    // TODO make using `animelist` global variable optional
+    // (in a more sensible way?)
+    return function(){
+	function editSubmit(){
+	    // TODO changing start date if status changes from "plan to watch" to "watching"
+	    newEntry = Object.assign({}, entry);
+	    newEntry['start_date'] = $('#mangalist-edit-start-date').val() ? stringToUnixUTC($('#mangalist-edit-start-date').val()) : 0;
+	    newEntry['end_date'] = $('#mangalist-edit-end-date').val() ? stringToUnixUTC($('#mangalist-edit-end-date').val()) : 0;
+	    newEntry['status'] = textToStatus[$('#mangalist-edit-status').val()];
+	    newEntry['num_volumes'] = parseInt($('#mangalist-edit-num-volumes').val());
+	    newEntry['num_chapters'] = parseInt($('#mangalist-edit-num-chapters').val());
+	    // FIXME ugly
+	    newEntry['score'] = parseFloat($('#mangalist-edit-score').val() ? $('#mangalist-edit-score').val() : 0).toFixed(2);
+	    if(newEntry['score'] == '0.00'){
+		newEntry['score'] = 0;
+	    }
+	    newEntry['num_rereads'] = parseInt($('#mangalist-edit-num-rereads').val());
+	    newEntry['comments'] = $('#mangalist-edit-comments').val();
+
+	    var start_date = new Date(newEntry['start_date']*1000 - timeOffset);
+	    var end_date = new Date(newEntry['end_date']*1000 - timeOffset);
+	    newEntry['readable_start_date'] = format_date(start_date);
+	    newEntry['readable_end_date'] = format_date(end_date);
+
+	    addMangaEntry(newEntry, function(e){
+		newEntry['last_updated'] = e['data']['last_updated'];
+		if(Object.keys(mangalist).length != 0){
+		    remove(mangalist[entry['status']], entry);
+		    mangalist[newEntry['status']].push(newEntry);
+		}
+		render(newEntry);
+		return
+	    }, function(e){
+		if(e['error'] == 'last_updated'){
+		    e['error'] = undefined;
+		    mangalist[entry['status']].splice(mangalist[entry['status']].indexOf(entry), 1);
+		    animelist[e['status']].push(e)
+		    errorMessage('Local data out of date.');
+		} else {
+		    errorMessage('Invalid data.');
+		}
+		render(entry);
+	    });
+	    
+	    $('#mangalist-edit-modal').modal('hide');
+	}
+	function editDelete(){
+	    deleteMangaEntry(entry, function(e){
+		if(Object.keys(mangalist).length != 0){
+		    remove(mangalist[entry['status']], entry);
+		}
+		render({});
+	    }, function(e){
+		errorMessage('Error.');
+		render({});
+	    });
+
+	    $('#mangalist-edit-modal').modal('hide');
+	}
+
+	$('#mangalist-edit-form').submit(editSubmit);
+
+	$('#mangalist-edit-save-button').off('click');
+	$('#mangalist-edit-delete-button').off('click');
+	var start_date = new Date(entry['start_date']*1000 - timeOffset);
+	var end_date = new Date(entry['end_date']*1000 - timeOffset);
+	
+	$('#mangalist-edit-start-date').val(format_date(start_date));
+	$('#mangalist-edit-end-date').val(format_date(end_date));
+	$('#mangalist-edit-status').val(mangaStatusToText[entry['status']]);
+	$('#mangalist-edit-num-chapters').val(entry['num_chapters']);
+	$('#mangalist-edit-num-volumes').val(entry['num_volumes']);
+	$('#mangalist-edit-score').val(entry['score'] != 0.00 ? parseFloat(entry['score']).toFixed(2) : '');
+	$('#mangalist-edit-num-rereads').val(entry['num_rereads']);
+	$('#mangalist-edit-comments').val(entry['comments']);
+
+	$('#mangalist-edit-modal').modal({backdrop: 'static'});
+
+	$('#mangalist-edit-save-button').click(editSubmit);
+	$('#mangalist-edit-modal-title').html(entry['title']);
+	$('#mangalist-edit-delete-button').click(editDelete);
+    }
+}
+
+function renderList(type, sorttype, list, sort=true, noReverse=false){
+    if (!noReverse) {
+	if (currentSort == sorttype){
+	    reverse = !reverse;
+	} else {
+	    reverse = false;
+	}
+    }
+
+    if(type == 'anime'){
+	div = $('#animelist');
+	sortfunc = sortList;
+	renderfunc = renderAnimeListSection;
+	listSettings = animelistSettings;
+	incfunc = incrementAnimeEntry;
+	editfunc = editAnimeEntry;
+	statusToText = statusToText;
+	ourType = 'anime';
+    } else if(type == 'manga') {
+	div = $('#mangalist');
+	sortfunc = sortList;
+	renderfunc = renderMangaListSection;
+	listSettings = mangalistSettings;
+	incfunc = incrementMangaEntry;
+	editfunc = editMangaEntry;
+	statusToText = mangaStatusToText;
+	ourType = 'manga';
+    }
+
+    div.empty();
+
+    var order = [0, 2, 1, 3, 4];
+
+    for (var index in [0, 2, 1, 3, 4]){
+	var type = order[index]
+	if(list[type].length){
+	    if(sort){
+		sortfunc(sorttype, list[type], currentSort == sorttype && reverse)
+	    }
+
+	    // FIXME weird way of making a copy
+	    renderfunc(statusToText[type],
+		       filterList(ourType, list[type],
+					      [].concat.apply([], [list[0], list[1], list[2], list[3], list[4]])),
+		       statusToText[type], div, listSettings);
+	}
+    }
+
+    currentSort = sorttype;
+
+    // TODO implement for manga list
+    $('.sort-progress').each(function(){$(this).click(function(){renderList(type, 'progress', list)})});
+    $('.sort-score').each(function(){$(this).click(function(){renderList(type, 'score', list)})});
+    $('.sort-type').each(function(){$(this).click(function(){renderList(type, 'type', list)})});
+    $('.sort-title').each(function(){$(this).click(function(){renderList(type, 'title', list)})});
+    $('.sort-start-date').each(function(){$(this).click(function(){renderList(type, 'start-date', list)})});
+    $('.sort-end-date').each(function(){$(this).click(function(){renderList(type, 'end-date', list)})});
+    $('.sort-num-rewatches').each(function(){$(this).click(function(){renderList(type, 'num-rewatches', list)})});
+    $('.sort-volumes').each(function(){$(this).click(function(){renderList(type, 'num-volumes', list)})});
+    $('.sort-chapters').each(function(){$(this).click(function(){renderList(type, 'num-chapters', list)})});
+    for (var key1 in list){
+	for (var key2 in list[key1]){
+	    (function(key_a, key_b){
+		if(ourType == 'anime'){
+		    $('.plus1-' + list[key_a][key_b][ourType+'_id']).click(incfunc(list[key_a][key_b], function(){
+			renderList(type, sorttype, list, true, true);
+		    }));
+		} else if(ourType == 'manga'){
+		    $('.plus1-v-' + list[key_a][key_b][ourType+'_id']).click(incfunc(list[key_a][key_b], function(){
+			renderList(type, sorttype, list, true, true);
+		    }, 'num_volumes'));
+		    $('.plus1-c-' + list[key_a][key_b][ourType+'_id']).click(incfunc(list[key_a][key_b], function(){
+			renderList(type, sorttype, list, true, true);
+		    }, 'num_chapters'));
+		}
+
+		var entry = list[key_a][key_b];
+		$('.edit-' + list[key_a][key_b][ourType+'_id']).click(
+		    editfunc(entry, function(){
+			renderList(type, sorttype, list, true, true);
+			
+		    })
+		);
+	    })(key1,key2);
+	}
+    }
+}
+
+function evalPredicate(args, obj, universe=[obj], subject=obj){
+    function convertDates(arg1, arg2){
+	var arg1_date = false;
+	var arg2_date = false;
+	
+	if(typeof arg1 == "string"){
+	    arg1_date = true
+	    arg1 = stringToUnixUTC(arg1)
+	}
+
+	if(typeof arg2 == "string"){
+	    arg2_date = true
+	    arg2 = stringToUnixUTC(arg2)
+	}
+
+	if(typeof arg1 == "number" && arg1_date){
+	    arg1 = new Date(arg1).setHours(0,0,0,0);
+	}
+
+	if(typeof arg2 == "number" && arg2_date){
+	    arg2 = new Date(arg2).setHours(0,0,0,0);
+	}
+	
+	return [arg1, arg2]
+    }
+
+    if(args){
+	switch(args[0]) {
+	case 'id':
+	    var out = null
+	    if (typeof args[1] == 'string'){
+		if (!(isNaN(parseFloat(obj[args[1]])))){
+		    out = parseFloat(obj[args[1]])
+		} else if (args[1][0] != '"') {
+		    if(args[1] == "universe"){
+			out = universe;
+		    } else if(args[1] == "this"){
+			out = obj;
+		    } else if (args[1] == "subject"){
+			out = subject;
+		    } else{
+			out = obj[args[1]];
+		    }
+		} else {
+		    out = args[1].slice(1, args[1].length)
+		}
+	    } else {
+		out = args[1];
+	    }
+
+	    if (typeof out == 'string'){
+		return out.toLowerCase();
+	    } else {
+		return out;
+	    }
+
+	    break;
+	case '->':
+	    return !evalPredicate(args[1], obj, universe, subject) || evalPredicate(args[2], obj, universe, subject);
+	    break;
+	case '>':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] > conv[1]
+	    break;
+	case '>=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] >= conv[1]
+	    break;
+	case '<':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] < conv[1];
+	    break;
+	case '<=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] <= conv[1];
+	    break;
+	case 'and':
+	    return evalPredicate(args[1], obj, universe, subject) && evalPredicate(args[2], obj, universe, subject);
+	    break;
+	case 'or':
+	    return evalPredicate(args[1], obj, universe, subject) || evalPredicate(args[2], obj, universe, subject);
+	    break;
+	case 'not':
+	    return !evalPredicate(args[1], obj, universe, subject);
+	    break;
+	case '=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] == conv[1];
+	    break;
+	case '!=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] != conv[1];
+	    break;
+	case '+':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] + conv[1];
+	    break;
+	case '-':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] - conv[1];
+	    break;
+	case '/':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] / conv[1];
+	    break;
+	case '*':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] * conv[1];
+	    break;
+	case 'in':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg2.indexOf(arg1) != -1;
+	    break;
+	case '!in':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg2.indexOf(arg1) == -1;
+	    break;
+	case 'avg':
+	    var t = 0;
+	    var c = 0;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		c++;
+		t += evalPredicate(args[1], arg2[i], universe, subject);
+	    }
+
+	    return t/c;
+	    break;
+	case 'sum':
+	    var t = 0;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		t += evalPredicate(args[1], arg2[i], universe, subject);
+	    }
+
+	    return t;
+	    break;
+	case 'max':
+	    var max = 0;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		var v = evalPredicate(args[1], arg2[i], universe, subject);
+		if(v > max){
+		    max = v;
+		}
+	    }
+	    return max;
+	    break;
+	case 'min':
+	    var min = Infinity;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		var v = evalPredicate(args[1], arg2[i], universe, subject);
+		if(v < min){
+		    min = v;
+		}
+	    }
+	    return min;
+	    break;
+	case 'filter':
+	    var newUniverse = []
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		if(evalPredicate(args[1], arg2[i], universe, subject)){
+		    newUniverse.push(arg2[i]);
+		}
+	    }
+	    return newUniverse;
+	    break;
+	case 'sort':
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var sorted = arg2.concat().sort(function(a, b){
+		return evalPredicate(args[1], b, universe, subject) - evalPredicate(args[1], a, universe, subject);
+	    });
+	    return sorted;
+	    break;
+	case 'fraction':
+	    arg1 = evalPredicate(args[1], obj, universe, subject);
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg2.slice(0, Math.round(arg2.length * arg1));
+	    break;
+	case 'exists':
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		if(evalPredicate(args[1], arg2[i], universe, subject)){
+		    return true;
+		}
+	    }
+	    return false;
+	    break;
+	case 'forall':
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		if(!(evalPredicate(args[1], arg2[i], universe, subject))){
+		    return false;
+		}
+	    }
+	    return true;
+	    break;
+	case 'val':
+	    arg1 = evalPredicate(args[1], obj, universe, subject);
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg1[arg2];
+	}
+    }
+
+}
+
+function parseAtom(str){
+    if (!isNaN(parseFloat(str))){
+	return parseFloat(str)
+    } else if(str == 'true' || str == 'false') {
+	return str == 'true'
+    } else {
+	return str
+    }
+}
+
+function parsePredicate(str){
+    var inPredicate = false
+    var out = []
+    var curPart = ''
+    var c = 0
+    function pushPart(){
+	if (curPart.length != 0){
+	    out.push(curPart.trim())
+	    curPart = ''
+	}
+    }
+    while (c < str.length){
+	//TODO doesn't work yet
+	if (str[c] == '{'){
+	    var depth = 1;
+	    var curTerm = ''
+	    while(true){
+		c++;
+		if (str[c] == '{'){
+		    depth++;
+		} else if (str[c] == '}'){
+		    depth--;
+		}
+
+		if (depth == 0){
+		    out.push(parsePredicate(curTerm));
+		    break
+		}
+		curTerm = curTerm.concat(str[c])
+	    }
+	} else if (str[c] == ' '){
+	    pushPart();
+	} else if (str[c] == '"'){
+	    pushPart();
+	    curPart = '"'
+	    while(true){
+		c++;
+		if(str[c] == '"'){
+		    break;
+		} else if (c >= str.length){
+		    return 'false'
+		}
+		curPart = curPart.concat(str[c]);
+	    }
+	    pushPart();
+	} else {
+	    curPart = curPart.concat(str[c])
+	}
+	c++;
+    }
+
+    pushPart();
+
+    if (out.length == 3){
+	return out
+    } else {
+	return 'false' 
+    }
+}
+
+function preparePredicate(obj, out){
+    if(typeof obj == "string"){
+	return ['id', parseAtom(obj), null];
+    }
+
+    try{
+	return [obj[1], preparePredicate(obj[0]), preparePredicate(obj[2])];
+    }catch(e){
+	return []
+    }
+}
+
+function processListSearchQuery(query){
+    function pushTerm(){
+	if(curTerm != ''){
+	    terms.push(curTerm.toLowerCase())
+	    curTerm = ''
+	}
+    }
+
+    var terms = []
+    var predicates = []
+    var curTerm = ''
+    var c = 0
+
+    if (!((query.match(/{/g) || []).length == (query.match(/}/g) || []).length) || // Number of brackets must be equal
+	(query.indexOf('{') != -1 && query.indexOf('}') < query.indexOf('{'))){ // } can't occur before first {
+	return [terms, predicates]
+    } else {
+	while(c < query.length){
+	    if (query[c] == '{'){
+		pushTerm();
+		var depth = 1;
+		var curPredicate = ''
+		while(true){
+		    c++;
+		    if (query[c] == '{'){
+			depth++;
+		    } else if (query[c] == '}'){
+			depth--;
+		    }
+
+		    if (depth == 0){
+			predicates.push(preparePredicate(parsePredicate(curPredicate)));
+			break
+		    }
+		    curPredicate = curPredicate.concat(query[c])
+		}
+	    } else if (query[c] == ' '){
+		pushTerm();
+	    } else {
+		curTerm = curTerm.concat(query[c])
+	    }
+	    c++;
+	}
+    }
+    pushTerm();
+    return [terms, predicates]
+}
+
+function filterList(type, list, universe=list){
+    var query = $('#'+type+'list-search').val().toLowerCase().replace(/\s+/g,' ').trim();
+
+    var tmp = processListSearchQuery(query)
+    var terms = tmp[0]
+    var predicates = tmp[1]
+
+    var accepted = []
+
+    endloop:
+    for (var thing in list){
+	for (var term in terms){
+	    if(list[thing].title.toLowerCase().indexOf(terms[term]) == -1){
+		continue endloop
+	    }
+	}
+	for (var p in predicates){
+	    if(!(evalPredicate(predicates[p], list[thing], universe))){
+		continue endloop
+	    }
+	}
+	accepted.push(list[thing])
+    }
+
+    return accepted;
+}
+
+
+function sortList(type, list, reverse){
+    function compareScore(a, b){
+	if(a['score'] == b['score']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return b['score'] - a['score'];
+    }
+    function compareProgress(a, b){
+	if(a['num_episodes'] == b['num_episodes']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return (b['num_episodes']/b['total_episodes']) - (a['num_episodes']/a['total_episodes']);
+    }
+    function compareVolumes(a, b){
+	if(a['num_volumes'] == b['num_volumes']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return (b['num_volumes']/b['total_volumes']) - (a['num_volumes']/a['total_volumes']);
+    }
+    function compareChapters(a, b){
+	if(a['num_chapters'] == b['num_chapters']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return (b['num_chapters']/b['total_chapters']) - (a['num_chapters']/a['total_chapters']);
+    }
+    function compareTitle(a, b, doReverse=reverse){
+	if(doReverse){
+	    [a, b] = [b, a];
+	}
+	return a['title'].localeCompare(b['title']);
+    }
+    function compareType(a, b){
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return a['type'].localeCompare(b['type']);
+    }
+    function compareStartDate(a, b){
+	if(a['start_date'] == b['start_date']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return b['start_date'] - a['start_date'];
+    }
+    function compareEndDate(a, b){
+	if(a['end_date'] == b['end_date']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return b['end_date'] - a['end_date'];
+    }
+    function compareNumRewatches(a, b){
+	if(a['num_rewatches'] == b['num_rewatches']){
+	    return compareTitle(a, b, doReverse=false);
+	}
+	if(reverse){
+	    [a, b] = [b, a];
+	}
+	return b['num_rewatches'] - a['num_rewatches'];
+    }
+
+    if (type == 'score'){
+	list.stableSort(compareScore);
+    } else if (type == 'progress'){
+	list.stableSort(compareProgress);
+    } else if (type == 'title'){
+	list.stableSort(compareTitle)
+    }  else if (type == 'type'){
+	list.stableSort(compareType)
+    } else if (type == 'start-date'){
+	list.stableSort(compareStartDate);
+    } else if (type == 'end-date'){
+	list.stableSort(compareEndDate);
+    } else if (type == 'num-rewatches') {
+	list.stableSort(compareNumRewatches);
+    } else if (type == 'num-volumes') {
+	list.stableSort(compareVolumes);
+    } else if (type == 'num-chapters') {
+	list.stableSort(compareChapters);
+    }
+}
+
+function setupAnimeListPage(sorttype){
+    if (animelist == {}) {
+	// FIXME not necessarily the case
+	$('#animelist').html("This user's anime list is private.");
+    } else {
+	renderList('anime', sorttype, animelist, true, true);
+    }
+    finishSetup();
+}		
+
+function setupMangaListPage(sorttype){
+    if (mangalist == {}) {
+	// FIXME not necessarily the case
+	$('#mangalist').html("This user's manga list is private.");
+    } else {
+	renderList('manga', sorttype, mangalist, true, true);
+    }
+    finishSetup();
+}		
+
+
+/* API */
+function login(data, successCallback, errorCallback){
+    $.ajax({
+	type: "POST",
+	headers: {
+	    'Content-type': publicAPIVer
+	},
+	url: "/login/",
+	data: data,
+	success: successCallback,
+	error:errorCallback
+    });
+}
+
+function logout(e){
+    e.preventDefault();
+
+    $.ajax({
+	type: "POST",
+	url: "/logout/",
+	success: function(data)
+	{
+	    user = {'id':null, 'name':null, 'dname':null}
+	}
+    });
+    location.reload();
+}
+
+function addAnimeEntries(entries, username, successCallback, errorCallback){
+    $.ajax({
+	type: "PUT",
+	url: "/animelist/" + username,
+	data: entries,
+	headers: {
+	    'Content-type': publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function addMangaEntries(entries, username, successCallback, errorCallback){
+    $.ajax({
+	type: "PUT",
+	url: "/mangalist/" + username,
+	data: entries,
+	headers: {
+	    'Content-type': publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function deleteAnimeEntry(data, successCallback, errorCallback){
+    $.ajax({
+	type: "DELETE",
+	url: "/animelist/" + data['username'] + '/' + data['anime_id'],
+	headers: {
+	    'Content-type': publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback 
+    });
+}
+
+function deleteMangaEntry(data, successCallback, errorCallback){
+    $.ajax({
+	type: "DELETE",
+	url: "/mangalist/" + data['username'] + '/' + data['manga_id'],
+	headers: {
+	    'Content-type': publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback 
+    });
+}
+
+function addMangaEntry(data, successCallback, errorCallback){
+    getMangaEntry(data['username'], data['manga_id'], function(se){
+	if(se['data']['last_updated'] > data['last_updated']){
+	    se['data']['error'] = 'last_updated'
+	    errorCallback(se['data']);
+	    return;
+	}
+
+	$.ajax({
+	    type: "PUT",
+	    url: "/mangalist/" + data['username'] + '/' + data['manga_id'],
+	    data: JSON.stringify({'data':{
+		'username': data['username'],
+		'score': data['score'],
+		'start_date': data['start_date'],
+		'end_date': data['end_date'],
+		'num_chapters': data['num_chapters'],
+		'num_rereads': data['num_rereads'],
+		'num_volumes': data['num_volumes'],
+		'status': data['status'],
+		'comments': data['comments']
+	    }}),
+	    headers: {
+		'Content-type': publicAPIVer
+	    },
+	    success: successCallback,
+	    error: errorCallback
+	});
+    });
+}
+
+function addAnimeEntry(data, successCallback, errorCallback){
+    console.log(data)
+    getAnimeEntry(data['username'], data['anime_id'], function(se){
+	if(se['data']['last_updated'] > data['last_updated']){
+	    se['data']['error'] = 'last_updated'
+	    errorCallback(se['data']);
+	    return;
+	}
+
+	$.ajax({
+	    type: "PUT",
+	    url: "/animelist/" + data['username'] + '/' + data['anime_id'],
+	    data: JSON.stringify({'data':{
+		'username': data['username'],
+		'score': data['score'],
+		'start_date': data['start_date'],
+		'end_date': data['end_date'],
+		'num_episodes': data['num_episodes'],
+		'num_rewatches': data['num_rewatches'],
+		'status': data['status'],
+		'comments': data['comments']
+	    }}),
+	    headers: {
+		'Content-type': publicAPIVer
+	    },
+	    success: successCallback,
+	    error: errorCallback
+	});
+    });
+}
+function setSettings(username, settings, successCallback, errorCallback){
+    $.ajax({
+	type: "PUT",
+	url: "/user/" + username + "/settings",
+	headers: {
+	    'Content-type': publicAPIVer
+	},
+	data: settings,
+	success: successCallback,
+	error:errorCallback
+    });
+}
+
+
+function getSettings(username, successCallback, errorCallback){
+    if(!username){
+	successCallback({});
+	return
+    }
+    $.ajax({
+	type: "GET",
+	url: "/user/" + username + "/settings",
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error:errorCallback
+    });
+}
+
+function getMangaEntry(username, manga_id, successCallback, errorCallback){
+    $.ajax({
+	type: "GET",
+	url: "/mangalist/" + username + "/" + manga_id,
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getAnimeEntry(username, anime_id, successCallback, errorCallback){
+    $.ajax({
+	type: "GET",
+	url: "/animelist/" + username + "/" + anime_id,
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getAnime(anime_id, successCallback, errorCallback, get_links="true"){
+    $.ajax({
+	type: "GET",
+	url: "/anime/" + anime_id + '?get_links='+get_links,
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getAnimes(anime_ids, successCallback, errorCallback, get_links="true"){
+    $.ajax({
+	type: "GET",
+	url: "/anime?get_links="+get_links + '&anime_ids='+anime_ids.join() + '?get_links=true',
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getMangas(manga_ids, successCallback, errorCallback, get_links="true"){
+    $.ajax({
+	type: "GET",
+	url: "/manga?get_links="+get_links + '&manga_ids='+manga_ids.join() + '?get_links=true',
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getAnimeList(username, successCallback, errorCallback){
+    $.ajax({
+	type: "GET",
+	url: "/animelist/" + username,
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getMangaList(username, successCallback, errorCallback){
+    $.ajax({
+	type: "GET",
+	url: "/mangalist/" + username,
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+function getRecommendations(username, successCallback, errorCallback, number=10){
+    $.ajax({
+	type: "GET",
+	url: "/recommendations/" + username + '?num_recommendations=' + number,
+	headers: {
+	    Accept: publicAPIVer
+	},
+	success: successCallback,
+	error: errorCallback
+    });
+}
+
+/* util */
+function slugify(text)
+{
+    return text.toString().toLowerCase()
+	.replace(/\s+/g, '-')           // Replace spaces with -
+	.replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+	.replace(/\-\-+/g, '-')         // Replace multiple - with single -
+	.replace(/^-+/, '')             // Trim - from start of text
+	.replace(/-+$/, '');            // Trim - from end of text
+}
+
+Object.defineProperty(Array.prototype, 'stableSort', {
+    configurable: true,
+    writable: true,
+    value: function stableSort (compareFunction) {
+	'use strict'
+
+	var length = this.length;
+	var entries = Array(length);
+	var index;
+
+	// wrap values with initial indices
+	for (index = 0; index < length; index++) {
+	    entries[index] = [index, this[index]];
+	}
+
+	// sort with fallback based on initial indices
+	entries.sort(function (a, b) {
+	    var comparison = Number(this(a[1], b[1]));
+	    return comparison || a[0] - b[0];
+	}.bind(compareFunction));
+
+	// re-map original array to stable sorted values
+	for (index = 0; index < length; index++) {
+	    this[index] = entries[index][1];
+	}
+	
+	return this;
+    }
+})
+var mangaStatusToText = {0: 'Plan To Read',
+			 1: 'Completed',
+			 2: 'Reading',
+			 3: 'On Hold',
+			 4: 'Dropped',
+			 5: 'Not in list'};
+
+
+var statusToText = {0: 'Plan To Watch',
+		    1: 'Completed',
+		    2: 'Watching',
+		    3: 'On Hold',
+		    4: 'Dropped',
+		    5: 'Not in list'};
+
+var textToStatus = {};
+for (var key in statusToText){
+    textToStatus[statusToText[key]] = parseInt(key);
+}
+for (var key in mangaStatusToText){
+    textToStatus[mangaStatusToText[key]] = parseInt(key);
+}
+
+
+function format_date(date){
+    if(date.getTime() == 0 - timeOffset){
+	return '';
+    }
+
+    return ("0" + date.getDate()).slice(-2) + "/" +
+	("0" + (date.getMonth() + 1)).slice(-2) + "/" +
+	date.getFullYear();
+}
+
+function stringToUnixUTC(dateStr, dateFormat="DD/MM/YYYY") {
+    if(!dateStr){
+	return 0;
+    } else if (typeof dateStr != "string") {
+	return dateStr
+    } else {
+	var parsed = moment.utc(dateStr, dateFormat, true)
+	return parsed.isValid() ? parsed.unix() : 0
+    }
+}
+
+function remove(array, element) {
+    const index = array.indexOf(element);
+    array.splice(index, 1);
+}
+
+function slugify(text) {
+    return text.toString().toLowerCase()
+	.replace(/\s+/g, '-')           // Replace spaces with -
+	.replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+	.replace(/\-\-+/g, '-')         // Replace multiple - with single -
+	.replace(/^-+/, '')             // Trim - from start of text
+	.replace(/-+$/, '');            // Trim - from end of text
+}
+
+var timer;
+function navsearchDisplayResults(res){
+    $('.results').empty();
+    results = JSON.parse(res)['response'];
+    if (!results){
+	return;
+    }
+
+    if(results['numFound'] == 0){
+	$('.results').append('<div class="nsearch-result my-2">No results.</div>');
+    }
+
+    var base = $('#nsresult').html();
+    Mustache.parse(base);
+
+    for (result in results['docs']){
+	var entry = results['docs'][result]
+	var title = entry['title'];
+	var url = '/anime/'+entry['id']+'/'+slugify(entry['title']);
+	var row = Mustache.render(base, {
+	    url:url,
+	    title:title,
+	    image:"http://via.placeholder.com/40x40",
+	    info: [{'icon': backend['icons']['a_type'][String(entry['type'])],
+		    'text': '8.4 '},
+		   {'icon': backend['icons']['status'][String(entry['status'])]},
+		   {'icon': backend['icons']['season'][String(entry['season']).split(' ')[0]],
+		    'text': entry['start_date'].split('-')[0]}]
+	});
+	$('.results').append(row);
+    }
+}
+
+function search(){
+    var url = backend['solr_url']+'/select?wt=json&q=title:"'+$('#qbox')[0].value+'"';
+    $.get(url, '', navsearchDisplayResults);
+}
+
+
+/* nav login */
+function navlogin(e){
+    e.preventDefault();
+    var loginInformation = $('#navlogin').serializeArray()
+
+    login(JSON.stringify({'data':{'account':loginInformation[0]['value'],
+				  'password':loginInformation[1]['value']}}),
+	  function(out){
+	      user = out;
+	      location.reload();
+	  }, function(){
+	      errorMessage('Failed to log in.');
+	  });
+}
+
+/* Always */
+
+/* Settings */
+function setupSettingsPage(){
+    var profile_picture;
+    // XXX Is this the best way to do this?
+    $('#animelist-private').prop('checked', settings['animelist_private']);
+    $('#animelist-display-progress').prop('checked', settings['animelist_display_progress']);
+    $('#animelist-display-score').prop('checked', settings['animelist_display_score']);
+    $('#animelist-display-type').prop('checked', settings['animelist_display_type']);
+    $('#animelist-display-start-date').prop('checked', settings['animelist_display_start_date']);
+    $('#animelist-display-end-date').prop('checked', settings['animelist_display_end_date']);
+    $('#animelist-display-num-rewatches').prop('checked', settings['animelist_display_num_rewatches']);
+
+    $('#settings-animelist-display-save-button').click(function(){
+	settings['animelist_private'] = $('#animelist-private').prop('checked');
+	settings['animelist_display_progress'] = $('#animelist-display-progress').prop('checked');
+	settings['animelist_display_score'] = $('#animelist-display-score').prop('checked');
+	settings['animelist_display_type'] = $('#animelist-display-type').prop('checked');
+	settings['animelist_display_start_date'] = $('#animelist-display-start-date').prop('checked');
+	settings['animelist_display_end_date'] = $('#animelist-display-end-date').prop('checked');
+	settings['animelist_display_num_rewatches'] = $('#animelist-display-num-rewatches').prop('checked');
+
+	successMessage('Settings set!');
+	setSettings(user['name'], JSON.stringify({'data': settings}));
+    });
+
+    $('#profile-picture').change(function(){
+	var f = this.files[0];
+	var reader = new FileReader();
+
+	reader.onload = (function(file) {
+	    return function(e) {
+		profile_picture = e.target.result;
+	    };
+	})(f);
+
+	reader.readAsDataURL(f);
+    });
+
+    $('#import-profile-picture').click(function(){
+	// TODO feedback
+	$.ajax({
+	    type: "PUT",
+	    url: '/user/' + user['name'] + '/settings/profile_picture',
+	    data: JSON.stringify({'data': profile_picture}),
+	    headers: {
+		'Content-type': publicAPIVer
+	    }
+	});
+    });
+
+    finishSetup();
+}
+
+function renderDashboardEntries(sorttype, list, kind, sort=true, noReverse=false){
+    // XXX code duplication
+    if(sorttype == null){
+	sorttype = currentSort;
+    }
+
+    if (!noReverse) {
+	if (currentSort == sorttype){
+	    reverse = !reverse;
+	} else {
+	    reverse = false;
+	}
+    }
+
+    sortList(sorttype, list, currentSort == sorttype && reverse);
+    currentSort = sorttype;
+
+    if(kind == 'anime'){
+	filteredList = filterList('anime', list);
+
+	$('#dashboard-list-'+kind).empty()
+
+	var base = $('#dashboard-anime-list-template').html()
+	Mustache.parse(base);
+	var section = Mustache.render(base, {'list': filteredList});
+	$('#dashboard-list-'+kind).append(section)
+
+	for (var e in filteredList){
+	    var entry = filteredList[e];
+	    $('.edit-anime-'+entry['anime_id']).click(
+		editAnimeEntry(entry,
+			       function(){
+				   renderDashboardEntries(currentSort, animelist[0].concat(animelist[2]), kind, sort, noReverse=false);
+			       }));
+
+	    $('.plus1-'+entry['anime_id']).click(incrementAnimeEntry(entry, function(){
+		renderDashboardEntries(currentSort, animelist[0].concat(animelist[2]), kind, sort, noReverse=true);
+	    }));
+	}
+	$('.sort-anime-progress').each(function(){$(this).click(function(){renderDashboardEntries('progress', list, 'anime')})});
+	$('.sort-anime-title').each(function(){$(this).click(function(){renderDashboardEntries('title', list, 'anime')})});
+
+    $(document).on('keyup', '#animelist-search', function(){
+	timer && clearTimeout(timer);
+	timer = setTimeout(function(){
+	    reverse = !reverse; //Compensate for reversing
+	    renderDashboardEntries(null, animelist[0].concat(animelist[2]), 'anime');
+	}, 200);
+    });
+
+    } else if(kind == 'manga'){
+	filteredList = filterList('manga', list);
+
+	$(document).on('keyup', '#mangalist-search', function(){
+	    timer && clearTimeout(timer);
+	    timer = setTimeout(function(){
+		reverse = !reverse; //Compensate for reversing
+		renderDashboardEntries(null, mangalist[0].concat(mangalist[2]), 'manga');
+	    }, 200);
+	});
+
+
+	$('#dashboard-list-'+kind).empty();
+
+	var base = $('#dashboard-manga-list-template').html();
+	Mustache.parse(base);
+	var section = Mustache.render(base, {'list': filteredList});
+	$('#dashboard-list-manga').append(section);
+
+	for (var e in filteredList){
+	    var entry = filteredList[e];
+	    $('.edit-manga-'+entry['manga_id']).click(
+		editMangaEntry(entry,
+			       function(){
+				   renderDashboardEntries(currentSort, mangalist[0].concat(mangalist[2]), kind, sort, noReverse=false);
+			       }));
+
+	    $('.plus1-c-'+entry['manga_id']).click(incrementMangaEntry(entry, function(){
+		renderDashboardEntries(currentSort, mangalist[0].concat(mangalist[2]), kind, sort, noReverse=true);
+	    },'num_chapters'));
+	    $('.plus1-v-'+entry['manga_id']).click(incrementMangaEntry(entry, function(){
+		renderDashboardEntries(currentSort, mangalist[0].concat(mangalist[2]), kind, sort, noReverse=true);
+	    },'num_volumes'));
+
+	}
+	$('.sort-manga-volumes').each(function(){$(this).click(function(){renderDashboardEntries('num-volumes', list, 'manga')})});
+	$('.sort-manga-chapters').each(function(){$(this).click(function(){renderDashboardEntries('num-chapters', list, 'manga')})});
+	$('.sort-manga-title').each(function(){$(this).click(function(){renderDashboardEntries('title', list, 'manga')})});
+    }
+}
+
+function setupDashboardPage(listType='anime'){
+    // FIXME this is too slow and freezes the shit
+    animeIds = []
+    mangaIds = []
+
+    for (var cat in animelist){
+	for (var e in animelist[cat]){
+	    animeIds.push(animelist[cat][e]['anime_id']);
+	}
+    }
+
+    for (var cat in mangalist){
+	for (var e in mangalist[cat]){
+	    mangaIds.push(mangalist[cat][e]['manga_id']);
+	}
+    }
+
+    animeGetComplete = false;
+    mangaGetComplete = false;
+    getAnimes(animeIds, function(e){
+	animeObjs = {}
+	for (var entry in e['data']){
+	    animeObjs[e['data'][entry]['uid']] = e['data'][entry];
+	}
+	animeGetComplete = true;
+	setupDashboardStats();
+    });
+
+    getMangas(mangaIds, function(e){
+	mangaObjs = {}
+	for (var entry in e['data']){
+	    mangaObjs[e['data'][entry]['uid']] = e['data'][entry];
+	}
+
+	mangaGetComplete = true;
+	setupDashboardStats();
+    });
+
+
+    // TODO implement news
+    // FIXME news will only run after anime list has finished fetching; might not be a problem
+    var feed_template = $('#dashboard-feed-update-template').html();
+    Mustache.parse(feed_template)
+    var test_item = Mustache.render(feed_template, {
+	type: 'meme',
+	image: 'http://via.placeholder.com/90x90',
+	text: '<b>Test item</b> Someone did a thing.<br><i>Text</i> or <u>something</u>.'
+    });
+
+	// TODO proper updating and so on
+    for (var i = 0; i < 10; i++){
+	$('#news-content').append(test_item);
+    }
+
+    renderDashboardEntries('progress', animelist[0].concat(animelist[2]), 'anime')
+    renderDashboardEntries('progress', mangalist[0].concat(mangalist[2]), 'manga')
+    $('#dashboard-anime').click(function(){
+	$('#dashboard-list-manga').hide();
+	$('#dashboard-list-vn').hide();
+	$('#dashboard-list-anime').show();
+
+	$('#dashboard-anime').hide();
+	$('#dashboard-manga').show();
+	$('#dashboard-vn').show();
+
+	$('#dashboard-list-dropdown').html('Anime');
+
+	$('#animelist-search').show();
+	$('#mangalist-search').hide();
+	$('#vnlist-search').hide();
+    });
+    $('#dashboard-vn').click(function(){
+	$('#dashboard-list-manga').hide();
+	$('#dashboard-list-anime').hide();
+	$('#dashboard-list-vn').show();
+
+	$('#dashboard-anime').show();
+	$('#dashboard-manga').show();
+	$('#dashboard-vn').hide();
+
+	$('#dashboard-list-dropdown').html('VN');
+
+	$('#animelist-search').hide();
+	$('#mangalist-search').hide();
+	$('#vnlist-search').show();
+
+    });
+    $('#dashboard-manga').click(function(){
+	$('#dashboard-list-vn').hide();
+	$('#dashboard-list-anime').hide();
+	$('#dashboard-list-manga').show();
+
+	$('#dashboard-anime').show();
+	$('#dashboard-manga').hide();
+	$('#dashboard-vn').show();
+
+	$('#dashboard-list-dropdown').html('Manga');
+
+	$('#animelist-search').hide();
+	$('#mangalist-search').show();
+	$('#vnlist-search').hide();
+
+    });
+
+    
+    finishSetup();
+}
+
+function setupImportPage(){
+    // TODO handle multiple files at once
+    var handled = 0;
+    function importAnimeEntry(anime, out, length){
+	var title = anime.getElementsByTagName("series_title")[0].firstChild.nodeValue
+	var url = encodeURI(backend['solr_url']+'/select?wt=json&q=title:"'+title+'"')
+
+	$.ajax({
+	    type: "GET",
+	    url: url,
+	    success: function(res){
+		var parsed_res = JSON.parse(res)['response']
+		if (parsed_res['numFound'] != 0){
+		    var obj = parsed_res['docs'][0]
+		    //TODO might not be correct
+		    var status = statusToText(anime.getElementsByTagName("my_status")[0].firstChild.nodeValue)
+		    out.push({
+			'anime_id': obj['id'],
+			'score': parseInt(anime.getElementsByTagName("my_score")[0].firstChild.nodeValue),
+			// FIXME might not deal with timezones right
+			'start_date': (anime.getElementsByTagName("my_start_date")[0].firstChild.nodeValue == "0000-00-00" ?
+				       0 : stringToUnixUTC(anime.getElementsByTagName("my_start_date")[0].firstChild.nodeValue,
+							   dateFormat="YYYY-MM-DD")),
+			'end_date': (anime.getElementsByTagName("my_finish_date")[0].firstChild.nodeValue == "0000-00-00" ?
+				     0 : stringToUnixUTC(anime.getElementsByTagName("my_finish_date")[0].firstChild.nodeValue,
+							 dateFormat="YYYY-MM-DD")),
+			'num_episodes': parseInt(anime.getElementsByTagName("my_watched_episodes")[0].firstChild.nodeValue),
+			'num_rewatches': parseInt(anime.getElementsByTagName("my_times_watched")[0].firstChild.nodeValue),
+			'comments': anime.getElementsByTagName("my_comments")[0].firstChild.nodeValue,
+			'status': status,
+		    });
+		}
+	    },
+	    complete: function(res){
+		handled++;
+		if(length == handled){
+		    addAnimeEntries(JSON.stringify({'data': {'entries': out, 'import':true}}), user['name']);
+		}
+	    }});
+    }
+
+    animelist = ''
+    $('#animelist-import').change(function(){
+	var f = this.files[0];
+	if(!f.type.match("text/xml")){
+	    return
+	}
+	var reader = new FileReader();
+
+	reader.onload = (function(file) {
+	    return function(e) {
+		animelist = atob(e.target.result.split(',')[1]);
+	    };
+	})(f);
+
+	reader.readAsDataURL(f);
+    });
+
+    $('#import-animelist-button').click(function(){
+	var out = []
+	var parser = new DOMParser();
+	var parsed_animelist = parser.parseFromString(animelist, "text/xml").getElementsByTagName("anime");
+	var length = parsed_animelist.length
+	for (var i in parsed_animelist){
+	    // TODO proper handling of the end of the anime list
+	    if(i == 'length'){
+		break
+	    }
+	    var anime = parsed_animelist[i]
+	    importAnimeEntry(anime, out, length);
+	}
+    });
+
+    finishSetup();
+}
+
+function setupRecommendationsPage(){
+    // TODO properly implement this page
+    for(var r in explicit_recommendations){
+	var k = explicit_recommendations[r]
+	// TODO better presentation
+	$('#explicit-recommendations').append('<a href=/anime/'+ k[0]+'>'+ k[1] + '</a><br>');
+    }
+
+    for(var r in implicit_recommendations){
+	var k = implicit_recommendations[r]
+	// TODO better presentation
+	$('#implicit-recommendations').append('<a href=/anime/'+k[0]+'>'+ k[1] + '</a><br>');
+    }
+
+
+    finishSetup();
+}
+
+function finishSetup(){
+    document.body.style.visibility='visible';
+    $(document).off('ajaxStop');
+}
+
+function errorMessage(message){
+    $.notify({
+	message: message,
+	icon: 'fa fa-fw fa-exclamation-triangle',
+    },{
+	type: 'danger',
+	placement: {
+	    from: "top",
+	    align: "left"
+	},
+	delay: 3000,
+	offset: {
+	    y: 64,
+	    x: 10
+	},
+    });
+}
+
+function successMessage(message){
+    $.notify({
+	message: message,
+	icon: 'fa fa-fw fa-check',
+    },{
+	type: 'success',
+	placement: {
+	    from: "top",
+	    align: "left"
+	},
+	delay: 3000,
+	offset: {
+	    y: 64,
+	    x: 10
+	},
+    });
+}
+
+function setupDashboardStats(){
+    if(!(animeGetComplete && mangaGetComplete)){
+	return
+    }
+
+    totalAnimeTime = 0;
+    totalAnimeEpisodes = 0;
+    totalAnimeScore = 0;
+    numNonZeroAnimeScores = 0;
+    animeGenres = {}
+    animeCompanies = {}
+    for (var cat in animelist){
+	for (var e in animelist[cat]){
+	    var entry = animelist[cat][e];
+	    var animeObj = animeObjs[entry['anime_id']];
+	    totalAnimeTime += entry['num_episodes'] * animeObj['duration'] * (entry['num_rewatches'] + 1);
+	    totalAnimeEpisodes += entry['num_episodes'];
+	    totalAnimeScore += parseFloat(entry['score']);
+	    if(parseFloat(entry['score']) != 0){
+		numNonZeroAnimeScores += 1;
+	    }
+
+	    for (var genre in animeObj['genres']){
+		var g = animeObj['genres'][genre]['genre']['name']
+		animeGenres[g] = (animeGenres[g] == undefined ? [entry] : animeGenres[g].concat([entry]));
+	    }
+
+	    for (var company in animeObj['companies']){
+		var g = animeObj['companies'][company]['company']
+		if (animeCompanies[g['description']] == undefined){
+		    animeCompanies[g['description']] = {};
+		}
+		
+		animeCompanies[g['description']][g['name']] = (animeCompanies[g['description']][g['name']] == undefined ? [entry] : animeCompanies[g['description']][g['name']]).concat([entry]);
+		
+	    }
+	}
+    }
+
+    avgAnimeScore = totalAnimeScore / numNonZeroAnimeScores;
+    totalAnimeHours = totalAnimeTime/3600;
+    totalAnimeDays = totalAnimeHours/24;
+}

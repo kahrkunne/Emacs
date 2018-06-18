@@ -1,0 +1,54 @@
+package nl.rug.oop.graphEditor;
+
+import nl.rug.oop.graphEditor.controller.ButtonBar;
+import nl.rug.oop.graphEditor.controller.MenuBar;
+import nl.rug.oop.graphEditor.controller.SelectionController;
+import nl.rug.oop.graphEditor.model.GraphModel;
+import nl.rug.oop.graphEditor.view.GraphFrame;
+import nl.rug.oop.graphEditor.view.GraphPanel;
+
+import javax.swing.WindowConstants;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.io.File;
+
+public class GraphEditor {
+    static private GraphModel graphModel;
+
+    public static void main(String[] args) {
+        if (args.length != 0) {
+            File f = new File(args[0]);
+            if (f.exists()) {
+                if (f.length() != 0) {
+                    graphModel = new GraphModel(args[0]);
+                } else {
+                    System.err.println(args[0] + ": Is empty");
+                    System.exit(0);
+                }
+            } else if (f.isDirectory()) {
+                System.err.println(args[0] + ": Is a directory");
+                System.exit(0);
+            } else {
+                System.err.println(args[0] + ": No such file or directory");
+                System.exit(0);
+            }
+        } else {
+            graphModel = new GraphModel();
+        }
+
+        GraphFrame mainFrame = new GraphFrame("Graph editor" + (args.length == 0 ? " [untitled project]" : (" [" + args[0] + "]")));
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        mainFrame.setSize(new Dimension(800, 600));
+        mainFrame.setJMenuBar(new MenuBar(mainFrame));
+        GraphPanel mainPanel = new GraphPanel(graphModel);
+        SelectionController sc = new SelectionController(mainPanel);
+        mainPanel.addMouseListener(sc);
+        mainPanel.addMouseMotionListener(sc);
+        mainFrame.getContentPane().add(new ButtonBar(mainPanel), BorderLayout.NORTH);
+        mainFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+        mainFrame.setPreferredSize(new Dimension(800, 600));
+        mainFrame.pack();
+        mainFrame.setLocationRelativeTo(null);
+        mainFrame.setVisible(true);
+    }
+}

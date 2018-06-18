@@ -1,0 +1,75 @@
+import java.util.ArrayList;
+import java.util.List;
+
+abstract public class ItemUser extends NPC {
+    private List<Item> items;
+    private List<Item> equipped;
+    private int money;
+    public ItemUser(String description, Room r, ArrayList<Item> items, ArrayList<Item> equipped, int money){
+	super(description, r);
+	this.money = money;
+
+	if (items == null) {
+	    items = new ArrayList<Item>();
+	}
+
+	if (equipped == null) {
+	    equipped = new ArrayList<Item>();
+	}
+
+	while(equipped.size() < 10){
+	    equipped.add(null);
+	}
+
+	while(items.size() < 10){
+	    items.add(null);
+	}
+
+	this.equipped = equipped;
+	this.items = items;
+    }
+
+    public int getMoney(){
+	return this.money;
+    }
+
+    public void addMoney(int amount){
+	this.money += amount;
+    }
+
+    public void addItem(Item i){
+	this.items.add(i);
+    }
+
+    public Item removeItem(int index){
+	// XXX we should maintain that items are always at the beginning of the inventory, i.e. that all nulls are at the end. I think this is being achieved right now.
+	Item i = this.items.remove(index);
+	this.items.add(null);
+	return i;
+    }
+
+    public void equipItem(Equipable item){
+	// TODO untested
+	// TODO none of this checks for out of bounds; we should ensure that `equipped` is of the proper length elsewhere, and then make sure we keep it that way
+	Item existing = this.equipped.get(item.getSlot());
+	if (existing != null && this.unequipItem(item.getSlot())) {
+	    this.equipped.set(item.getSlot(), item);
+	}
+    }
+
+    public Boolean unequipItem(int slot){
+	Item existing = this.equipped.get(slot);
+	if (existing == null){
+	    return true;
+	}
+
+	if(existing.getBuc() != 2){
+	    this.equipped.set(slot, null);
+	    this.addItem(existing);
+	    return true;
+	}else{
+	    System.out.println("The " + existing.getDescription() + " is cursed! You can't remove it.");
+	    return false;
+	}
+    }
+}

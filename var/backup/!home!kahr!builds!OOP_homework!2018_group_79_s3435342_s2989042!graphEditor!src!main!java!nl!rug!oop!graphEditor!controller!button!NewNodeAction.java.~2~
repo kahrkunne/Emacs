@@ -1,0 +1,28 @@
+package nl.rug.oop.graphEditor.controller.button;
+
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
+import java.util.Observable;
+import java.util.Observer;
+
+import nl.rug.oop.graphEditor.view.GraphPanel;
+import nl.rug.oop.graphEditor.model.GraphVertex;
+
+public class NewNodeAction extends AbstractAction implements Observer {
+    private GraphPanel panel;
+
+    public NewNodeAction(String name, GraphPanel panel) {
+        super(name);
+        this.panel = panel;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        panel.getModel().addVertex(new GraphVertex(panel.getModel(), 100, 100, 55, 120, "New Node"));
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
+    }
+}

@@ -1,0 +1,69 @@
+#import json
+
+#from .layout import layout
+#extends layout
+
+#def head
+#raw
+<script id="mangalist-section-template" type="x-tmpl-mustache" language="text" type="text/html">
+    {{#title}}<b>{{title}}</b>{{/title}}
+    <table class="table table-sm borderless mangalist-table p-0">
+	<thead>
+	    <th class=""><a href="javascript:;" class="sort-title">Title</a></th>
+	    {{#mangalist_display_progress}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-chapters">Chapters</a></th>
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-volumes">Volumes</a></th>
+	    {{/mangalist_display_progress}}
+	    {{#mangalist_display_score}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-score">Score</a></th>
+	    {{/mangalist_display_score}}
+	    {{#mangalist_display_type}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-type">Type</a></th>
+	    {{/mangalist_display_type}}
+	    {{#mangalist_display_start_date}}
+	    <th class="text-center" style="width:6em"><a href="javascript:;" class="sort-start-date">Start date</a></th>
+	    {{/mangalist_display_start_date}}
+	    {{#mangalist_display_end_date}}
+	    <th class="text-center" style="width:6em"><a href="javascript:;" class="sort-end-date">End date</a></th>
+	    {{/mangalist_display_end_date}}
+	    {{#mangalist_display_num_rereads}}
+	    <th class="text-center" style="width:4em"><a href="javascript:;" class="sort-num-rereads">Rereads</a></th>
+	    {{/mangalist_display_num_rereads}}
+	</thead>
+	<tbody>
+	    {{#mlist}}
+	    <tr class="entry-{{manga_id}}">
+		<td>
+		    <!-- TODO proper styling for this -->
+		    <a href="/manga/{{manga_id}}" style="color:rgb(33,37,41);">{{title}}</a>
+		    {{#edit}}<span class="mangalist-edit-button"><a href="javascript:;" class="edit-{{manga_id}}">Edit</a></div>{{/edit}}
+		</td>
+		{{#mangalist_display_progress}}
+		<td class="text-center">{{num_chapters}}/{{total_chapters}}<a href="javascript:;" {{#plus}}class="plus1-c-{{manga_id}}">+{{/plus}}</a></td>{{/mangalist_display_progress}}
+		<td class="text-center">{{num_volumes}}/{{total_volumes}}<a href="javascript:;" {{#plus}}class="plus1-v-{{manga_id}}">+{{/plus}}</a></td>
+
+		{{#mangalist_display_score}}<td class="text-center">{{#score}}{{score}}{{/score}}</td>{{/mangalist_display_score}}
+		{{#mangalist_display_type}}<td class="text-center">{{type}}</td>{{/mangalist_display_type}}
+		{{#mangalist_display_start_date}}<td class="text-center">{{readable_start_date}}</td>{{/mangalist_display_start_date}}
+		{{#mangalist_display_end_date}}<td class="text-center">{{readable_end_date}}</td>{{/mangalist_display_end_date}}
+		{{#mangalist_display_num_rereads}}<td class="text-center">{{num_rereads}}</td>{{/mangalist_display_num_rereads}}
+	    </tr>
+	    {{/mlist}}
+	</tbody>
+    </table>
+</script>
+#end raw
+#end def
+
+#def main
+
+<div>
+    <input name="mangalist-search" id="mangalist-search" type="search" class="form-control" placeholder="Search" autofocus="autofocus" autocomplete="off"/>
+	
+</div>
+
+<div id="mangalist">
+
+</div>
+
+#end def

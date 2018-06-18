@@ -1,0 +1,4 @@
+/etc/default/grub
+~/.emacs.d/#!etc!default!grub#
+/sudo:root@localhost:/etc/modprobe.d/vfio.conf
+/home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aetc_amodprobe.d_avfio.conf#

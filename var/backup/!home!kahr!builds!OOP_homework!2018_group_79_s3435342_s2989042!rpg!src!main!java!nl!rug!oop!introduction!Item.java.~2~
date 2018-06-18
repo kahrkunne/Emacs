@@ -1,0 +1,64 @@
+public class Item extends Inspectable implements Interactable {
+    /**
+     * Item
+     * An Item
+     * This will probably become abstract in the future
+     * @author: Kahr Kunne, Gijs Erens
+     */
+    private int buc;
+    private int enchantment;
+    public Item(String description, int buc, int enchantment){
+	// FIXME tihs can't be done in super() itself for some reason
+	super("");
+	this.setDescription(this.genDescription(description, buc, enchantment));
+	this.buc = buc;
+	this.enchantment = enchantment;
+    }
+
+    public Item(String description){
+	super(description);
+	this.buc = 0;
+	this.enchantment = 0;
+    }
+
+    private static String genDescription(String description, int buc, int enchantment){
+	String enchantmentString = enchantment > 0 ? "+" : "";
+	String bucString;
+	switch(buc){
+	case 1:
+	    bucString = "Blessed";
+	    break;
+	case 2:
+	    bucString = "Cursed";
+	    break;
+	default:
+	    bucString = "";
+	    break;
+	}
+
+	return (bucString + " " + enchantmentString + enchantment + " " + description);
+    }
+
+    public int getBuc(){
+	return this.buc;
+    }
+
+    public void setBuc(int buc){
+	this.buc = buc;
+	this.setDescription(genDescription(this.getDescription(), this.buc, this.enchantment));
+    }
+
+    public int getEnchantment(){
+	return this.enchantment;
+    }
+
+    public void setEnchantment(int enchantment){
+	this.enchantment = enchantment;
+	this.setDescription(genDescription(this.getDescription(), this.buc, this.enchantment));
+    }
+    
+    public void interact(Player p){
+	System.out.println("You look at the item.");
+	this.inspect();
+    }
+}
