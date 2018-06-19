@@ -224,9 +224,8 @@ Set the theme and font
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq custom-safe-themes t)
   (set-frame-font "xos4 Terminus-12")
-;  (use-package ample-theme)
-;  (ample-theme)
-(load-theme 'cherry-blossom)
+  (use-package ample-theme)
+  (ample-theme)
 #+END_SRC
 **** TODO Font doesn't currently work right, requires .Xdefaults hack
 *** powerline
@@ -311,7 +310,7 @@ http://company-mode.github.io/
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package company
     :config
-    (global-company-mode)
+    (add-hook 'after-init-hook 'global-company-mode)
     (setq company-idle-delay 0.25)
     (setq company-tooltip-limit 10)
     (setq company-minimum-prefix-length 4)
@@ -326,7 +325,7 @@ http://www.flycheck.org/en/latest/
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package flycheck
     :config
-    (global-flycheck-mode))
+    (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
 **** lispy + lispyville
 Lispy: reimagination of paredit, with a vi-esque slant.
@@ -484,16 +483,6 @@ https://magit.vc/
 
 
 ***** TODO Unlock the full potential of git and magit
-**** projectile
-Project management. Also includes counsel-projectile.
-https://github.com/bbatsov/projectile
-https://github.com/ericdanan/counsel-projectile
-#+NAME: projectile
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package projectile)
-  (use-package counsel-projectile)
-#+END_SRC
-
 *** Text editing
 **** evil
 Vi(m) emulation layer for Emacs. The best of the best - I wouldn't use Emacs if this didn't exist (and I love Emacs!)
@@ -780,36 +769,33 @@ https://github.com/ch11ng/exwm/wiki
     (setq exwm-workspace-number 10)
     ;; Naming windows; see the EXWM example config (https://github.com/ch11ng/exwm/wiki/Configuration-Example)
     (add-hook 'exwm-update-class-hook
-	      (lambda ()
-		(unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-			    (string= "gimp" exwm-instance-name))
-		  (exwm-workspace-rename-buffer exwm-class-name))))
+              (lambda ()
+                (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                            (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer exwm-class-name))))
     (add-hook 'exwm-update-title-hook
-	      (lambda ()
-		(when (or (not exwm-instance-name)
-			  (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-			  (string= "gimp" exwm-instance-name))
-		  (exwm-workspace-rename-buffer exwm-title))))
+              (lambda ()
+                (when (or (not exwm-instance-name)
+                          (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                          (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer exwm-title))))
     ;; Keybindings
     (exwm-input-set-key (kbd "s-x") #'exwm-reset)
     (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
     (dotimes (i 10)
       (exwm-input-set-key (kbd (format "s-%d" i))
-			  `(lambda ()
-			     (interactive)
-			     (exwm-workspace-switch ,i)))) 
+                          `(lambda ()
+                             (interactive)
+                             (exwm-workspace-switch ,i)))) 
     (exwm-input-set-key (kbd "s-r") 'exwm-kahr/launcher)
     (exwm-input-set-key (kbd "s-t") 'exwmx-toggle-keyboard)
     ;; Start EXWM
     (require 'exwm-randr)
     (setq exwm-randr-workspace-output-plist '(0 "HDMI-0" 1 "DVI-D-1" 2 "DVI-D-1" 3 "DVI-D-1" 4 "DVI-D-1" 5 "DVI-D-1" 6 "HDMI-0" 7 "HDMI-0" 8 "HDMI-0" 9 "HDMI-0"))
     (add-hook 'exwm-randr-screen-change-hook
-	      (lambda ()
-		(start-process-shell-command
-		 "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-0 --auto")))
-
-    (setq exwm-workspace-show-all-buffers t)
-    (setq exwm-layout-show-all-buffers t)
+              (lambda ()
+                (start-process-shell-command
+                 "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-0 --auto")))
     (exwm-enable)
     (exwm-randr-enable))
 

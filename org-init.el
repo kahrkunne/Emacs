@@ -135,9 +135,10 @@
  '(org-level-5 ((t (:inherit variable-pitch :foreground "#E6DB74" :height 1.0 :family "Terminus")))))
 
 (setq custom-safe-themes t)
-(set-frame-font "xos4 Terminus-12")
-(use-package ample-theme)
-(ample-theme)
+  (set-frame-font "xos4 Terminus-12")
+;  (use-package ample-theme)
+;  (ample-theme)
+(load-theme 'cherry-blossom)
 
 (use-package powerline
   :config (powerline-default-theme))
@@ -166,8 +167,8 @@
   (setq company-tooltip-limit 10)
   (setq company-minimum-prefix-length 4)
   (setq company-global-modes
-        '(not
-          eshell-mode comint-mode org-mode erc-mode)))
+	'(not
+	  eshell-mode comint-mode org-mode erc-mode)))
 
 (use-package flycheck
   :config
@@ -226,7 +227,7 @@
 
 (use-package rainbow-mode
   :config
-  (rainbow-mode 1))
+  (add-hook 'text-mode-hook (lambda () (rainbow-mode 1))))
 
 (use-package hlinum-hl
   :after nlinum
@@ -293,9 +294,10 @@
 
 (use-package yasnippet
   :bind
-  ("C-c c" . yas-expand)
+  ("C-c e" . yas-expand)
   :config
   (yas-global-mode 1)
+  (define-key yas-keymap (kbd "<tab>") nil)
   (yas-load-directory "~/.emacs.d/snippets/"))
 
 (use-package mozc
@@ -368,11 +370,31 @@
 
 (use-package treemacs
   :config
-  (global-set-key (kbd "C-c t") #'treemacs)
+  (setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+  (setq treemacs-follow-after-init t
+	treemacs-width             35)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-git-mode 'extended)
+  (set-face-background 'hl-line "dim gray")
+  (set-face-attribute 'treemacs-root-face nil :height 1.0)
+
+  :bind
+    (:map global-map
+	("C-c t m"   . treemacs-select-window)
+	("C-c t 1"   . treemacs-delete-other-windows)
+	("C-c t t"   . treemacs)
+	("C-c t B"   . treemacs-bookmark)
+	("C-c t C-t" . treemacs-find-file)
+	("C-c t M-t" . treemacs-find-tag))
   )
 
-(use-package treemacs-projectile)
-(use-package treemacs-evil)
+(use-package treemacs-projectile
+  :after treemacs evil)
+(use-package treemacs-evil
+  :after treemacs projectile)
+
+(use-package crux)
 
 (use-package exwm)
 (use-package exwm-x)
@@ -382,33 +404,36 @@
   (setq exwm-workspace-number 10)
   ;; Naming windows; see the EXWM example config (https://github.com/ch11ng/exwm/wiki/Configuration-Example)
   (add-hook 'exwm-update-class-hook
-            (lambda ()
-              (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                          (string= "gimp" exwm-instance-name))
-                (exwm-workspace-rename-buffer exwm-class-name))))
+	    (lambda ()
+	      (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+			  (string= "gimp" exwm-instance-name))
+		(exwm-workspace-rename-buffer exwm-class-name))))
   (add-hook 'exwm-update-title-hook
-            (lambda ()
-              (when (or (not exwm-instance-name)
-                        (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                        (string= "gimp" exwm-instance-name))
-                (exwm-workspace-rename-buffer exwm-title))))
+	    (lambda ()
+	      (when (or (not exwm-instance-name)
+			(string-prefix-p "sun-awt-X11-" exwm-instance-name)
+			(string= "gimp" exwm-instance-name))
+		(exwm-workspace-rename-buffer exwm-title))))
   ;; Keybindings
   (exwm-input-set-key (kbd "s-x") #'exwm-reset)
   (exwm-input-set-key (kbd "s-w") #'exwm-workspace-switch)
   (dotimes (i 10)
     (exwm-input-set-key (kbd (format "s-%d" i))
-                        `(lambda ()
-                           (interactive)
-                           (exwm-workspace-switch ,i)))) 
+			`(lambda ()
+			   (interactive)
+			   (exwm-workspace-switch ,i)))) 
   (exwm-input-set-key (kbd "s-r") 'exwm-kahr/launcher)
   (exwm-input-set-key (kbd "s-t") 'exwmx-toggle-keyboard)
   ;; Start EXWM
   (require 'exwm-randr)
   (setq exwm-randr-workspace-output-plist '(0 "HDMI-0" 1 "DVI-D-1" 2 "DVI-D-1" 3 "DVI-D-1" 4 "DVI-D-1" 5 "DVI-D-1" 6 "HDMI-0" 7 "HDMI-0" 8 "HDMI-0" 9 "HDMI-0"))
   (add-hook 'exwm-randr-screen-change-hook
-            (lambda ()
-              (start-process-shell-command
-               "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-0 --auto")))
+	    (lambda ()
+	      (start-process-shell-command
+	       "xrandr" nil "xrandr --output HDMI-0 --right-of DVI-D-0 --auto")))
+
+  (setq exwm-workspace-show-all-buffers t)
+  (setq exwm-layout-show-all-buffers t)
   (exwm-enable)
   (exwm-randr-enable))
 
@@ -542,12 +567,12 @@ buffer is not visiting a file."
 
 (defhydra hydra-launch (:color blue :hint nil)
   "
-^Term^             ^Files^           ^IRC^          ^Email^        ^System        
-^^^^^^^^--------------------------------------------------------------------------
-_t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus      _l_: linux app
-_e_: eshell
-_s_: shell
-"
+  ^Term^             ^Files^           ^IRC^          ^Email^        ^System        
+  ^^^^^^^^--------------------------------------------------------------------------
+  _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus      _l_: linux app
+  _e_: eshell
+  _s_: shell
+  "
   ("t" ansi-term)
   ("e" eshell)
   ("s" shell)
@@ -559,11 +584,11 @@ _s_: shell
 
 (defhydra hydra-navigate (:color blue :hint nil)
   "
-^Char^             ^Line^           ^search^          ^File^          ^buffer
-^^^^^^^^---------------------------------------------------------------------------------------
-_c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
-_j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
-"
+  ^Char^             ^Line^           ^search^          ^File^          ^buffer
+  ^^^^^^^^---------------------------------------------------------------------------------------
+  _c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
+  _j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
+  "
   ("c" avy-goto-char-timer)
   ("j" avy-goto-char)
   ("l" avy-goto-line)
@@ -581,20 +606,20 @@ _j_: char                         _a_: search all   _p_: ffap       _o_ buffer o
 
 (defhydra hydra-eshell (:color blue :hint nil)
   "
-^I/O^              ^Visual
-^^^^^^^-----------------------------
-_b_: buffer        _c_: clear
-		 _x_: clear history
-"
+  ^I/O^              ^Visual
+  ^^^^^^^-----------------------------
+  _b_: buffer        _c_: clear
+		   _x_: clear history
+  "
   ("b" eshell-insert-buffer-name)
   ("c" eshell/clear)
   ("x" eshell-full-clear))
-(global-set-key (kbd "C-c e") 'hydra-eshell/body)
+					;  (global-set-key (kbd "C-c e") 'hydra-eshell/body)
 
 (defhydra hydra-workgroups (:color blue :hint nil)
   "
-_c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
-"
+  _c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
+  "
   ("c" wg-create-workgroup)
   ("A" wg-rename-workgroup)
   ("k" wg-kill-workgroup)
@@ -602,6 +627,17 @@ _c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
   ("s" wg-save-session-as)
   ("f" wg-open-session))
 (global-set-key (kbd "C-c w") 'hydra-workgroups/body)
+
+(defhydra hydra-crux (:color blue :hint nil)
+  "
+  _o_: open    _a_: nl a    _b_: nl b    _e_: e.a.r.    _D_: d.f.a.b.
+  "
+  ("o" crux-open-with)
+  ("a" crux-smart-open-line-above)
+  ("b" crux-smart-open-line)
+  ("e" crux-eval-and-replace)
+  ("D" crux-delte-file-and-buffer))
+(global-set-key (kbd "C-c c") #'hydra-crux/body)
 
 (global-set-key (kbd "C-c d") 'insert-date)
 (global-set-key (kbd "C-x g") 'webjump)
@@ -619,13 +655,15 @@ _c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
 (global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
 
 ((defun to-vm ()
-  (interactive)
-  (call-process "to-vm.sh"))
+   (interactive)
+   (call-process "to-vm.sh"))
 
-(defun from-vm ()
-  (interactive)
-  (call-process "from-vm.sh"))
+ (defun from-vm ()
+   (interactive)
+   (call-process "from-vm.sh"))
 
 
-(global-set-key (kbd "s-d") #'to-vm)
-(global-set-key (kbd "s-f") #'from-vm)
+ (global-set-key (kbd "s-d") #'to-vm)
+ (global-set-key (kbd "s-f") #'from-vm)
+
+ (define-key python-mode-map (kbd "<tab>") #'company-jedi)

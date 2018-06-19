@@ -311,7 +311,7 @@ http://company-mode.github.io/
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package company
     :config
-    (global-company-mode)
+    (add-hook 'after-init-hook 'global-company-mode)
     (setq company-idle-delay 0.25)
     (setq company-tooltip-limit 10)
     (setq company-minimum-prefix-length 4)
@@ -326,7 +326,7 @@ http://www.flycheck.org/en/latest/
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package flycheck
     :config
-    (global-flycheck-mode))
+    (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
 **** lispy + lispyville
 Lispy: reimagination of paredit, with a vi-esque slant.
@@ -484,16 +484,6 @@ https://magit.vc/
 
 
 ***** TODO Unlock the full potential of git and magit
-**** projectile
-Project management. Also includes counsel-projectile.
-https://github.com/bbatsov/projectile
-https://github.com/ericdanan/counsel-projectile
-#+NAME: projectile
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package projectile)
-  (use-package counsel-projectile)
-#+END_SRC
-
 *** Text editing
 **** evil
 Vi(m) emulation layer for Emacs. The best of the best - I wouldn't use Emacs if this didn't exist (and I love Emacs!)
