@@ -1,1 +1,1 @@
-("~/Toshokan/toshokan/")
+("~/Toshokan/toshokan/" "~/.emacs.d/")

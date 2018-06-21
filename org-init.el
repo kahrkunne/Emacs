@@ -162,7 +162,7 @@
 
 (use-package company
   :config
-  (add-hook 'after-init-hook 'global-company-mode)
+  (global-company-mode)
   (setq company-idle-delay 0.25)
   (setq company-tooltip-limit 10)
   (setq company-minimum-prefix-length 4)
@@ -172,7 +172,7 @@
 
 (use-package flycheck
   :config
-  (add-hook 'after-init-hook #'global-flycheck-mode))
+  (global-flycheck-mode))
 
 (use-package lispy
   :config
@@ -257,6 +257,9 @@
     (setq with-editor-emacsclient-executable "/usr/bin/emacsclient-emacs-25")
   (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
 )
+
+(use-package projectile)
+(use-package counsel-projectile)
 
 (use-package evil
     :commands evil-ex

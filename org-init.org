@@ -312,7 +312,7 @@ http://company-mode.github.io/
   (use-package company
     :config
     (global-company-mode)
-    (setq company-idle-delay 0.25)
+    (setq company-idle-delay nil)
     (setq company-tooltip-limit 10)
     (setq company-minimum-prefix-length 4)
     (setq company-global-modes
@@ -442,10 +442,12 @@ https://github.com/abo-abo/avy
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package avy
     :config
-    (setq avy-keys (number-sequence ?a ?z))
+;    (setq avy-keys (number-sequence ?a ?z))
     (setq avy-all-windows nil)
-    (setq avy-timeout-seconds 0.3)
-    (setq avy-keys '(?a ?s ?d ?f ?j ?k ?l ?g ?h ?r ?e ?u ?i ?v ?n)))
+    (setq avy-timeout-seconds 0.2)
+    (setq avy-keys '(?a ?s ?d ?f ?k ?l ?; ?g ?h
+		       ?q ?w ?e ?r ?t ?y ?i ?p
+		       ?z ?A ?S ?D ?F ?J ?K ?L))
 #+END_SRC
 **** ace-window
 Switch between windows using ace-jump.
@@ -456,7 +458,9 @@ https://github.com/abo-abo/ace-window
     :commands (ace-window)
     :bind (("C-x o" . ace-window))
     :config
-    (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?; ?g ?h))) 
+    (setq aw-keys '(?a ?s ?d ?f ?k ?l ?; ?g ?h
+		       ?q ?w ?e ?r ?t ?y ?i ?p
+		       ?z ?A ?S ?D ?F ?J ?K ?L))) 
 #+END_SRC
 **** windmove
 Move to a different window more easily.
@@ -469,6 +473,16 @@ https://www.emacswiki.org/emacs/WindMove
   (global-set-key (kbd "s-<down>") 'windmove-down)
   (global-set-key (kbd "s-<up>") 'windmove-up)
 #+END_SRC
+**** dumb-jump
+"jump to definition" package.
+https://github.com/jacktasia/dumb-jump
+#+NAME: dumb-jump
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package dumb-jump
+    :config
+    (setq dumb-jump-selector 'ivy))
+#+END_SRC
+
 *** Project management
 **** magit
 Magit is an extremely powerful and pleasant Git interface for Emacs. If you use Git a lot, this package is pretty much a must.
@@ -767,6 +781,28 @@ https://github.com/bbatsov/crux
   (use-package crux)
 #+END_SRC
 
+**** indent-guide
+Show identation levels with lines.
+https://github.com/zk-phi/indent-guide
+Currently off for performance reasons
+#+NAME: indent-guide
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package indent-guide
+    :config
+    (indent-guide-global-mode nil))
+
+#+END_SRC
+
+**** diff-hl
+Highlight uncommited changes in the fringe.
+https://github.com/dgutov/diff-hl
+#+NAME: diff-hl
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package diff-hl
+    :config
+    (global-diff-hl-mode))
+#+END_SRC
+
 ** EXWM
 Code for the X Emacs Window Manager (EXWM).
 https://github.com/ch11ng/exwm/wiki
@@ -998,7 +1034,7 @@ Pretty much self-explanatory
     _e_: eshell
     _s_: shell
     "
-    ("t" ansi-term)
+    ("t" (lambda () (ansi-term "xonsh")))
     ("e" eshell)
     ("s" shell)
     ("d" dired)
@@ -1064,6 +1100,15 @@ Pretty much self-explanatory
     ("D" crux-delte-file-and-buffer))
   (global-set-key (kbd "C-c c") #'hydra-crux/body)
 
+  (defhydra hydra-dumb-jump (:color blue :hint nil)
+    "
+    _g_: go    _b_: back    _p_: prompt
+  "
+    ("g" dumb-jump-go)
+    ("b" dumb-jump-back)
+    ("p" dumb-jump-go-prompt))
+  (global-set-key (kbd "C-c j") #'hydra-dumb-jump/body)
+
   (global-set-key (kbd "C-c d") 'insert-date)
   (global-set-key (kbd "C-x g") 'webjump)
   (global-set-key (kbd "C-c b") 'paste-below)
@@ -1079,7 +1124,7 @@ Pretty much self-explanatory
   (global-set-key (kbd "<XF86AudioRaiseVolume>") #'mingus-vol-up)
   (global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
 
-  ((defun to-vm ()
+  (defun to-vm ()
      (interactive)
      (call-process "to-vm.sh"))
 
@@ -1091,5 +1136,6 @@ Pretty much self-explanatory
    (global-set-key (kbd "s-d") #'to-vm)
    (global-set-key (kbd "s-f") #'from-vm)
 
-   (define-key python-mode-map (kbd "<tab>") #'company-jedi)
+   (global-set-key (kbd "C-SPC") #'company-complete)
+   (define-key python-mode-map (kbd "C-SPC") #'company-jedi) 
 #+END_SRC

@@ -1,0 +1,18 @@
+ls
+cd .emacs.d
+ls
+cd ..
+ls
+dunes1_2.png~                                                     tshk_demo.mp4
+clear
+cd Pictures
+ls
+cat grey.png
+imgcat grey.png
+cat waifu.jpg
+clear
+ls
+cat doek.png
+cd ..
+ls
+cat vn.html
