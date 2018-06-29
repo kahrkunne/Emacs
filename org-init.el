@@ -163,7 +163,7 @@
 (use-package company
   :config
   (global-company-mode)
-  (setq company-idle-delay 0.25)
+  (setq company-idle-delay nil)
   (setq company-tooltip-limit 10)
   (setq company-minimum-prefix-length 4)
   (setq company-global-modes
@@ -235,22 +235,30 @@
   (add-hook 'nlinum-mode-hook #'nlinum-hl-mode))
 
 (use-package avy
-  :config
-  (setq avy-keys (number-sequence ?a ?z))
-  (setq avy-all-windows nil)
-  (setq avy-timeout-seconds 0.3)
-  (setq avy-keys '(?a ?s ?d ?f ?j ?k ?l ?g ?h ?r ?e ?u ?i ?v ?n)))
+    :config
+;    (setq avy-keys (number-sequence ?a ?z))
+    (setq avy-all-windows nil)
+    (setq avy-timeout-seconds 0.2)
+    (setq avy-keys '(?a ?s ?d ?f ?k ?l ?; ?g ?h
+		       ?q ?w ?e ?r ?t ?y ?i ?p
+		       ?z ?A ?S ?D ?F ?J ?K ?L)))
 
 (use-package ace-window
   :commands (ace-window)
   :bind (("C-x o" . ace-window))
   :config
-  (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?; ?g ?h)))
+  (setq aw-keys '(?a ?s ?d ?f ?k ?l ?; ?g ?h
+		     ?q ?w ?e ?r ?t ?y ?i ?p
+		     ?z ?A ?S ?D ?F ?J ?K ?L)))
 
 (global-set-key (kbd "s-<left>") 'windmove-left)
 (global-set-key (kbd "s-<right>") 'windmove-right)
 (global-set-key (kbd "s-<down>") 'windmove-down)
 (global-set-key (kbd "s-<up>") 'windmove-up)
+
+(use-package dumb-jump
+  :config
+  (setq dumb-jump-selector 'ivy))
 
 (use-package magit
     :config
@@ -398,6 +406,15 @@
   :after treemacs projectile)
 
 (use-package crux)
+
+;  (use-package indent-guide
+;    :config
+;    (indent-guide-global-mode nil)
+;)
+
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode))
 
 (use-package exwm)
 (use-package exwm-x)
@@ -564,109 +581,119 @@ buffer is not visiting a file."
 ;  (use-package evil-magit)
 
 (defhydra hydra-zoom (global-map "<f2>")
-  "zoom"
-  ("g" text-scale-increase "in")
-  ("l" text-scale-decrease "out"))
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out"))
 
-(defhydra hydra-launch (:color blue :hint nil)
+  (defhydra hydra-launch (:color blue :hint nil)
+    "
+    ^Term^             ^Files^           ^IRC^          ^Email^        ^System        
+    ^^^^^^^^--------------------------------------------------------------------------
+    _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus      _l_: linux app
+    _e_: eshell
+    _s_: shell
+    "
+    ("t" (lambda () (interactive) (ansi-term "xonsh")))
+    ("e" eshell)
+    ("s" shell)
+    ("d" dired)
+    ("i" erc)
+    ("g" gnus)
+    ("l" counsel-linux-app))
+  (global-set-key (kbd "C-c l") 'hydra-launch/body)
+
+  (defhydra hydra-navigate (:color blue :hint nil)
+    "
+    ^Char^             ^Line^           ^search^          ^File^          ^buffer
+    ^^^^^^^^---------------------------------------------------------------------------------------
+    _c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
+    _j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
+    "
+    ("c" avy-goto-char-timer)
+    ("j" avy-goto-char)
+    ("l" avy-goto-line)
+    ("s" swiper)
+    ("a" swiper-all)
+    ("f" counsel-find-file)
+    ("p" counsel-find-file-at-point)
+    ("b" switch-to-buffer)
+    ("o" switch-to-buffer-other-window))
+  (global-set-key (kbd "C-c n") 'hydra-navigate/body)
+
+  (defun eshell-full-clear ()
+    (interactive)
+    (eshell/clear t))
+
+  (defhydra hydra-eshell (:color blue :hint nil)
+    "
+    ^I/O^              ^Visual
+    ^^^^^^^-----------------------------
+    _b_: buffer        _c_: clear
+		     _x_: clear history
+    "
+    ("b" eshell-insert-buffer-name)
+    ("c" eshell/clear)
+    ("x" eshell-full-clear))
+					  ;  (global-set-key (kbd "C-c e") 'hydra-eshell/body)
+
+  (defhydra hydra-workgroups (:color blue :hint nil)
+    "
+    _c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
+    "
+    ("c" wg-create-workgroup)
+    ("A" wg-rename-workgroup)
+    ("k" wg-kill-workgroup)
+    ("v" wg-switch-to-workgroup)
+    ("s" wg-save-session-as)
+    ("f" wg-open-session))
+  (global-set-key (kbd "C-c w") 'hydra-workgroups/body)
+
+  (defhydra hydra-crux (:color blue :hint nil)
+    "
+    _o_: open    _a_: nl a    _b_: nl b    _e_: e.a.r.    _D_: d.f.a.b.
+    "
+    ("o" crux-open-with)
+    ("a" crux-smart-open-line-above)
+    ("b" crux-smart-open-line)
+    ("e" crux-eval-and-replace)
+    ("D" crux-delte-file-and-buffer))
+  (global-set-key (kbd "C-c c") #'hydra-crux/body)
+
+  (defhydra hydra-dumb-jump (:color blue :hint nil)
+    "
+    _g_: go    _b_: back    _p_: prompt
   "
-  ^Term^             ^Files^           ^IRC^          ^Email^        ^System        
-  ^^^^^^^^--------------------------------------------------------------------------
-  _t_: ansi-term     _d_: dired        _i_: erc       _g_: gnus      _l_: linux app
-  _e_: eshell
-  _s_: shell
-  "
-  ("t" ansi-term)
-  ("e" eshell)
-  ("s" shell)
-  ("d" dired)
-  ("i" erc)
-  ("g" gnus)
-  ("l" counsel-linux-app))
-(global-set-key (kbd "C-c l") 'hydra-launch/body)
+    ("g" dumb-jump-go)
+    ("b" dumb-jump-back)
+    ("p" dumb-jump-go-prompt))
+  (global-set-key (kbd "C-c j") #'hydra-dumb-jump/body)
 
-(defhydra hydra-navigate (:color blue :hint nil)
-  "
-  ^Char^             ^Line^           ^search^          ^File^          ^buffer
-  ^^^^^^^^---------------------------------------------------------------------------------------
-  _c_: char timer    _l_: line        _s_: search       _f_: find-file  _b_ buffer
-  _j_: char                         _a_: search all   _p_: ffap       _o_ buffer other window
-  "
-  ("c" avy-goto-char-timer)
-  ("j" avy-goto-char)
-  ("l" avy-goto-line)
-  ("s" swiper)
-  ("a" swiper-all)
-  ("f" counsel-find-file)
-  ("p" counsel-find-file-at-point)
-  ("b" switch-to-buffer)
-  ("o" switch-to-buffer-other-window))
-(global-set-key (kbd "C-c n") 'hydra-navigate/body)
+  (global-set-key (kbd "C-c d") 'insert-date)
+  (global-set-key (kbd "C-x g") 'webjump)
+  (global-set-key (kbd "C-c b") 'paste-below)
+  (global-set-key (kbd "C-c a") 'paste-above)
+  (global-set-key (kbd "C-c m") 'magit-status)
+  (global-set-key (kbd "C-c f") 'eval-region)
+  (global-set-key (kbd "C-x C-r") 'sudo-edit)
+  (global-set-key (kbd "C-c r") 'rename-buffer)
+  (global-set-key (kbd "C-h C-f") 'find-function)
+  (global-set-key (kbd "C-h C-v") 'find-variable)
+  (global-set-key (kbd "C-c p") #'mingus-toggle)
+  (global-set-key (kbd "<XF86AudioLowerVolume>") #'mingus-vol-down)
+  (global-set-key (kbd "<XF86AudioRaiseVolume>") #'mingus-vol-up)
+  (global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
 
-(defun eshell-full-clear ()
-  (interactive)
-  (eshell/clear t))
+  (defun to-vm ()
+     (interactive)
+     (call-process "to-vm.sh"))
 
-(defhydra hydra-eshell (:color blue :hint nil)
-  "
-  ^I/O^              ^Visual
-  ^^^^^^^-----------------------------
-  _b_: buffer        _c_: clear
-		   _x_: clear history
-  "
-  ("b" eshell-insert-buffer-name)
-  ("c" eshell/clear)
-  ("x" eshell-full-clear))
-					;  (global-set-key (kbd "C-c e") 'hydra-eshell/body)
-
-(defhydra hydra-workgroups (:color blue :hint nil)
-  "
-  _c_: create    _A_: rename    _k_: kill    _v_: switch    _s_: save    _f_: load
-  "
-  ("c" wg-create-workgroup)
-  ("A" wg-rename-workgroup)
-  ("k" wg-kill-workgroup)
-  ("v" wg-switch-to-workgroup)
-  ("s" wg-save-session-as)
-  ("f" wg-open-session))
-(global-set-key (kbd "C-c w") 'hydra-workgroups/body)
-
-(defhydra hydra-crux (:color blue :hint nil)
-  "
-  _o_: open    _a_: nl a    _b_: nl b    _e_: e.a.r.    _D_: d.f.a.b.
-  "
-  ("o" crux-open-with)
-  ("a" crux-smart-open-line-above)
-  ("b" crux-smart-open-line)
-  ("e" crux-eval-and-replace)
-  ("D" crux-delte-file-and-buffer))
-(global-set-key (kbd "C-c c") #'hydra-crux/body)
-
-(global-set-key (kbd "C-c d") 'insert-date)
-(global-set-key (kbd "C-x g") 'webjump)
-(global-set-key (kbd "C-c b") 'paste-below)
-(global-set-key (kbd "C-c a") 'paste-above)
-(global-set-key (kbd "C-c m") 'magit-status)
-(global-set-key (kbd "C-c f") 'eval-region)
-(global-set-key (kbd "C-x C-r") 'sudo-edit)
-(global-set-key (kbd "C-c r") 'rename-buffer)
-(global-set-key (kbd "C-h C-f") 'find-function)
-(global-set-key (kbd "C-h C-v") 'find-variable)
-(global-set-key (kbd "C-c p") #'mingus-toggle)
-(global-set-key (kbd "<XF86AudioLowerVolume>") #'mingus-vol-down)
-(global-set-key (kbd "<XF86AudioRaiseVolume>") #'mingus-vol-up)
-(global-set-key (kbd "<XF86AudioMute>") #'mingus-toggle)
-
-((defun to-vm ()
-   (interactive)
-   (call-process "to-vm.sh"))
-
- (defun from-vm ()
-   (interactive)
-   (call-process "from-vm.sh"))
+   (defun from-vm ()
+     (interactive)
+     (call-process "from-vm.sh"))
 
 
- (global-set-key (kbd "s-d") #'to-vm)
- (global-set-key (kbd "s-f") #'from-vm)
+   (global-set-key (kbd "s-d") #'to-vm)
+   (global-set-key (kbd "s-f") #'from-vm)
 
- (define-key python-mode-map (kbd "<tab>") #'company-jedi)
+   (global-set-key (kbd "C-SPC") #'company-complete)
+;   (define-key python-mode-map (kbd "C-SPC") #'company-jedi)

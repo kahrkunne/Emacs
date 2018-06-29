@@ -1,13 +1,13 @@
 
 ;; ----- smex-history -----
 (
+ indent-guide-global-mode
  package-install
  counsel-wmctrl
  wg-reset
  wg-kill-workgroup
  workgroups-mode
  edebug-backtrace
- wg-save-session
 )
 
 ;; ----- smex-data -----
@@ -27,4 +27,5 @@
  (wg-kill-workgroup . 1)
  (wg-reset . 1)
  (counsel-wmctrl . 1)
+ (indent-guide-global-mode . 1)
 )

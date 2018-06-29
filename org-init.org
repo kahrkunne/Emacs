@@ -447,7 +447,7 @@ https://github.com/abo-abo/avy
     (setq avy-timeout-seconds 0.2)
     (setq avy-keys '(?a ?s ?d ?f ?k ?l ?; ?g ?h
 		       ?q ?w ?e ?r ?t ?y ?i ?p
-		       ?z ?A ?S ?D ?F ?J ?K ?L))
+		       ?z ?A ?S ?D ?F ?J ?K ?L)))
 #+END_SRC
 **** ace-window
 Switch between windows using ace-jump.
@@ -773,6 +773,18 @@ Also includes treemacs-evil and treemacs-projectile.
     :after treemacs projectile)
 #+END_SRC
 
+**** sidebar.el
+Sidebar
+https://github.com/sebastiencs/sidebar.el
+#+NAME: sidebar
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-to-list 'load-path "/etc/icons-in-terminal/") ;; If it's not already done
+  (add-to-list 'load-path "~/.emacs.d/elisp/sidebar.el")
+  (require 'sidebar)
+  ;; (global-set-key (kbd "C-x C-f") 'sidebar-open)
+  ;; (global-set-key (kbd "C-x C-a") 'sidebar-buffers-open)
+#+END_SRC
+
 **** crux
 A Collection of Ridiculously Useful eXtensions for Emacs.
 https://github.com/bbatsov/crux
@@ -787,9 +799,10 @@ https://github.com/zk-phi/indent-guide
 Currently off for performance reasons
 #+NAME: indent-guide
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package indent-guide
-    :config
-    (indent-guide-global-mode nil))
+;  (use-package indent-guide
+;    :config
+;    (indent-guide-global-mode nil)
+;)
 
 #+END_SRC
 
@@ -1034,7 +1047,7 @@ Pretty much self-explanatory
     _e_: eshell
     _s_: shell
     "
-    ("t" (lambda () (ansi-term "xonsh")))
+    ("t" (lambda () (interactive) (ansi-term "xonsh")))
     ("e" eshell)
     ("s" shell)
     ("d" dired)
@@ -1137,5 +1150,5 @@ Pretty much self-explanatory
    (global-set-key (kbd "s-f") #'from-vm)
 
    (global-set-key (kbd "C-SPC") #'company-complete)
-   (define-key python-mode-map (kbd "C-SPC") #'company-jedi) 
+;   (define-key python-mode-map (kbd "C-SPC") #'company-jedi) 
 #+END_SRC
