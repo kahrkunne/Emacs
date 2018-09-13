@@ -1,0 +1,79 @@
+<template>
+  <div class="columns">
+    <div class="column is-one-fifth">
+      <div class="library-image">
+        <img class="image" :src="manga.image">
+      </div>
+        <div class="library-info">
+	    <span class="has-text-weight-bold">{{manga.title}}</span><br>
+          <span class="has-text-weight-bold">Type: </span>{{manga.type}}<br>
+          <span class="has-text-weight-bold">Status: </span>{{manga.status}}<br>
+          <span class="has-text-weight-bold">Chapters: </span>{{(manga.chapter_count || "N/A")}}<br>
+          <span class="has-text-weight-bold">Volumes: </span>{{(manga.volume_count || "N/A")}}<br>
+
+          <span class="has-text-weight-bold">Serialization: </span>
+            <nuxt-link :to="'/magazine/'+manga.serialization[0]">{{manga.serialization[0]}}</nuxt-link>
+          <br>
+
+          <span class="has-text-weight-bold">Authors: </span>
+          <template v-for="(author, i) in manga.authors">
+            <nuxt-link :to="author['href']" :key="i">{{author.name}} </nuxt-link>
+            <template v-if="author.roles.length == 1">({{author.roles[0]}})</template>
+            <template v-if="author.roles.length == 2">(Story & Art)</template>
+            <template v-if="i+1 < manga.authors.length">, </template>
+          </template><br>
+
+          <span class="has-text-weight-bold">Genres: </span>
+          <template v-for="(genre, i) in manga.genres">
+            <nuxt-link :to="'/genres/'+genre" :key="genre">{{genre}}</nuxt-link>
+            <template v-if="i+1 < manga.genres.length">, </template>
+          </template><br>
+          <span class="has-text-weight-bold">Started: </span>{{manga.start_date == null ? "Unknown" : $moment(manga.start_date).format('MMM DD, YYYY')}}<br>
+          <span class="has-text-weight-bold">Ended: </span>{{manga.start_date == null ? "Unknown" : $moment(manga.end_date).format('MMM DD, YYYY')}}<br>
+          <hr>
+          <span class="has-text-weight-bold">Score: </span><br>
+          <span class="has-text-weight-bold">Ranked: </span><br>
+          <span class="has-text-weight-bold">Members: </span><br>
+          <span class="has-text-weight-bold">Sakura Score: </span><br>
+        </div>
+      <br>
+      <no-ssr>
+        <list-controls v-if="$store.getters.isRegistered" type="manga" :item="manga"></list-controls>
+      </no-ssr>
+    </div>
+    <div class="column">
+      <div class="tabs">
+        <ul>
+            <nuxt-link exact-active-class="is-active" tag="li" :to="'/manga/'+manga._id"><a>Details</a></nuxt-link>
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/manga/'+manga._id+'/cast'"><a>Cast</a></nuxt-link>
+        </ul>
+      </div>
+      <nuxt-child :manga="manga" />
+
+    </div>
+  </div>
+</template>
+
+<script>
+  import list_controls from "~/components/library/list_controls.vue"
+  export default {
+    async asyncData({ params, $axios }) {
+      const id = params.id
+      const manga = await $axios.$get("/manga/" + id)
+      return { id, manga };
+    },
+    components: { 'list-controls': list_controls },
+    data: function () {
+      return {
+        id: null,
+        manga: null
+      }
+    }
+  }
+</script>
+
+<style scoped>
+ .tabs {
+   margin-bottom: 0;
+ }
+</style>

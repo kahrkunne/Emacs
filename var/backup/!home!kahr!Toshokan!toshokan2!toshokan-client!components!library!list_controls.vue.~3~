@@ -1,0 +1,136 @@
+<template>
+<div v-if="$store.getters.isRegistered" class="list-control">
+  <template v-if="entry == 'loading'">
+    loading
+  </template>
+  <template v-else-if="entry">
+      <div class="has-text-centered"><b>{{upcasedType}} List</b></div>
+      <hr>
+
+      <b-field label="Status" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+	  <b-select v-model="entry.status" class="list-control-input list-control-select is-normal">
+	      <option v-for="option in statuses" :key="option">
+		  {{option}}
+	      </option>
+	  </b-select>
+      </b-field>
+      
+    <b-field label="Score" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+      <b-input v-model="entry.score" class="list-control-input is-normal">
+      </b-input>
+    </b-field>
+
+    
+    <mq-layout :mq="['mobile', 'tablet']">
+	<label for="progress-field" class="label list-control-label">{{progressName}}</label>
+    </mq-layout>
+
+    <b-field id="progress-field" :label="$viewport.geq('desktop', $mq) ? progressName : ''" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+        <button class="plus1-button button is-primary" @click="incrementProgress">+</button>
+
+      <b-input v-model="entry.progress" class="list-control-input is-normal">
+      </b-input>
+
+      <mq-layout :mq="['mobile', 'tablet', 'fullhd']">
+        <button class="button is-static counter">/ {{itemProgress}} </button>
+      </mq-layout>
+    </b-field>
+
+    <b-field>
+	<button @click="updateEntry" class="button is-primary submit-button">Save</button>
+	<button @click="openEditForm()" class="button submit-button">Advanced</button>
+    </b-field>
+
+  </template>
+  <template v-else>
+    <button class="button is-primary" @click="addEntry">Add {{upcasedType}}</button>
+  </template>
+</div>
+</template>
+<script>
+import edit_form from '~/components/list/edit_form.vue'
+import list_utils from '~/utils/list/list-utils.js'
+
+export default {
+    name: 'list_controls',
+    props: ['type', 'item'],
+    async created() {
+	this.fetchEntry()
+    },
+    components: {
+      edit_form
+    },
+    data() {
+	return {
+	    entry: 'loading'
+	}
+    },
+    computed: {
+	...list_utils.computed
+    },
+     methods: {
+	...list_utils.methods,
+	openEditForm() {
+	    // Still a WIP, as the edit form is still in progress
+	    // Also broke right now lmao
+	   this.$modal.open({
+	      parent: this,
+	      component: edit_form,
+	      hasModalCard: true,
+	      props: {type: this.type, entry: this.entry, item: this.item}
+	    })
+	}
+     } 
+}
+</script>
+<style scoped>
+.list-control >>> input, .list-control >>> select {
+    text-align: right;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.list-control >>> label {
+    text-align: left;
+}
+
+@media (min-width: 1024px) {
+   .list-control >>> label {
+       width: 75px !important;
+   }
+}
+
+ .list-control >>> option {
+     direction: rtl;
+ }
+
+ .list-control >>> select {
+     text-align-last: right;
+ }
+
+.list-control >>> .is-horizontal {
+    margin-bottom: 5px;
+}
+
+ .list-control >>> .submit-button {
+     width: 50%;
+ }
+ 
+ .list-control >>> .field {
+     margin-right: 0;
+ }
+
+ .list-control >>> .plus1-button {
+     width: 2.5rem;
+     border-right: none;
+ }
+
+ .list-control >>> .counter {
+     border-left: none;
+ }
+
+ .list-control >>> label {
+     margin-bottom: 0;
+ }
+
+</style>

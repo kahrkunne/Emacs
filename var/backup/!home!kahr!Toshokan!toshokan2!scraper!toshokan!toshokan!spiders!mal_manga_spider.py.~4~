@@ -1,0 +1,94 @@
+import scrapy
+from typing import List
+
+class MALMangaSpider(scrapy.Spider):
+    """Scraper for manga pages on MyAnimeList."""
+    name = "MAL_manga"
+    _lc_xpath: str = "//div[@class='js-scrollfix-bottom']/div[contains(.//span, '{}:')]/descendant-or-self::*/text()"
+
+    def get_lc(self, response, text) -> List[str]:
+        raw: List(str) = response.xpath(self._lc_xpath.format(text)).extract()
+        results = []
+        for r in raw:
+            r = r.replace('  ',' ').replace('\n','').strip()
+            if r and r != ' ' and r != text + ':' and r != ',':
+                results.append(r)
+        return results
+
+    def start_requests(self):
+        for manga_id in range(114047, 150000):
+            yield scrapy.Request(url="https://myanimelist.net/manga/" + str(manga_id), callback=self.parse)
+
+    def parse(self, response):
+        # URL: of the format "https://myanimelist.net/manga/1234"
+        mal_id = int(response.url.split('/')[-1])
+
+        title = response.xpath('//span[@itemprop="name"]/text()').extract_first()
+
+        try:
+            num_volumes = int(self.get_lc(response, 'Volumes')[0])
+        except:
+            num_volumes = None
+
+        try:
+            num_chapters = int(self.get_lc(response, 'Chapters')[0])
+        except:
+            num_chapters = None
+
+        type_:str = self.get_lc(response, 'Type')[0]
+        status: str = self.get_lc(response, 'Status')[-1]
+        published: str = self.get_lc(response, 'Published')[0]
+        authors: List[str] = self.get_lc(response, 'Authors')
+        serialization: List[str] = self.get_lc(response, 'Serialization')
+        genres: List[str] = self.get_lc(response, 'Genres')
+
+        description = ''.join(response.xpath(
+            "//*[@id='content']/table/tr/td[2]/div[1]/table/tr[1]/td/span"
+        ).extract())
+
+        raw_rels = response.xpath(
+            "//*[@id='content']/table/tr/td[2]/div[1]/table/tr[2]/td/table/tr"
+        ).extract()
+
+        rels = {}
+        for rel in raw_rels:
+            out = []
+            rel_name = rel.split('borderClass">')[1].split(':')[0]
+            rel_links = [x.replace(' ', '') for x in rel.split('borderClass">')[2].split('>,')]
+            for link in rel_links:
+                split_link = link.split('/')
+                # Links might be borked and empty
+                try:
+                    out.append((split_link[1], int(split_link[2])))
+                except:
+                    pass
+
+            rels[rel_name] = out
+
+        main_img = response.xpath(
+            "//*[@id='content']/table/tr/td[1]/div/div[1]/a/img/@src"
+        ).extract_first()
+
+        synonyms = []
+        for x in response.xpath("//div[@class='spaceit_pad']").extract()[:3]:
+            try:
+                synonyms.append(x.split('">')[2].replace('\n  </div>','').replace('</span> ',''))
+            except:
+                pass
+
+        yield {
+            'mal_id':mal_id,
+            'title':title,
+            'num_volumes':num_volumes,
+            'num_chapters':num_chapters,
+            'type':type_,
+            'status':status,
+            'published':published,
+            'authors':authors,
+            'serialization':serialization,
+            'genres':genres,
+            'description':description,
+            'relations':rels,
+            'main_img':main_img,
+            'synonyms':synonyms
+        }

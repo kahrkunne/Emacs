@@ -1,0 +1,62 @@
+var async = require('async')
+var req = require('request-promise')
+var fs = require('fs');
+var RateLimiter = require('request-rate-limiter');
+var limiter = new RateLimiter({
+    rate: 60              // requests per interval,
+    // defaults to 60
+    , interval: parseInt(process.argv[4])        // interval for the rate, x
+    // requests per interval,
+    // defaults to 60
+    , backoffCode: 429      // back off when this status is
+    // returned, defaults to 429
+    , backoffTime: 10       // back off for n seconds,
+    // defauts to rate/5
+    , maxWaitingTime: 250000   // return errors for requests
+    // that will have to wait for
+    // n seconds or more. defaults
+    // to 5 minutes
+});
+var folder = "./manga_mal/"
+async function scrape(task) {
+    try {
+        var resp = await limiter.request({ url: "https://myanimelist.net/manga/"+task.aid, headers: { 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"} })
+
+        fs.writeFile(folder + task.aid + ".html", resp.body, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(task.aid + " Saved.");
+        });
+        
+    } catch (err) {
+        fs.writeFile(folder + task.aid + err.statusCode+"error.html", err, function (errf) {
+            if (errf) {
+                return console.log(errf);
+            }
+            console.log(task.aid + " Error: " + err);
+        });
+        if (err.statusCode != 404) {
+            console.log("Retrying: " + task.aid)
+            scrape({ aid: task.aid })
+        }
+    }
+    return
+}
+function scrape_if_not_exists(task) {
+    fs.access(folder + task.aid + ".html", fs.constants.F_OK, (err) => {
+        if (err) {
+            scrape(task)
+        }
+    });
+}
+function runscrapers(start, end) {
+    console.log(start, end)
+    var i = start;
+    for (i; i <= end; i++) {
+        task = { aid: i }
+        scrape_if_not_exists(task)
+        
+    }
+}
+runscrapers(parseInt(process.argv[2]), parseInt(process.argv[3]))

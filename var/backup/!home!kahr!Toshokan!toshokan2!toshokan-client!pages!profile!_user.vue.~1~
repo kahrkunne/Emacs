@@ -1,0 +1,11 @@
+<template>
+  hello {{user}}
+</template>
+<script>
+export default {
+   async asyncData({ params, $axios }) {
+     const user = params.user
+     return { user };
+   }
+}
+</script>

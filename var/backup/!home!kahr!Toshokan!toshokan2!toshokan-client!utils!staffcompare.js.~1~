@@ -1,0 +1,6 @@
+const roleOrdering = ["Director", "Script", "Episode Director", "Storyboard", "Character Design", "Key Animation", "Special Effects", "Music"]
+export default {
+    function staffcompare(a, b, isAsc){
+	
+    }
+}

@@ -1,0 +1,24 @@
+<template>
+  <div>
+    your mom {{list_type}}
+    {{data}}
+  </div>
+</template>
+
+<script>
+ import page_auth from '~/plugins/page-auth-mixin.js'
+
+ async function asyncData({ params, $axios, store }) {
+   const list_type = params.type
+   const data = await $axios.$get('/recommendation/' + list_type)
+   return { list_type, data }
+ }
+
+ export default {
+   mixins: [page_auth(asyncData)],
+   validate({ params }) {
+     return ["anime", "manga", "novel"].includes(params.type)
+   },
+   
+ }
+</script>

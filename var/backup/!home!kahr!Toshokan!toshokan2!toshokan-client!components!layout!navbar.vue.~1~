@@ -1,0 +1,77 @@
+<template>
+  <nav class="navbar is-primary">
+    <div class="navbar-brand">
+      <nuxt-link class="navbar-item" to="/" style="font-weight:bold;">
+        Toshokan
+      </nuxt-link>
+      <div class="navbar-burger burger" @click="toggleMenu" :class="{'is-active': navIsActive}" data-target="mainNav">
+          <span></span>
+          <span></span>
+          <span></span>
+
+        </div>
+      </div>
+      <div id="mainNav" class="navbar-menu" :class="{'is-active': navIsActive}">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link" href="javascript:void(0)">
+              Anime
+            </a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item">
+                Top Anime
+              </a>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link" href="javascript:void(0)">
+              Manga
+            </a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item">
+                Top Manga
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="navbar-end">
+          <search></search>
+          <div v-if="$store.getters.isRegistered" class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link" href="#">
+              List
+            </a>
+            <div class="navbar-dropdown">
+              <nuxt-link class="navbar-item" to="/list/anime/">
+                Anime
+              </nuxt-link>
+              <nuxt-link class="navbar-item" to="/list/manga/">
+                Manga
+              </nuxt-link>
+            </div>
+          </div>
+          <usernav></usernav>
+        </div>
+      </div>
+</nav>
+</template>
+<script>
+  import search from "~/components/search.vue"
+  import usernav from "~/components/layout/usernav.vue"
+  export default {
+    name: 'navbar',
+    data () {
+      return {
+        navIsActive: false
+      }
+    },
+    methods: {
+      toggleMenu: function () {
+        this.navIsActive = !this.navIsActive
+      }
+    },
+    components: {
+      "search": search,
+      "usernav": usernav
+    }
+  }
+</script>

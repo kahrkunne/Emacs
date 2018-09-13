@@ -1,0 +1,70 @@
+<template>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title has-text-centered">{{item.title}}</p>
+    </header>
+    <section class="modal-card-body">
+
+	{{entry}}
+
+      <b-field label="Status" horizontal>
+	  <b-select v-model="entry.status">
+	      <option v-for="option in statuses" :key="option">
+		  {{option}}
+	      </option>
+	  </b-select>
+      </b-field>
+      
+      <b-field label="Score">
+        <b-select v-model="entry.score" placeholder="Select the score">
+          <option v-for="score in 10"
+                  :key="score">
+            {{ score }}
+          </option>
+        </b-select>
+      </b-field>
+
+      <b-field id="progress-field" :label="progressName" horizontal>
+        <button class="plus1-button button is-primary" @click="incrementProgress">+</button>
+
+      <b-input v-model="entry.progress">
+      </b-input>
+
+      <button class="button is-static counter">/ {{itemProgress}} </button>
+    </b-field>
+
+    <b-field id="comments-field" label="comments" horizontal>
+	<b-input v-model="entry.comments"></b-input>
+    </b-field>
+
+
+    <br>
+    I'll look into having fucking date pickers in here and shit later
+
+    </section>
+    <footer class="modal-card-foot has-text-centered">
+      <button  class="button is-centered" type="button" @click="$parent.close()">Cancel</button>
+      <button class="button is centered" type="button" @click="updateEntry">Save</button>
+    </footer>
+  </div>
+</template>
+<script>
+ import list_utils from '~/utils/list/list-utils.js'
+ export default {
+     props: {
+	 type: String,
+	 entry: Object,
+	 item: Object
+     },
+     computed: {
+	 ...list_utils.computed
+     },
+     methods: {
+	 ...list_utils.methods
+     }
+ }
+</script>
+
+<style scoped>
+ 
+</style>

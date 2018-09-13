@@ -1,0 +1,93 @@
+module.exports = {
+  /*
+  ** Headers of the page
+  */
+  head: {
+    title: 'Toshokan.moe',
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'description', name: 'description', content: 'Toshokan&apos;s Nuxt.js Universal App Client' }
+    ],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'stylesheet', href: 'https://www.gstatic.com/firebasejs/ui/3.2.0/firebase-ui-auth.css' },
+      { rel: 'stylesheet', href: 'https://use.fontawesome.com/releases/v5.2.0/css/all.css' }
+    ]
+  },
+  /*
+  ** Customize the progress bar color
+  */
+  loading: { color: '#3B8070' },
+  /*
+  ** Build configuration
+  */
+  build: {
+    vendor: ['isomorphic-fetch', '~/plugins/fireinit.js', '~/plugins/fireauth.js'],
+    extractCSS: true,
+    babel: {
+      presets: [
+        'es2015',
+        'stage-0'
+      ],
+
+      plugins: [
+        ["transform-runtime", {
+          "polyfill": true,
+          "regenerator": true
+        }]
+      ]
+    },
+    /*
+    ** Run ESLint on save
+    */
+    extend (config, { isDev, isClient }) {
+      if (isDev && isClient) {
+        config.module.rules.push({
+          enforce: 'pre',
+          test: /\.(js|vue)$/,
+          loader: 'eslint-loader',
+          exclude: /(node_modules)/
+        });
+      }
+    }
+  },
+  
+  modules: [
+    
+    ['nuxt-bulma-slim', {
+      variablesPath: 'assets/css/cosmo/_variables.scss',
+      additionalPaths: ['node_modules/buefy/src/scss/buefy.scss', 'assets/css/main.scss'] //['node_modules/bulmaswatch/cosmo/_overrides.scss']
+    }],
+    ['nuxt-buefy', { css: false, materialDesignIcons: false, defaultIconPack: 'fas' }],
+    'cookie-universal-nuxt',
+    '@nuxtjs/axios'
+  ],
+  
+  plugins: [
+    { src: '~/plugins/fireinit.js', ssr: false },
+    { src: '~/plugins/fireauth.js', ssr: false },
+    { src: '~/plugins/fireui-init.js', ssr: false } // TODO: move this into login_form for performance.
+  ],
+  
+  router: {
+    middleware: ['axios-init','router-default']
+  },
+  axios: {
+    prefix: '/api/1/',
+    host: '127.0.0.1',
+    port: 80,
+    https: false,
+    retry: true,
+    credentials: false,
+    proxyHeaders: false
+  },
+  fontawesome: {
+    imports: [
+      {
+        set: '@fortawesome/free-solid-svg-icons',
+        icons: ['fas']
+      }
+    ]
+  }
+}

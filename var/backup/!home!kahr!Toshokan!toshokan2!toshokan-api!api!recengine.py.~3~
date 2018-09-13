@@ -1,0 +1,126 @@
+import math
+from pymongo import UpdateOne
+from bson.dbref import DBRef
+import turicreate as tc
+<<<<<<< HEAD
+from api.clients import toshokan, auth
+=======
+from api.clients import toshokan
+>>>>>>> ed7b7b437c2acedb0d23abeacc97f2ed49cc42c7
+from datetime import datetime
+
+model_table = {'explicit':
+               {'anime': tc.load_model('models/explicit.model')},
+<<<<<<< HEAD
+               'implicit':
+               {'anime': tc.load_model('models/implicit.model')}}
+
+def get_recommendations(user, type_='anime', number=30, register_views=False, remove_sequels=True, filter_planned=True, model_type='explicit'):
+    user_list = list(toshokan.lists.find({"user":user, "library_ref.$ref":type_}, {'_id': 0, 'user': 0}))
+=======
+              'implicit':
+              {'anime': tc.load_model('models/implicit.model')}}
+
+def get_user_recommendations(user, type, number=30, register_views=False, remove_sequels=True, filter_planned=True, model_type='explicit'):
+    user_list = list(toshokan.lists.find({"user":user, "library_ref.$ref":type}, {'_id': 0, 'user': 0}))
+>>>>>>> ed7b7b437c2acedb0d23abeacc97f2ed49cc42c7
+
+    # For testing:
+    #user_list = list(toshokan.lists.find({'user':'ICYcXGPMwgU314xg3clRNNaMx4y2', 'library_ref.$ref':'anime'}, {'_id':0, 'user':0}))
+    user_planned = [x['library_ref'].id for x in user_list if x['status'] == 'planned']
+    user_completed = set([x['library_ref'].id for x in user_list]) - set(user_planned)
+
+<<<<<<< HEAD
+    model = model_table[model_type][type_]
+    recs = list(model.recommend(users=[user], k=10*number)[type_])
+
+    has_sequels = [x['_id'] for x in toshokan[type_].find({'_id': {'$in': recs}}, {'links':1}) if 'Prequel' in x['links']]
+=======
+    model = model_table[model_type][type]
+    recs = list(model.recommend(users=[user], k=10*number)[type])
+
+    has_sequels = [x['_id'] for x in toshokan[type].find({'_id': {'$in': recs}}, {'links':1}) if 'Prequel' in x['links']]
+>>>>>>> ed7b7b437c2acedb0d23abeacc97f2ed49cc42c7
+
+    out = []
+    for rec in recs: 
+        if len(out) >= 3*number:
+            break
+        if rec in user_completed:
+            continue
+        if remove_sequels and rec in has_sequels:
+            continue
+        if filter_planned and rec in user_planned:
+            continue
+
+        out.append(rec)
+
+    temp_out = {}
+    l = 0
+    min_ = 10e6
+<<<<<<< HEAD
+    rec_entries = {x["library_ref"].id:x for x in toshokan.recommendation.find({"user":user, "library_ref":{"$in": [DBRef(type_, rec) for rec in out]}}, {'_id':0, 'user':0})}
+=======
+    rec_entries = {x["library_ref"].id:x for x in toshokan.recommendation.find({"user":user, "library_ref":{"$in": [DBRef(type, rec) for rec in out]}}, {'_id':0, 'user':0})}
+>>>>>>> ed7b7b437c2acedb0d23abeacc97f2ed49cc42c7
+    index_table = {}
+    for i in range(len(out)):
+        rec = out[i]
+        index_table[rec] = i + 1
+        view_factor = 1
+        if rec in rec_entries:
+            rec_entry = rec_entries[rec]
+            view_factor = rec_entry['view_factor']
+
+        factor = (view_factor + 1) ** 1.2 / 5.0
+        #num = ((10/(i+1)) * factor)
+        num = i + factor
+        #num = i
+        while num in temp_out:
+            num += 0.001
+
+        temp_out[num] = rec
+        l += 1
+        if i * factor < min_:
+            min_ = i * factor
+
+    final_out = [temp_out[x] for x in sorted(temp_out.keys())][:number]
+
+    if register_views:
+        updates = []
+        try:
+            last_completed = next(toshokan.events.find({'ns':"list", 'user':user, "library_ref.$ref":"anime", "fields.status":"completed"}, {"time":1}).sort({'ns':1, 'library_ref.$ref':1, 'fields.status':1, 'time':-1}).limit(1))['time']
+        except:
+            last_completed = None
+
+        for rec in final_out:
+            if rec not in rec_entries or not last_completed or rec_entries[rec]['last_modified'] < last_completed:
+                view_factor = 1 if rec not in rec_entries else ((rec_entries[rec]['view_factor'] + 1) * (max(1, 6 / index_table[rec]) ** (1. / 20)))
+                #view_factor = 0
+<<<<<<< HEAD
+                updates.append(UpdateOne({"user": user, "library_ref": DBRef(type_, rec)},
+                                                   {"$set": {"view_factor":view_factor}, "$currentDate":{"last_modified":True},
+                                                    "$setOnInsert":{"user": user, "library_ref": DBRef(type_, rec), "date_added": datetime.utcnow()}},
+=======
+                updates.append(UpdateOne({"user": user, "library_ref": DBRef(type, rec)},
+                                                   {"$set": {"view_factor":view_factor}, "$currentDate":{"last_modified":True},
+                                                    "$setOnInsert":{"user": user, "library_ref": DBRef(type, rec), "date_added": datetime.utcnow()}},
+>>>>>>> ed7b7b437c2acedb0d23abeacc97f2ed49cc42c7
+                                                   upsert=True))
+
+        toshokan.recommendation.bulk_write(updates)
+
+    return {
+        'recommendations': final_out
+    }
+
+<<<<<<< HEAD
+def sakura_score(user, item, type_='anime'):
+    return int(model_table['explicit'][type_].predict(
+        tc.SFrame({'user':[user], type_:[item]})
+=======
+def sakura_score(user, item, type='anime'):
+    return int(model_table['explicit'][type].predict(
+        tc.SFrame({'user':[user], type:[item]})
+>>>>>>> ed7b7b437c2acedb0d23abeacc97f2ed49cc42c7
+    )[0]*100)

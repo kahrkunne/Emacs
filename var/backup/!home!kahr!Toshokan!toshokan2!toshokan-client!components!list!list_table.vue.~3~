@@ -1,0 +1,147 @@
+<template>
+  <b-table :data="entries"
+		   default-sort="_id"
+		   hoverable narrowed paginated detailed>
+
+	<template slot-scope="props">
+	  <b-table-column field="_id" label="Title" sortable>
+		<nuxt-link :to="'/'+list_type+'/'+props.row._id">{{ data[props.row._id].title }}</nuxt-link>
+	  </b-table-column>
+	  <b-table-column label="Type" width="60" sortable numeric :custom-sort="sort_type">
+		{{ data[props.row._id].type }}
+	  </b-table-column>
+	  <b-table-column label="Progress" width="120" sortable numeric :custom-sort="sort_progress">
+		{{ props.row.entry.progress }}/{{ (list_type == "anime" ? data[props.row._id].episode_count : data[props.row._id].chapter_count) || "?" }}
+	  </b-table-column>
+	  <b-table-column :visible="list_type != 'anime'" :custom-sort="sort_volumes" label="Volumes" width="120" sortable numeric>
+		{{ props.row.entry.volumes }}/{{data[props.row._id].volume_count || "?"}}
+	  </b-table-column>
+	  <b-table-column field="entry.score" label="Score" width="50" sortable numeric>
+		{{ props.row.entry.score }}
+	  </b-table-column>
+	  <b-table-column field="entry.start_date" label="Start Date" width="105" sortable numeric>
+		{{ props.row.entry.start_date ? $moment(props.row.entry.start_date).format('MMM DD, YYYY') : "" }}
+	  </b-table-column>
+	  <b-table-column field="entry.end_date" label="End Date" width="105" sortable numeric>
+		{{  props.row.entry.end_date ? $moment(props.row.entry.end_date).format('MMM DD, YYYY') : "" }}
+	  </b-table-column>
+	  <b-table-column :visible="show_status" field="entry.status" label="Status" width="100" sortable numeric>
+		{{ get_status_pretty(list_type)[props.row.entry.status] }} 
+	  </b-table-column>
+	  <b-table-column custom-key="Edit" class="has-text-centered" width="50">
+		<a class="" @click="openEditForm(props.row._id, props.row.entry)">Edit</a>
+	  </b-table-column>
+	</template>
+	<template slot="footer">
+	  <div class="th-wrap">Total entries: {{entries.length}} | Total {{list_type == "anime" ? "episodes" : "chapters"}}: {{totalprogress}} | Total duration: {{totalhours}} hours ({{totaldays}} days)</div>
+	</template>
+	<template slot="empty">
+	  <section class="section">
+		<div class="content has-text-grey has-text-centered">
+		  <p>
+			<b-icon icon="frown"
+					size="is-large">
+			</b-icon>
+		  </p>
+		  <p>Nothing here.</p>
+		</div>
+	  </section>
+	</template>
+
+	<template slot="detail" slot-scope="props">
+	  TODO <br>
+	  {{props.row.entry.comments}}
+	</template>
+  </b-table>
+</template>
+<script>
+ import edit_form from '~/components/list/list_form.vue'
+ import { get_status_pretty, get_status_api } from '~/utils/list/status.js'
+
+ export default {
+   props: {
+	 entries: Array,
+	 list_type: String,
+	 data: Object,
+	 show_status: {
+	   type: Boolean,
+	   default: false
+	 }
+	 
+   },
+   components: {
+	 edit_form
+   },
+   computed: {
+	 totalseconds(){
+	   if (this.list_type == "anime") {
+		 var total = 0
+		 var entry;
+		 for (entry in this.entries) {
+		   total = total + (this.data[this.entries[entry]["_id"]]["duration"] * this.entries[entry]["entry"]["progress"])
+		 }
+		 return total
+	   } else {
+		 return 0
+	   }
+	 },
+	 totaldays() {
+	   return (this.totalseconds / 86400).toPrecision(4)
+	 },
+	 totalhours() {
+	   return (this.totalseconds / 3600).toPrecision(4)
+	 },
+	 totalprogress() {
+	   var total = 0
+	   var entry;
+	   for (entry in this.entries) {
+		 total = total + this.entries[entry]["entry"]["progress"]
+	   }
+	   return total
+	   
+	 }
+   },
+   methods: {
+	 openEditForm(_id, entry) {
+	   this.$modal.open({
+		 parent: this,
+		 component: edit_form,
+		 hasModalCard: true,
+		 props: {
+		   type: this.list_type, pass_entry: entry, item: { _id, ...this.data[_id] }, raw_entry: true }
+	   })
+	 },
+	 sort_type(a, b, isAsc) { return (isAsc ? 1 : -1) * this.data[a._id].type.localeCompare(this.data[b._id].type) },
+	 sort_volumes(a, b, isAsc){
+	   const progname = 'volume_count'
+	   return this.sort_partial(a, b, isAsc, progname, 'volumes')
+	 },
+	 sort_progress(a, b, isAsc){
+	   const progname = this.list_type == 'anime' ? 'episode_count' : 'chapter_count'
+	   return this.sort_partial(a, b, isAsc, progname, 'progress')
+	 },
+	 sort_partial(a, b, isAsc, progname, part_name){
+	   if(this.data[a._id][progname] == null){
+		 return 1
+	   }
+	   if(this.data[b._id][progname] == null){
+		 return -1
+	   }
+
+	   var diff = ((a.entry[part_name] / this.data[a._id][progname]) - (b.entry[part_name] / this.data[b._id][progname]))
+
+	   return (isAsc ? 1 : -1) * (diff == 0 ? Math.sign(a.entry.progress - b.entry.progress) : Math.sign(diff))
+	 },
+	 filter_entries(status) {
+	   var result
+	   if(status == 'All'){
+		 result = this.entries
+	   } else {
+		 result = this.entries.filter(el => ( el.entry.status == status ))
+	   }
+	   return result
+	 },
+	 get_status_pretty: get_status_pretty, get_status_api: get_status_api
+   }
+ }
+</script>

@@ -1,0 +1,333 @@
+<template>
+  <b-table :data="entries"
+	   default-sort="_id"
+	   hoverable narrowed :paginated="pagination" detailed
+	   class="list-table">
+
+    <template slot-scope="props">
+      <b-table-column field="_id" label="Title" sortable>
+	<nuxt-link :to="'/'+list_type+'/'+props.row._id">{{ data[props.row._id].title }}</nuxt-link>
+
+      </b-table-column>
+      <b-table-column label="Type" width="60" sortable numeric :custom-sort="sort_type">
+	{{ data[props.row._id].type }}
+      </b-table-column>
+
+      <b-table-column label="Progress" width="120" sortable numeric :custom-sort="sort_progress">
+	<span v-if="not_ours || !edit_status['progress' + props.row._id]">
+	  <span @click="$set(edit_data, 'progress'+props.row._id, props.row.entry.progress );$set(edit_status, 'progress'+props.row._id, true)">
+	  {{ props.row.entry.progress }}/{{ (list_type == "anime" ? data[props.row._id].episode_count : data[props.row._id].chapter_count) || "?" }}
+	  </span>
+	  <!-- TODO fix this; sorry kek -->
+	  <button class="button is-small is-primary"
+		  v-if="!not_ours && 
+			 (
+			   (
+			     list_type == 'anime' ? 
+		             data[props.row._id].episode_count : data[props.row._id].chapter_count
+			   )
+			   == null
+			 )
+			 ||
+			 (
+			   (
+			     list_type == 'anime' ? 
+			     data[props.row._id].episode_count : data[props.row._id].chapter_count
+			   )
+	                   > props.row.entry.progress
+			 )"
+		  @click="updateEntry(props.row._id, props.row.entry, {progress: props.row.entry.progress + 1})"
+	  >+</button>
+	</span>
+	<span v-else>
+	  <b-field class="inline-field">
+	    <b-input size="is-small" style="width: 2.5rem;" v-model="edit_data['progress'+props.row._id]"></b-input>
+	    <button class=" is-small button is-static counter">/ {{ (list_type == "anime" ? data[props.row._id].episode_count : data[props.row._id].chapter_count) || "?" }}</button>
+
+	    <button class="is-small button is-primary" @click="$set(edit_status, 'progress'+props.row._id, false); updateEntry(props.row._id, props.row.entry, {progress:parseInt(edit_data['progress'+props.row._id])})"> save</button>
+	  </b-field>
+	</span>
+      </b-table-column>
+
+      <b-table-column :visible="list_type != 'anime'" :custom-sort="sort_volumes" label="Volumes" width="120" sortable numeric>
+	<span v-if="not_ours || !edit_status['volumes'+props.row._id]">
+	  <span @click="$set(edit_data, 'volumes'+props.row._id, props.row.entry.volumes); $set(edit_status, 'volumes'+props.row._id, true)">
+	    {{ props.row.entry.volumes }}/{{data[props.row._id].volume_count || "?"}}
+	  </span>
+	  <button class="button is-small is-primary"
+		  v-if="!not_ours && (data[props.row._id].volume_count == null
+			 ||
+			 (data[props.row._id].volume_count > props.row.entry.volumes))"
+		  @click="updateEntry(props.row._id, props.row.entry, {volumes: props.row.entry.volumes + 1})"
+	  >+</button>
+	</span>
+	<span v-else>
+	  <b-field class="inline-field">
+	    <b-input size="is-small" style="width: 2.5rem;" v-model="edit_data['volumes'+props.row._id]"></b-input>
+	    <button class=" is-small button is-static counter">/ {{ data[props.row._id].volume_count || "?" }}</button>
+
+	    <button class="is-small button is-primary" @click="$set(edit_status, 'volumes'+props.row._id, false); updateEntry(props.row._id, props.row.entry, {volumes:parseInt(edit_data['volumes'+props.row._id])})"> save</button>
+	  </b-field>
+	</span>
+      </b-table-column>
+
+      <b-table-column field="entry.score" label="Score" width="50" sortable numeric>
+	<span @click="$set(edit_data, 'score'+props.row._id, props.row.entry.score);$set(edit_status, 'score'+props.row._id, true)" v-if="not_ours || !edit_status['score' + props.row._id]">
+	  {{ props.row.entry.score }}
+	</span>
+	<span v-else>
+	  <b-field class="inline-field" style="width: 5rem;">
+	    <b-input v-model="edit_data['score'+props.row._id]" size="is-small"></b-input>
+	    <button class="is-small button is-primary" @click="updateEntry(props.row._id, props.row.entry, {score:parseInt(edit_data['score'+props.row._id])});$set(edit_status, 'score'+props.row._id, false)"> save</button>
+	  </b-field>
+	</span>
+      </b-table-column>
+
+      <b-table-column field="entry.start_date" label="Start Date" width="105" sortable numeric>
+	<span @click="$set(edit_data, 'start_date'+props.row._id, $moment(props.row.entry.start_date).toDate());$set(edit_status, 'start_date'+props.row._id, true)" v-if="not_ours || !edit_status['start_date' + props.row._id]">
+	  {{ props.row.entry.start_date ? $moment(props.row.entry.start_date).format('MMM DD, YYYY') : "Not Set" }}
+	</span>
+	<span v-else>
+	  <b-field>
+	    <b-datepicker
+	      v-model="edit_data['start_date'+props.row._id]"
+	      :date-formatter="(date) => $moment(date).format('MMM DD, YYYY')"
+			       placeholder="Choose..."
+			       style="width: 5rem;">
+	    </b-datepicker>
+	    <button class="is-small button is-primary" @click="$set(edit_status, 'start_date'+props.row._id, false), updateEntry(props.row._id, props.row.entry, {start_date:$moment(edit_data['start_date'+props.row._id]).utc()})">save</button>
+	  </b-field>
+	</span>
+      </b-table-column>
+
+      <b-table-column field="entry.end_date" label="End Date" width="105" sortable numeric>
+	<span @click="$set(edit_data, 'end_date'+props.row._id, $moment(props.row.entry.end_date).toDate()); $set(edit_status, 'end_date'+props.row._id, true)" v-if="not_ours || !edit_status['end_date' + props.row._id]">
+	  {{  props.row.entry.end_date ? $moment(props.row.entry.end_date).format('MMM DD, YYYY') : "Not Set" }}
+	</span>
+	<span v-else>
+	  <b-field>
+	    <b-datepicker
+	      v-model="edit_data['end_date'+props.row._id]"
+	      :date-formatter="(date) => $moment(date).format('MMM DD, YYYY')"
+			       placeholder="Choose..."
+			       style="width: 5rem;">
+	    </b-datepicker>
+	    <button class="is-small button is-primary" @click="$set(edit_status, 'end_date'+props.row._id, false); updateEntry(props.row._id, props.row.entry, {end_date: $moment(edit_data['end_date'+props.row._id]).utc()})">save</button>
+	  </b-field>
+	</span>
+      </b-table-column>
+
+      <b-table-column :visible="show_status" field="entry.status" label="Status" width="100" sortable numeric>
+	{{ get_status_pretty(list_type)[props.row.entry.status] }} 
+      </b-table-column>
+
+      <b-table-column custom-key="Edit" class="has-text-centered" width="50" :visible="!not_ours">
+	<button class="button is-small is-primary" @click="openEditForm(props.row._id, props.row.entry)">Edit</button>
+      </b-table-column>
+
+    </template>
+    <template slot="footer">
+      <th class="is-hidden-mobile" style="width:40px">
+	<div class="th-wrap"></div>
+      </th>
+      <th class="is-hidden-mobile">
+	<div class="th-wrap">Total entries: {{entries.length}} | Total {{list_type == "anime" ? "episodes" : "chapters"}}: {{totalprogress}} | Total duration: {{totalhours}} hours ({{totaldays}} days)</div>
+      </th>
+      <th class="is-hidden-mobile">
+	<div class="th-wrap"> </div>
+      </th>
+      <th class="is-hidden-mobile">
+	<div class="th-wrap"> </div>
+      </th>
+      <th class="is-hidden-mobile">
+	<div class="th-wrap"> </div>
+      </th>
+      <th>
+	<div class="th-wrap"></div>
+      </th>
+      <th>
+	<div class="th-wrap"><b-switch v-model="pagination">Pagination</b-switch></div>
+      </th>
+      <th class="is-hidden-mobile">
+	<div class="th-wrap"></div>
+      </th>
+    </template>
+    <template slot="empty">
+      <section class="section">
+	<div class="content has-text-grey has-text-centered">
+	  <p>
+	    <b-icon icon="frown"
+			  size="is-large">
+	    </b-icon>
+	  </p>
+	  <p>Nothing here.</p>
+	</div>
+      </section>
+      
+    </template>
+
+    <template slot="detail" slot-scope="props">
+      TODO <br>
+      {{props.row.entry.comments}}
+    </template>
+  </b-table>
+</template>
+<script>
+
+ import edit_form from '~/components/list/list_form.vue'
+ import { get_status_pretty, get_status_api } from '~/utils/list/status.js'
+ import * as time from '~/utils/time.js'
+ function getPagination(context) {
+   if (context.$cookies.get("pagination") === false) {
+     return false
+   }
+   return true
+ }
+ export default {
+   mounted() {
+     this.pagination = getPagination(this)
+   },
+   data() {
+     return {
+       pagination: true,
+       edit_status: {},
+       edit_data: {}
+     }
+   },
+   props: {
+     entries: Array,
+     list_type: String,
+     data: Object,
+     show_status: {
+       type: Boolean,
+       default: false
+     },
+     not_ours: {
+       type: Boolean,
+       default: false
+     }
+
+   },
+
+   components: {
+     edit_form
+   },
+   computed: {
+     totalseconds() {
+       if (this.list_type == "anime") {
+	 var total = 0
+	 var entry;
+	 for (entry in this.entries) {
+	   total = total + ((this.data[this.entries[entry]["_id"]]["duration"] * this.entries[entry]["entry"]["progress"]) * (this.entries[entry].entry.repetitions + 1))
+	 }
+	 return total
+       } else {
+	 return 0
+       }
+     },
+     totaldays() {
+       return (this.totalseconds / 86400).toPrecision(4)
+     },
+     totalhours() {
+       return (this.totalseconds / 3600).toPrecision(4)
+     },
+     totalprogress() {
+       var total = 0
+       var entry;
+       for (entry in this.entries) {
+	 total = total + (this.entries[entry]["entry"]["progress"] * (this.entries[entry].entry.repetitions + 1))
+       }
+       return total
+
+     }
+   },
+   watch: {
+     pagination: function () {
+       this.$cookies.set("pagination", this.pagination, { path: '/', "expires": time.never() })
+     }
+   },
+   methods: {
+     openEditForm(_id, entry) {
+       this.$modal.open({
+	 parent: this,
+	 component: edit_form,
+	 hasModalCard: true,
+	 props: {
+	   type: this.list_type, pass_entry: entry, item: { _id, ...this.data[_id] }, raw_entry: true
+	 }
+       })
+     },
+     async updateEntry(id, entry, changes){
+       await this.$axios.$put(`/list/${this.list_type}/${id}`, {...entry, ...changes})
+     },
+     sort_type(a, b, isAsc) { return (isAsc ? 1 : -1) * this.data[a._id].type.localeCompare(this.data[b._id].type) },
+     sort_volumes(a, b, isAsc) {
+       const progname = 'volume_count'
+       return this.sort_partial(a, b, isAsc, progname, 'volumes')
+     },
+     sort_progress(a, b, isAsc) {
+       const progname = this.list_type == 'anime' ? 'episode_count' : 'chapter_count'
+       return this.sort_partial(a, b, isAsc, progname, 'progress')
+     },
+     sort_partial(a, b, isAsc, progname, part_name) {
+       if (this.data[a._id][progname] == null) {
+	 return 1
+       }
+       if (this.data[b._id][progname] == null) {
+	 return -1
+       }
+
+       var diff = ((a.entry[part_name] / this.data[a._id][progname]) - (b.entry[part_name] / this.data[b._id][progname]))
+
+       return (isAsc ? 1 : -1) * (diff == 0 ? Math.sign(a.entry.progress - b.entry.progress) : Math.sign(diff))
+     },
+     filter_entries(status) {
+       var result
+       if (status == 'All') {
+	 result = this.entries
+       } else {
+	 result = this.entries.filter(el => (el.entry.status == status))
+       }
+       return result
+     },
+     get_status_pretty: get_status_pretty, get_status_api: get_status_api
+   }
+ }
+</script>
+
+<style scoped>
+ .list-table >> .inline-field {
+   margin-bottom: 0px;
+ }
+
+ .list-table >>> input {
+   text-align: right;
+ }
+
+
+ .datepicker >>> .pagination a {
+   margin: 0;
+ }
+
+ .datepicker >>> a.pagination-previous {
+   margin-top: 5px !important;
+ }
+
+ .datepicker >>> a.pagination-next {
+   margin-top: 5px !important;
+ }
+ 
+ .datepicker >>> .pagination-list select {
+   text-align: center;
+   width: auto;
+ }
+
+ .datepicker >>> .control input {
+   font-size: 0.75rem;
+ }
+
+ td, td >>> span {
+   vertical-align: middle;
+ }
+
+</style>

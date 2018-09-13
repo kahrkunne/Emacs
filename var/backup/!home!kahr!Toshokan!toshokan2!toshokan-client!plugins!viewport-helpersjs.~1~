@@ -1,0 +1,10 @@
+import Vue from 'vue'
+
+export default ({ app }, inject) => { 
+    const viewports = ['mobile', 'tablet', 'desktop', 'widescreen', 'fullhd']
+    geq(vp){
+	return viewports.indexOf(vp) >= viewports.indexOf(app.$mq)
+    }
+    inject("viewport", new Vue({data: {geq}}))
+}
+

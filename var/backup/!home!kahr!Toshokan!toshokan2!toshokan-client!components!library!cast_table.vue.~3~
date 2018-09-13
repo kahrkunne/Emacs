@@ -1,0 +1,249 @@
+<template>
+  <div v-if="data == null">
+    {{data}}
+    Loading...
+  </div>
+  <div v-else class="cast">
+    <div v-if="!main_only" class="card filter-card">
+      <b-field>
+	<b-input v-model="filter" class="filter" placeholder="Filter...">
+	</b-input>
+      </b-field>
+    </div>
+
+    <div :class="{columns: filteredEntries.length == 2}">
+      <template v-for="(entrySet, x) in filteredEntries">
+	<div class="{column: filteredEntries.length == 2}" :key="x + 'entrySet'">
+
+	  <b-table :key="x + 'entrySet'" :data="entrySet" class="full-width" narrowed :paginated="!main_only" hoverable :mobile-cards="false">
+	    <template slot-scope="props">
+
+	      <b-table-column field="type" :class="{'no-rule' : main_only}">
+		<template v-if="['cast', 'staff'].includes(table_kind)">
+		  <nuxt-link :to="(table_kind == 'cast' ? props.row.character : props.row.person).href">
+		    {{(table_kind == 'cast' ? props.row.character : props.row.person).name.replace(/\".*\"/, '')}}
+		  </nuxt-link>
+		  <template v-if="table_kind == 'cast'"> <br><small>{{props.row.type}}</small></template>
+		</template>
+		<template v-else-if="['character', 'person'].includes(table_kind)">
+		  <template v-if="type == 'voices'">
+		    <nuxt-link :to="props.row.anime.href">{{props.row.anime.title}}</nuxt-link>
+		  </template>
+		  <template v-else>
+ 		  <nuxt-link :to="props.row[type].href">{{props.row[type].title}}</nuxt-link>
+		  </template>
+
+		  <template v-if="table_kind == 'person'"> <br><small>
+		    <template v-for="(role, i) in props.row.roles">
+		      {{role}}
+		      <template v-if="i+1 < props.row.roles.length">, </template>
+		    </template>
+		  </small></template>
+		</template>
+	      </b-table-column>
+
+	      <b-table-column class="half-width has-text-right" :visible="table_kind == 'staff'" :class="{'no-rule': main_only}">
+		<template v-if="table_kind == 'staff'"
+			  v-for="(role, q) in staffsort(props.row.roles)">
+		  {{role}}<template v-if="q+1 < props.row.roles.length">,<br :key="'stbr'+q"></template>
+		</template>
+	      </b-table-column>
+
+
+	      <b-table-column class="half-width has-text-right" :visible="type == 'voices'" :class="{'no-rule': main_only}">
+		<template v-if="type == 'voices'">
+		  <nuxt-link :to="props.row.character.href"><a>{{props.row.character.name}}</a></nuxt-link><br><small>{{props.row.type}}</small>
+		</template>
+	      </b-table-column>
+
+	      <b-table-column class="half-width has-text-right" :visible="['cast', 'character'].includes(table_kind) && type == 'anime'" :class="{'no-rule': main_only}">
+		<template v-for="(voice, j) in filter_voices(props.row.voices)">
+		  <nuxt-link :to="voice.href" :key="j">{{voice.name}}</nuxt-link><br :key="j +'br1voice'">
+		  <small :key="j + 'voicesmall'">{{voice.language}}</small>
+		  <br :key="j + 'br2voice'" v-if="j + 1 < filter_voices(props.row.voices).length">
+		</template>
+	      </b-table-column>
+	    </template>
+	  </b-table>
+
+	</div>
+      </template>
+
+    </div>
+  </div>
+</template>
+
+<script>
+ import {staffcompare, highestrole} from "~/utils/staffcompare.js"
+ export default {
+   props: {type: String,
+	   id: String,
+	   main_only: {
+	     type: Boolean,
+	     default: false
+	   },
+	   two_parts: {
+	     type: Boolean,
+	     default: false
+	   },
+	   table_kind: {
+	     type: String,
+	     default: "cast"
+	   },
+	   initial_data: {
+	     type: Array,
+	     default: null
+	   }
+   },
+   data(){
+     return {
+       filter: '',
+       data: null
+     }
+   },
+   async created(){
+     if(this.initial_data == null){
+       try{
+	 this.data = await this.$axios.$get('/' + this.type + '/' + this.id + '/' + this.table_kind)
+	 this.$emit('fetch', { type: this.table_kind, ...this.data })
+       }catch(e){
+	 this.data = null
+       }
+     } else {
+       this.data = { [this.table_kind]:this.initial_data }
+     }
+   },
+   computed: {
+     sortedEntries(){
+       const entries = this.data[this.table_kind]
+       if(this.table_kind == 'cast'){
+	 return Array.from(entries ? entries : []).sort(function(a, b){
+	   if(a.type == b.type) {
+	     return true
+	   } else if(a.type == 'Main'){
+	     return -1
+	   } else {
+	     return a.type.localeCompare(b.type)
+	   }
+	 })
+       } else if(this.table_kind == 'staff'){
+	 return Array.from(entries ? entries : []).sort(function(a, b){
+	   const a_val = highestrole(a.roles)
+	   const b_val = highestrole(b.roles)
+	   return a_val - b_val
+	 })
+       } else {
+	 return entries
+       }
+     },
+     filteredEntries(){
+       var entries = this.sortedEntries
+       if(this.main_only){
+	 if(this.table_kind == 'cast'){
+	   entries = entries.filter((entry) => entry.type == 'Main')
+	 } else {
+	   //entries = entries.filter((entry) => highestrole(entry.roles) < 10)
+	   entries = entries.slice(0, 12)
+	 }
+       } else {
+	 entries = entries.filter(this.entryFilter)
+       }
+       if(this.two_parts){
+	 const halflength = Math.floor(entries.length/2)
+	 //	 entries = [entries.slice(0, halflength), 
+	 return [entries.slice(0, halflength), entries.slice(halflength, entries.length)]
+       } else {
+	 return [entries]
+       }
+     }
+   }, methods: {
+     entryFilter(entry){
+       if (['cast', 'staff'].includes(this.table_kind)){
+	 const field = this.table_kind == 'cast' ? entry.character : entry.person
+	 if(field.name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1){
+	   return true
+	 }
+       }
+
+       if(this.table_kind == 'character'){
+	 if(entry[this.type].title.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1){
+	   return true
+	 }
+       }
+
+       if(this.table_kind == 'staff'){
+	 for(var role in entry.roles){
+	   if(entry.roles[role].toLowerCase().indexOf(this.filter.toLowerCase()) !== -1){
+	     return true
+	   }
+	 }
+       }
+
+       if(['cast', 'character'].includes(this.table_kind)){
+	 for(var voice in entry.voices){
+	   if(entry.voices[voice].language == 'Japanese' && entry.voices[voice].name.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1){
+	     return true
+	   }
+	 }
+       }
+
+       if(this.table_kind == 'person'){
+	 if(entry.anime.title.toLowerCase().indexOf(this.filter.toLowerCase()) !== -1){
+	   return true
+	 }
+	 for(var role in entry.roles){
+	   if(entry.roles[role].toLowerCase().indexOf(this.filter.toLowerCase()) !== -1){
+	     return true
+	   }
+	 }
+       }
+
+       return false
+
+     },
+     filter_voices(voices){
+       if(voices == undefined){
+	 return []
+       }
+       return voices.filter((voice) => voice.language == "Japanese" || voice.language == "English").sort(function(a,b){
+	 if(a.language == b.language){
+	   return 0
+	 }
+	 if(a.language == 'Japanese') {
+	   return -1
+	 } else {
+	   return 1
+	 }
+       })
+     },
+     highestrole,
+     staffcompare,
+     staffsort(list){
+       var l2 = Array.from(list ? list : [])
+       return l2.sort(staffcompare)
+     }
+   }
+ }
+</script>
+
+<style scoped>
+ .cast >>> th, .cast >>> thead {
+   visibility: hidden;
+   padding: 0;
+   margin: 0;
+   border: 0;
+ }
+
+ .cast >>> .field {
+   margin-bottom: 0;
+ }
+
+ .filter >>> input{
+   border: none;
+ }
+
+ .cast >>> .level {
+   padding-bottom: 0 !important;
+ }
+
+</style>

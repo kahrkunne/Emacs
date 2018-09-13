@@ -1,0 +1,79 @@
+<template>
+<div class="columns">
+  <div class="column is-one-fifth">
+    <div class="library-image">
+      <img class="image" :src="manga.image">
+    </div>
+    <div class="library-info">
+	{{manga}}
+      <span class="has-text-weight-bold">Type: </span>{{manga.type}}<br>
+      <span class="has-text-weight-bold">Status: </span>{{manga.status}}<br>
+      <span class="has-text-weight-bold">Episodes: </span>{{manga.episode_count}}<br>
+      <span class="has-text-weight-bold">Season: </span>{{season}}<br>
+      <span class="has-text-weight-bold">Studios: </span>
+      <template v-for="(studio, i) in manga.studios">
+	<nuxt-link :to="'/studio/'+studio" :key="studio">{{studio}}</nuxt-link>
+	<template v-if="i+1 < manga.studios.length">, </template>
+      </template><br>
+      <span class="has-text-weight-bold">Genres: </span>
+      <template v-for="(genre, i) in manga.genres">
+	<nuxt-link :to="'/genres/'+genre" :key="genre">{{genre}}</nuxt-link>
+	<template v-if="i+1 < manga.genres.length">, </template>
+      </template><br>
+      <span class="has-text-weight-bold">Started: </span>{{manga.start_date == null ? "Unknown" : $moment.utc(manga.start_date).local().format('MMM DD, YYYY')}}<br>
+      <span class="has-text-weight-bold">Ended: </span>{{manga.start_date == null ? "Unknown" : $moment.utc(manga.end_date).local().format('MMM DD, YYYY')}}<br>
+      <hr>
+      <span class="has-text-weight-bold">Score: </span><br>
+      <span class="has-text-weight-bold">Ranked: </span><br>
+      <span class="has-text-weight-bold">Members: </span><br>
+      <span class="has-text-weight-bold">Sakura Score: </span><br>
+    </div>
+    <br>
+    <list-controls type="manga" :item="manga"></list-controls>
+  </div>
+  <div class="column">
+    <div class="tabs">
+      <ul>
+	<nuxt-link exact-active-class="is-active" tag="li" :to="'/manga/'+manga._id"><a>Details</a></nuxt-link>
+	<nuxt-link exact-active-class="is-active" tag="li" :to="'/manga/'+manga._id+'/episodes'"><a>Episodes</a></nuxt-link>
+      </ul>
+    </div>
+    <nuxt-child :manga="manga"/>
+
+  </div>
+</div>
+</template>
+
+<script>
+import list_controls from "~/components/library/list_controls.vue"
+export default {
+    async asyncData({params, $axios}) {
+	const id = params.id
+	const manga = await $axios.$get("/manga/" + id)
+	return { id, manga };
+    },
+    components: {'list-controls': list_controls},
+    data: function () {
+	return {
+	    id: null,
+	    manga: null
+	}
+    }, computed: {
+	season() {
+	    if (this.manga.start_date == null) {
+		return "Unknown"
+	    }
+	    const month = new Date(this.manga.start_date).getMonth();
+	    if (month >= 9){
+		return "Fall"
+	    } else if (month >= 6) {
+		return "Summer"
+	    } else if (month >= 3) {
+		return "Spring"
+	    } else {
+		return "Winter"
+	    }
+	}
+    }
+}
+</script>

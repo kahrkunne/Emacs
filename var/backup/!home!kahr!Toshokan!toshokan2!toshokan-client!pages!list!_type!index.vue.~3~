@@ -1,0 +1,79 @@
+<template>
+  <div>
+    <section class="hero">
+      <div class="hero-body">
+          <h1 class="title">
+            {{list_type}}
+          </h1>
+          <h2 class="subtitle">
+            Your {{list_type}} list
+          </h2>
+      </div>
+    </section>
+    <section v-if="entries.length" v-for="(key, value) in pretty_status" :key="key">
+      <nav class="level">
+        <div class="level-item has-text-centered">
+          <div>
+            <h3 class="title is-4">{{key}}</h3><br />
+            <h4 class="subtitle is-5">Your {{value}} {{list_type}}</h4>
+          </div>
+        </div>
+      </nav>
+      <list-table :entries="filter_entries(value)" :list_type="list_type" :data="data"></list-table>
+    </section>
+    <section v-if="!entries.length">
+      <div class="content has-text-grey has-text-centered">
+        <p>
+          <b-icon icon="frown"
+                  size="is-large">
+          </b-icon>
+        </p>
+        <p>Nothing here.</p>
+        <import-form :list_type="list_type" :replace_list="true" @list-update="reload_list"></import-form>
+      </div>
+    </section>
+  </div>
+</template>
+<script>
+  import { get_status_pretty, get_status_api } from '~/utils/list/status.js'
+  import page_auth from '~/plugins/page-auth-mixin.js'
+  import list_table from '~/components/list/list_table.vue'
+  import import_form from '~/components/list/import_form.vue'
+
+  async function asyncData({ params, $axios }) {
+    const response = await $axios.$get("/list/" + params.type)
+    const list_type = params.type
+    const entries = response.list
+    const data = response.data
+    return { entries, list_type, data }
+  }
+  export default {
+    mixins: [page_auth(asyncData)],
+    validate({ params }) {
+      return ["anime", "manga", "novel"].includes(params.type)
+    },
+    components: {
+      "list-table": list_table,
+      "import-form": import_form
+    },
+    computed: {
+      pretty_status() {
+        return get_status_pretty(this.list_type)
+      },
+      api_status() {
+        return get_status_api(this.list_type)
+      }
+    },
+    methods: {
+      async reload_list() {
+        const { entries, data } = await asyncData({ params: { type: this.list_type }, $axios: this.$axios })
+        this.entries = entries
+        this.data = data
+      },
+      filter_entries(status) {
+        const result = this.entries.filter(el => ( el.entry.status == status ))
+        return result
+      }
+    }
+  }
+</script>

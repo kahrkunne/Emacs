@@ -1,0 +1,17 @@
+<template>
+  <div>
+    {{anime.description}}
+
+    <br><br>
+
+    <relations-table :relations="anime.links"></relations-table>
+</div>
+</template>
+
+<script>
+  import relations_table from "~/components/library/relations_table.vue"
+  export default {
+      props: ["anime"],
+      components: {'relations-table': relations_table}
+  }
+</script>

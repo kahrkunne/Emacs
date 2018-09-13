@@ -1,0 +1,40 @@
+Recall that tbody tags might not actually be there, chrome adds them
+Haven't tested any of these
+* anidb
+** http://anidb.net/perl-bin/animedb.pl?show=anime&aid=584
+*** main title
+    One
+    //span[@itemprop='name']
+*** official titles
+    Multiple
+    //label[@itemprop='alternateName']
+*** type
+    One
+    Can't get to this one easily but it can probably be extracted from 
+    //*[@id="tab_1_pane"]/div/table/tbody/tr[4]/td
+*** Num eps
+    One
+    //span[@itemprop='numberOfEpisodes']
+*** Tags
+    Includes genres
+    //span[@class='g_tag']
+*** Genres
+    Listed on the page as "Tags"
+    //span[@itemprop='genre']
+*** Resources
+    Links to other sites
+    //a[@itemprop='sameAs']
+*** Rating, average, review rating
+    Don't ask me what this is lmao
+    //span[@itemprop='ratingValue']
+    //span[@class='rating tmpanime high']/a/span[@class='value']
+    //span[@class='rating attavg high']/a/span[@class='value']
+*** "Stats"
+    //tr[@class='g_odd stats']/td
+*** Directly related anime
+    I doubt this one even works lel
+    //div[contains(@class, 'g_bubble') and contains(@class, 'stripe') and .//div[@class='info']/div[@class='type']]
+    alternatively
+    //*[@id="relations_direct"]/div[2]
+*** Indirectly related anime
+    //*[@id="relations_indirect"]/div[2]

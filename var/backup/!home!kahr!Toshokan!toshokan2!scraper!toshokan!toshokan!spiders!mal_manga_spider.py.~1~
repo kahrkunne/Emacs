@@ -1,0 +1,8 @@
+import scrapy
+from typing import List
+
+class MALMangaSpider(scrapy.Spider):
+    """Scraper for manga pages on MyAnimeList."""
+    name = "MAL_manga"
+    _lc_xpath: str = "//div[@class='js-scrollfix-bottom']/div[contains(., '{}')]/descendant-or-self::*/text()"
+    

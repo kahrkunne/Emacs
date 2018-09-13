@@ -16,3 +16,12 @@ cat doek.png
 cd ..
 ls
 cat vn.html
+curl -I 'https://myanimelist.net/' -H 'authority: myanimelist.net' -H 'pragma: no-cache' -H 'cache-control: no-cache' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en,it-IT;q=0.9,it;q=0.8,en-US;q=0.7,de;q=0.6,fr;q=0.5,zh-CN;q=0.4,zh;q=0.3' --compressed
+curl -I 'https://myanimelist.net/' -H 'authority: myanimelist.net' -H 'pragma: no-cache' -H 'cache-control: no-cache' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en,it-IT;q=0.9,it;q=0.8,en-US;q=0.7,de;q=0.6,fr;q=0.5,zh-CN;q=0.4,zh;q=0.3' --compressed | grep MALSESSIONID | cut -d '=' -f1
+curl -I 'https://myanimelist.net/' -H 'authority: myanimelist.net' -H 'pragma: no-cache' -H 'cache-control: no-cache' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en,it-IT;q=0.9,it;q=0.8,en-US;q=0.7,de;q=0.6,fr;q=0.5,zh-CN;q=0.4,zh;q=0.3' --compressed | grep MALSESSIONID | cut -d '=' -f2
+curl -I 'https://myanimelist.net/' -H 'authority: myanimelist.net' -H 'pragma: no-cache' -H 'cache-control: no-cache' -H 'upgrade-insecure-requests: 1' -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en,it-IT;q=0.9,it;q=0.8,en-US;q=0.7,de;q=0.6,fr;q=0.5,zh-CN;q=0.4,zh;q=0.3' --compressed | grep MALSESSIONID | cut -d '=' -f2 | cut -d ';' -f1
+xonsh
+yaourt xonsh
+sudo ip link set enp6s0 up
+sudo dhcpcd
+yaourt xonsh

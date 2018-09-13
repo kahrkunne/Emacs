@@ -1,0 +1,19 @@
+import scrapy
+
+class MALCharacterSpider(scrapy.Spider):
+    """Scraper for character pages on MyAnimeList."""
+    name = "MAL_character"
+    def start_requests(self):
+        for character_id in range(1, 150000):
+            yield scrapy.Request(Url="https://myanimelist.net/character/" + str(character_id),
+                                 callback=self.parse)
+
+    def parse(self, response):
+        # URL: of the format "https://myanimelist.net/character/1234"
+        mal_id = int(response.url.split('/')[-1])
+
+        # Different kinds of names
+        name_with_nickname = response.xpath("//*[@id='contentWrapper']/div[1]/h1/text()").extract_first()
+
+        name_header = response.xpath("//*[@id='content']/table/tr/td[2]/div[3]").extract_first()
+        name_english = name_header.split(">")[1].split(" <")[0]

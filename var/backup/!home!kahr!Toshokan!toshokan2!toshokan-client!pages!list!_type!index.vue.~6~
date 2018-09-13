@@ -1,0 +1,117 @@
+<template>
+    <div>
+	<div class="tabs">
+	    <ul>
+		<li v-for="(key, value) in pretty_status" @click="cur_tab = value" :key="key" :class="{'is-active': cur_tab == value}">
+		    <a>{{key}}</a>
+		</li>
+		<li @click="cur_tab='All'" :class="{'is-active': cur_tab == 'All'}"><a>All</a></li>
+	    </ul>
+	</div>
+	<div v-if="entries.length">
+	    <b-field>
+		<b-input v-model="filter" placeholder="Filter..." class="filter">
+		</b-input>
+	    </b-field>
+<<<<<<< HEAD
+
+	    <div class="padding">
+		<list-table :entries="filterList(filter, data, table_entries)" :list_type="list_type" :data="data" :show_status="cur_tab == 'All'"></list-table>
+	    </div>
+=======
+		<list-table :entries="filtered_list" :list_type="list_type" :data="data" :show_status="cur_tab == 'All'"></list-table>
+>>>>>>> 3d8f956006d3df0d69ef2460277067cda1a949ca
+	</div>
+	<div v-else class="content has-text-grey has-text-centered">
+	    <div class="padding">
+		<p>
+		    <b-icon icon="frown"
+			    size="is-large">
+		    </b-icon>
+		</p>
+		<p>Nothing here.</p>
+
+		<import-form :list_type="list_type" :replace_list="true" @list-update="reload_list"></import-form>
+	    </div>
+	</div>
+    </div>
+</template>
+<script>
+ import { get_status_pretty, get_status_api } from '~/utils/list/status.js'
+ import page_auth from '~/plugins/page-auth-mixin.js'
+ import list_table from '~/components/list/list_table.vue'
+ import import_form from '~/components/list/import_form.vue'
+ import { filterList } from "~/utils/afs.js"
+
+ async function asyncData({ params, $axios, store }) {
+   const list_type = params.type
+   await store.dispatch("list/ensureList", list_type)
+   return { list_type }
+ }
+ export default {
+    mixins: [page_auth(asyncData)],
+    validate({ params }) {
+      return ["anime", "manga", "novel"].includes(params.type)
+    },
+    data: function () {
+      return {
+        table_entries: null,
+        cur_tab: "current",
+        filter: '',
+      }
+    },
+    created: function () {
+      //this.table_entries = this.filter_entries("current")
+    },
+    components: {
+      "list-table": list_table,
+      "import-form": import_form
+    },
+    computed: {
+      pretty_status() {
+        return get_status_pretty(this.list_type)
+      },
+      api_status() {
+        return get_status_api(this.list_type)
+      },
+      entries() {
+        return this.$store.getters["list/list"](this.list_type)
+      },
+      data() {
+        return this.$store.getters["list/data"][this.list_type]
+      },
+      filtered_list() {
+        return filterList(this.filter, this.data, this.filter_entries(this.cur_tab))
+      }
+    },
+    methods: {
+      filter_entries: function (status) {
+        if (status == "All") {
+          return this.entries
+        }
+        const result = this.entries.filter(el => (el.entry.status == status))
+        return result
+      },
+      async reload_list() {
+        const { entries, data } = await asyncData({ params: { type: this.list_type }, $axios: this.$axios })
+        this.entries = entries
+        this.data = data
+      },
+      
+    }
+  }
+</script>
+<style scoped>
+ .filter >>> input {
+     border-top: none;
+     border-left: none;
+     border-right: none
+ }
+ .card >>> .level {
+     padding-bottom: 5px !important;
+ }
+
+ .padding {
+     padding: 8px;
+ }
+</style>

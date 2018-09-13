@@ -1,0 +1,12 @@
+import turicreate as tc
+
+# TODO manga lists n shiet
+
+explicit_model = tc.load_model('../models/explicit.model')
+implicit_model = tc.load_model('../models/implicit.model')
+
+def get_user_recommendations(user, type_):
+    # type_ is still ignored because manga lists &c haven't been implemented
+    return {
+       'recommendations': explicit_model.recommend(users=[user], k=30)
+    }

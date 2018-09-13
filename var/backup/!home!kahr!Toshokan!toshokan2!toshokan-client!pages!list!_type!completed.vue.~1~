@@ -1,0 +1,12 @@
+<template>
+  <div>
+      fatoe
+</div>
+</template>
+
+<script>
+  import relations_table from "~/components/library/relations_table.vue"
+  export default {
+      components: {'relations-table': relations_table}
+  }
+</script>

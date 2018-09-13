@@ -1,0 +1,57 @@
+<template>
+  <div>
+    <div v-if="this.works == null">
+      No {{library_type}}{{library_type == 'novel' ? 's' : ''}} found.
+    </div>
+    <cast-table v-else :type="library_type" :id="id" :table_kind="type" :initial_data="works['roles']"></cast-table>
+    {{library_type}}
+  </div>
+</template>
+<script>
+ import cast_table from "~/components/library/cast_table.vue"
+ async function setData(params, $axios){
+     const id = params.id
+     const library_type = params.library_type.replace('ography','')
+     const type = params.type
+     var works
+     try {
+       var url = '/' + type + '/' + params.id + '/' + library_type
+       console.log(url)
+       if(type == 'person'){
+	 if(library_type == 'anime') {
+	   url = url + '/staff'
+	 } else if(library_type == 'voices'){
+	   url = '/' + type + '/' + params.id + '/anime/voice'
+	 }
+	 //todo
+       }
+       works = await $axios.$get(url)
+     } catch(e) {
+       works = null
+     }
+
+   return { id, library_type, works, type }
+
+ }
+
+ export default {
+   watch:{
+     '$route.params.library_type': function (){
+       var {id, library_type, works, type} = setData(this.$route.params, this.$axios)
+       this.id = id
+       this.library_type = library_type
+       this.works = works
+       this.type = type
+     }
+   },
+   asyncData({ params, $axios }) {
+     return setData(params, $axios)
+   },
+   validate({ params }) {
+     return (["anime", "manga", "novel"].includes(params.library_type.replace('ography', '')) || params.library_type == 'voices')
+   },
+   components: {
+     'cast-table': cast_table
+   },
+  }
+</script>

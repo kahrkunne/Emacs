@@ -1,0 +1,106 @@
+<template>
+    <b-field class="search-nav">
+      <b-autocomplete v-model="name"
+                      placeholder="Search Anime, Manga, VNs..."
+                      :data="data"
+                      field="title"
+                      :loading="isFetching"
+                      @input="getAsyncData"
+                      @select="navigateToPage">
+        <template class="has-background-black" slot-scope="props">
+            <div v-if="props.option.title" class="media inst-item">
+              <div class="media-left">
+                <img width="32" src="/search-placeholder.jpg">
+              </div>
+              <div class="media-content">
+                {{ props.option.title }}
+                <br>
+                <small>
+                  Aired {{ props.option.start_date }} <br /> {{ props.option.end_date }}<br />,
+                  Status <b>{{ props.option.status }}</b>
+                </small>
+              </div>
+            </div>
+            <div class="button has-text-centered is-fullwidth is-light inst-footer" v-else-if="props.option.type === 'footer'">
+              More Results
+            </div>
+              
+        </template>
+      </b-autocomplete>
+      
+    </b-field>
+</template>
+
+<script>
+  import debounce from 'lodash/debounce';
+  import fetch from 'isomorphic-fetch';
+
+  export default {
+    name: 'search',
+    data() {
+      return {
+        data: [],
+        name: '',
+        selected: null,
+        isFetching: false
+      }
+    },
+    methods: {
+      getAsyncData: debounce(async function () {
+        this.data = []
+        const response = await fetch(`http://solr.sekrit.club/solr/anime/select?wt=json&rows=5&q=title:${this.name}`);
+        var data = await response.json();
+        data.response.docs.forEach((item) => this.data.push(item));
+        this.data.push({ "type": "footer" });
+      }, 500),
+      navigateToPage: function (result) {
+        if (result.type == "footer") {
+          this.$router.push('/search/?q=' + this.name)
+        } else {
+          this.$router.push('/anime/' + result.id)
+        }
+      }
+    }
+
+  }
+</script>
+
+<style scoped>
+.search-nav {
+    padding-top: 10px;
+    margin-right: 10px;
+    margin-left:10px
+}
+.search-nav >>> .dropdown-content {
+  border-radius: 0;
+}
+.search-nav >>> .input {
+    width: 300px;
+    border-radius: 0px;
+    border-bottom-left-radius: 0px !important;
+    border-top-left-radius: 0px !important;
+}
+.search-nav >>> .button {
+  border-radius: 0px;
+}
+.search-nav >>> .dropdown-menu {
+    width: 100%;
+    padding-top: 0px;
+}
+.search-nav >>> .autocomplete .dropdown-content {
+    max-height: 570px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+.search-nav >>> .dropdown-item {
+ padding: 0px;
+}
+.search-nav >>> .inst-item {
+    padding: 0.375rem 1rem;
+}
+.search-nav >>> .inst-footer {
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+}
+</style>

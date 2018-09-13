@@ -1,0 +1,168 @@
+<template>
+    <div class="list-control">
+	<template v-if="loading">
+	    loading
+	</template>
+	<template v-else-if="entry">
+	    <div class="has-text-centered"><b>{{upcasedType}} List</b></div>
+	    <hr>
+
+	    <b-field label="Status" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+		<b-select v-model="entry.status" class="list-control-input list-control-select is-normal is-fullwidth">
+		    <option v-for="option in statuses" :key="option">
+			{{option}}
+		    </option>
+		</b-select>
+	    </b-field>
+	    
+	    <b-field label="Score" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+		<b-input v-model="entry.score" class="list-control-input is-normal">
+		</b-input>
+	    </b-field>
+	    <mq-layout :mq="['mobile', 'tablet']">
+		<label for="progress-field" class="label list-control-label">{{progressName}}</label>
+	    </mq-layout>
+
+	    <b-field id="progress-field" :label="$viewport.geq('desktop', $mq) ? progressName : ''" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+		<button v-if="(itemProgress == null) || (entry.progress < itemProgress)" class="plus1-button button is-primary" @click="incrementProgress">+</button>
+
+		<b-input v-model="entry.progress" class="list-control-input is-normal">
+		</b-input>
+
+		<mq-layout :mq="['mobile', 'tablet', 'fullhd']">
+		    <button class="button is-static counter">/ {{itemProgress}} </button>
+		</mq-layout>
+	    </b-field>
+
+	    <template v-if="type != 'anime'">
+		<mq-layout :mq="['mobile', 'tablet']">
+		    <label for="progress-field" class="label list-control-label">Volumes</label>
+		</mq-layout>
+
+		<b-field id="volumes-field" :label="$viewport.geq('desktop', $mq) ? 'Volumes' : ''" :horizontal="$viewport.geq('desktop', $mq)" custom-class="list-control-label">
+		    <button v-if="(item.volume_count == null) || (entry.volumes < item.volume_count)" class="plus1-button button is-primary" @click="incrementVolumes">+</button>
+
+		    <b-input v-model="entry.volumes" class="list-control-input is-normal">
+		    </b-input>
+
+		    <mq-layout :mq="['mobile', 'tablet', 'fullhd']">
+			<button class="button is-static counter">/ {{item.volume_count}} </button>
+		    </mq-layout>
+		</b-field>
+	    </template>
+
+
+	    <b-field>
+		<button @click="openEditForm()" class="button submit-button">Advanced</button>
+		<button @click="updateEntry" class="button is-primary submit-button">Save</button>
+	    </b-field>
+
+	</template>
+	<template v-else>
+	    <button class="button is-primary" @click="addEntry">Add to List</button>
+	</template>
+    </div>
+</template>
+<script>
+  import edit_form from '~/components/list/list_form.vue'
+  export default {
+    extends: edit_form,
+    name: 'list_controls',
+    methods: {
+      openEditForm() {
+        this.$modal.open({
+          parent: this,
+          component: edit_form,
+          hasModalCard: true,
+          props: { type: this.type, pass_entry: this.entry, item: this.item }
+        })
+      }
+    }
+  }
+</script>
+<style scoped>
+ .list-control >>> input, .list-control >>> select {
+     text-align: right;
+     padding-top: 0;
+     padding-bottom: 0;
+ }
+
+ .list-control >>> label {
+     text-align: left;
+ }
+
+ @media (min-width: 1024px) {
+     .list-control >>> label {
+	 width: 50px !important;
+     }
+ }
+
+ @media (min-width:1088px) and (max-width: 1279px){
+     .list-control >>> option {
+	 font-size: 0.92rem;
+     }
+
+     .list-control >>> select {
+	 font-size: 0.92rem;
+     }
+
+     .list-control >>> span.select {
+	 margin-bottom: 4px !important;
+     }
+ }
+
+ @media (min-width: 1280px) {
+     .list-control >>> label {
+	 width: 75px !important;
+     }
+ }
+
+
+ .list-control >>> option {
+     direction: rtl;
+ }
+
+ .list-control >>> select {
+     text-align-last: right;
+ }
+
+ .list-control >>> .is-horizontal {
+     margin-bottom: 5px;
+ }
+
+ .list-control >>> .submit-button {
+     width: 50%;
+ }
+ 
+ .list-control >>> .field {
+     margin-right: 0;
+ }
+
+ .list-control >>> .plus1-button {
+     width: 2.5rem;
+     border-right: none;
+ }
+
+ .list-control >>> .counter {
+     border-left: none;
+ }
+
+ .list-control >>> label {
+     margin-bottom: 0;
+ }
+
+ .list-control >>> select {
+     width: 100%;
+ }
+
+ .list-control >>> span.select {
+     width: 100%;
+     margin-bottom: 5px;
+ }
+
+ @media (max-width: 768px) {
+     .list-control {
+	 width: 250px;
+     }
+ }
+</style>

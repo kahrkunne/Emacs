@@ -1,0 +1,96 @@
+<template>
+  <div class="dashboard-list">
+    <div class="tabs is-toggle">
+      <ul>
+	<li v-for="option in statuses" :key="option" :class="{'is-active': status == option}" @click="status = option"><a>{{option}}</a></li>
+	<li :class="{'is-active': status == 'All'}" @click="status = 'All'"><a>All</a></li>
+      </ul>
+    </div>
+    <b-field>
+      <button class="button no-right is-primary" @click="openAddForm(list_type)">Add {{list_type}}</button>
+      <b-input v-model="filter" placeholder="Filter..." class="filter-box">
+      </b-input>
+
+    </b-field>
+    <list-table :entries="filterList(filter, data, filter_entries(status == 'All' ? status : get_status_api(list_type)[status]))" :list_type="list_type" :data="data"></list-table>
+  </div>
+</template>
+
+<script>
+ import page_auth from "~/plugins/page-auth-mixin.js"
+ import list_table from "~/components/list/list_table.vue"
+ import add_form from "~/components/list/add_form.vue"
+
+ import { filterList } from "~/utils/afs.js"
+ import { get_status_pretty, get_status_api } from '~/utils/list/status.js'
+ 
+ async function asyncData({ params, $axios }) {
+   const response = await $axios.$get("/list/" + params.type)
+   const entries = response.list
+   const data = response.data
+   const list_type = params.type
+   const status = get_status_pretty(list_type)['current']
+   return { entries, list_type, data, status}
+ }
+
+ export default {
+   mixins: [page_auth(asyncData)],
+   data (){
+     return {
+       filter: '',
+
+     }
+   },
+   components: {
+     "list-table": list_table,
+     add_form
+   },
+   methods: {
+     filter_entries(status) {
+       var result
+       if(status == 'All'){
+	 result = this.entries
+       } else {
+	 result = this.entries.filter(el => ( el.entry.status == status ))
+       }
+       return result
+     },
+     openAddForm(type) {
+       this.$modal.open({
+	 parent: this,
+	 component: add_form,
+	 hasModalCard: true,
+	 props: {
+	   list_type: type
+	 }
+       })
+     },
+     filterList: filterList,
+     get_status_pretty: get_status_pretty,
+     get_status_api: get_status_api
+   },
+   computed: {
+     statuses() {
+       return Object.keys(get_status_api(this.list_type))
+     }
+   }
+   
+ }
+</script>
+<style scoped>
+ .dashboard-list >>> .field {
+   margin-bottom: 0;
+ }
+
+ .dashboard-list >>> .filter-box {
+   width: 100%;
+ }
+
+ .dashboard-list >>> .no-right {
+   border-right: none;
+ }
+
+ .tabs {
+   padding-bottom: 5px;
+ }
+</style>

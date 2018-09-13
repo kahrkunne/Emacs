@@ -1,0 +1,58 @@
+import scrapy
+import json
+import logging
+class MALAnimeStaffSpider(scrapy.Spider):
+    """Scraper for staff roles and characters for anime on MyAnimeList."""
+    name = "MAL_anime_staff"
+
+    def __init__(self,  *args, **kwargs):
+        super(MALAnimeStaffSpider, self).__init__(*args, **kwargs)
+        logging.getLogger('scrapy').setLevel(logging.WARNING)
+
+    def start_requests(self):
+        with open("anime_list.json", "r", encoding="utf-8") as f:
+            anime_list = json.load(f)
+        i = 1
+        for anime_id in anime_list:
+            i+=1
+            if i > 10:
+                break
+            print(anime_id)
+            anime_id = int(anime_id)
+            yield scrapy.Request(url=self.settings["MAL_ANIME_STAFF_PATH"] % str(anime_id).format(anime_id),
+                                 callback=self.parse)
+
+    def parse(self, response):
+        voiceroles = []
+        staff = []
+
+        anime_id = int(response.url.split('/')[-1].split(".")[-2])
+
+        i: int = 1
+        while True:
+            table = response.xpath("//*[@id='content']/table/tr/td[2]/div[1]/table[{}]/tr".format(i)).extract_first()
+            i += 1
+
+            if not table:
+                break
+
+            if "myanimelist.net/character" in table:
+                # We're dealing with a character/VA duo
+                character_id = int(table.split('myanimelist.net/character/')[1].split('/')[0])
+
+                people = []
+                s = table.split('myanimelist.net/people/')
+                for j in range(1, len(s), 2):
+                    person = int(s[j].split('/')[0])
+                    role = s[j].split('<small>')[1].split('</small>')[0]
+                    people.append({'person':person, 'role':role})
+
+                voiceroles.append({'character':character_id, 'people':people})
+
+            else:
+                # Just a staff role
+                person = int(table.split('myanimelist.net/people/')[1].split('/')[0])
+                description = table.split('<small>')[1].split('</small>')[0]
+                staff.append({'person':person, 'description':description})
+
+        yield {'anime':anime_id, 'voiceroles':voiceroles, 'staff':staff}

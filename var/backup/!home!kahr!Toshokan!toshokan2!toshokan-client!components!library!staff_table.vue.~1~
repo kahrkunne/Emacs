@@ -1,0 +1,16 @@
+<template>
+  <div v-if="type == 'anime'" class="columns">
+    <div class="column">
+      a
+    </div>
+    <div class="column">
+      b
+    </div>
+  </div>
+</template>
+
+<script>
+ export default {
+   props: ["type"}
+ }
+</script>

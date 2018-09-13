@@ -1,0 +1,23 @@
+import scrapy
+
+class AniDBAnimeSpider(scrapy.Spider):
+    def start_requests(self):
+        for aid in range(1, 15000):
+            pass
+
+    def parse(self, response):
+        out = {}
+        out['main_title'] = response.xpath("//tr[contains(., //th[contains(./text(), 'Main Title')])]/td/span/text()").extract_first()
+
+        other_titles = response.xpath("//tr[contains(., //th[contains(./text(), 'Official Title')])]/td").extract()[0]
+        title_table = {}
+        for title in other_titles:
+            lang = title.split("language: ")[1].split('">')[0]
+            lang_title = title.split('alternateName">')[1].split('</label>')[0]
+            title_table[lang] = lang_title
+        out['other_titles'] = title_table
+
+        out['type'] = response.xpath("//tr[@class='type']/td//text()").extract()[0].replace(', ','')
+        out['num_episodes'] = int(response.xpath("//tr[@class='type']/td//text()").extract()[1])
+        out['start_date'] = response.xpath("//span[@itemprop='startDate']/text()").extract_first()
+        out['end_date'] = response.xpath("//span[@itemprop='endDate']/text()").extract_first()

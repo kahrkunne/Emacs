@@ -1,0 +1,5 @@
+"""Scraping from all kinds of websites. There is some code duplication for different pages with similar layouts; this is intentional. Pages should be considered independent; while different spiders might implement the same code, they do not solve the same problem, since they operate on different pages."""
+from .toshokan import (MALAnimeSpider, MALMangaSpider, MALAnimeStaffSpider, MALMangaStaffSpider,
+                       MALCharacterSpider, MALPersonSpider, MALEpisodeSpider)
+__all__ = ["MALAnimeSpider", "MALMangaSpider", "MALAnimeStaffSpider", "MALMangaStaffSpider", "MALCharacterSpider",
+           "MALPersonSpider", "MALEpisodeSpider"]

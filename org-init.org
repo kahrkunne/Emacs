@@ -369,19 +369,25 @@ Major-mode for all the web-related stuff.
 http://web-mode.org/
 #+NAME: web-mode
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package web-mode
-    :init
-    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.tmpl\\'" . web-mode))
-    (setq web-mode-engines-alist
-          '(("cheetah" . "\\.tmpl\\'"))))
+    (use-package web-mode
+      :init
+      (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.tmpl\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
+      (setq web-mode-engines-alist
+	    '(("cheetah" . "\\.tmpl\\'")))
+      (defun my-web-mode-hook ()
+	(setq web-mode-markup-indent-offset 2)
+	(setq web-mode-code-indent-offset 2)
+	(setq web-mode-css-indent-offset 2))
+      (add-hook 'web-mode-hook  'my-web-mode-hook))
 #+END_SRC
 *** Visual
 **** rainbow-delimiters
@@ -731,15 +737,6 @@ https://github.com/wasamasa/shackle
             ("*Help*" :select t)))
     (shackle-mode t))
 #+END_SRC
-**** workgroups2
-Workgroups is a session manager for Emacs.
-https://github.com/pashinin/workgroups2
-#+NAME: workgroups2
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package workgroups2
-    :config
-    (workgroups-mode t))
-#+END_SRC
 **** treemacs
 File and project explorer
 https://github.com/Alexander-Miller/treemacs
@@ -778,9 +775,9 @@ Sidebar
 https://github.com/sebastiencs/sidebar.el
 #+NAME: sidebar
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (add-to-list 'load-path "/etc/icons-in-terminal/") ;; If it's not already done
-  (add-to-list 'load-path "~/.emacs.d/elisp/sidebar.el")
-  (require 'sidebar)
+;;  (add-to-list 'load-path "/etc/icons-in-terminal/") ;; If it's not already done
+;;  (add-to-list 'load-path "~/.emacs.d/elisp/sidebar.el")
+;;  (require 'sidebar)
   ;; (global-set-key (kbd "C-x C-f") 'sidebar-open)
   ;; (global-set-key (kbd "C-x C-a") 'sidebar-buffers-open)
 #+END_SRC
@@ -883,6 +880,11 @@ Agenda files
   (global-set-key (kbd "C-c g") 'org-agenda ) 
 #+END_SRC
 ** Custom code
+*** Modeline
+#+NAME: modeline
+#+BEGIN_SRC emacs-lisp :tangle yes
+#+END_SRC
+
 *** Custom functions
 Edit the current file with sudo
 #+NAME: sudo-edit

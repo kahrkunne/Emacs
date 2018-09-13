@@ -1,0 +1,49 @@
+<template>
+  <div class="settings">
+    TODO fix the fucking buefy tabs
+    <b-tabs :animated="false">
+      <b-tab-item label="List">
+	TODO fix the fucking width of this label
+	<b-field label="Public" horizontal>
+	  <b-switch v-model="settings.list_public"></b-switch>
+	</b-field>
+      </b-tab-item>
+
+      <b-tab-item label="Profile">
+	<b-field label="Public" horizontal>
+	  <b-switch v-model="settings.profile_public"></b-switch>
+	</b-field>
+      </b-tab-item>
+
+      <b-tab-item label="Display">
+	<b-field label="Pagination" horizontal>
+	  <b-switch v-model="settings.pagination"></b-switch>
+	</b-field>
+      </b-tab-item>
+    </b-tabs>
+
+    <button class="button" @click="save">Save</button>
+  </div>
+</template>
+<script>
+ import page_auth from "~/plugins/page-auth-mixin.js"
+ 
+ async function asyncData({ $axios, params }) {
+     const settings = await $axios.$get('/account/settings')
+     return { settings: settings.settings }
+ }
+
+ export default {
+   mixins: [page_auth(asyncData)],
+   methods: {
+     save(){
+       this.$axios.$put('/account/settings', this.settings)
+     }
+   }
+ }
+</script>
+<style scoped>
+ .settings >>> .label {
+   text-align: left;
+ }
+</style>

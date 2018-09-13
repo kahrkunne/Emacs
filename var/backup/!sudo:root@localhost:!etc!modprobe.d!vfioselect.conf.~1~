@@ -1,0 +1,2 @@
+#09:00.0 09:00.1
+options vfio-pci ids=10de:1b81,10de:10f0

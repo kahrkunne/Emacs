@@ -1,0 +1,94 @@
+<template>
+  <div class="library-info">
+    <!-- anime/manga/novel -->
+    <template v-if="['anime', 'manga', 'novel'].includes(type)">
+      <span class="has-text-weight-bold">Type: </span>{{item.type}}<br>
+      <span class="has-text-weight-bold">Status: </span>{{item.status}}<br>
+    </template>
+    <!-- /anime/manga/novel -->
+
+    <!-- Manga -->
+    <template v-if="'chapter_count' in item">
+      <span class="has-text-weight-bold">Chapters: </span>{{(item.chapter_count || "N/A")}}<br>
+      <span class="has-text-weight-bold">Volumes: </span>{{(item.volume_count || "N/A")}}<br>
+
+      <span class="has-text-weight-bold">Serialization: </span><nuxt-link :to="'/magazine/'+item.serialization">{{item.serialization}}</nuxt-link><br>
+      <span class="has-text-weight-bold">Authors: </span>
+      <template v-for="(author, i) in item.authors">
+	<nuxt-link :to="author['href']" :key="i">{{author.name}} </nuxt-link>
+	<template v-if="author.roles.length == 1">({{author.roles[0]}})</template>
+	<template v-if="author.roles.length == 2">(Story & Art)</template>
+	<template v-if="i+1 < item.authors.length">, </template>
+      </template><br>
+    </template>
+    <!-- /manga -->
+
+    <!-- Anime -->
+    <template v-if="type == 'anime'">
+      <span class="has-text-weight-bold">Episodes: </span>{{(item.episode_count || "N/A")}}<br>
+      <span class="has-text-weight-bold">Season: </span>{{season}}<br>
+
+      <link-list name="Studios" :list="this.item.studios" prop_name="studios"></link-list><br />
+
+      <link-list name="Producers" :list="this.item.producers" prop_name="producers"></link-list><br />
+
+    </template>
+    <!-- /anime -->
+
+    <!-- Anime/manga/novel -->
+    <template v-if="['anime', 'manga', 'novel'].includes(type)">
+      <link-list name="Genres" :list="this.item.genres" prop_name="genres"></link-list><br />
+
+      <span class="has-text-weight-bold">Started: </span>{{item.start_date == null ? "Unknown" : $moment(item.start_date).format('MMM DD, YYYY')}}<br>
+      <span class="has-text-weight-bold">Ended: </span>{{item.start_date == null ? "Unknown" : $moment(item.end_date).format('MMM DD, YYYY')}}<br>
+      <hr>
+      <span class="has-text-weight-bold">Score: </span><br>
+      <span class="has-text-weight-bold">Ranked: </span><br>
+      <span class="has-text-weight-bold">Members: </span><br>
+      <span class="has-text-weight-bold">Sakura Score: </span> <sakura-score v-if="type == 'anime'" :type="this.type" :id="this.id"></sakura-score><br>
+    </template>
+    <!-- /anime/manga/novel -->
+
+    <!-- Character -->
+    <template v-if="type == 'character'">
+      <span class="has-text-weight-bold">Name: </span>{{item.name_english}}<br>
+      <span class="has-text-weight-bold">Japanese: </span>{{item.name_japanese}}<br>
+    </template>
+    <!-- /character -->
+  </div>
+</template>
+
+<script>
+ import list_controls from "~/components/library/list_controls.vue"
+ import link_list from "~/components/library/library_info_link_list.vue"
+ import sakura_score from "~/components/library/sakura_score.vue"
+ export default {
+   name: 'library_info',
+   props: ['item', 'type', 'id'],
+   components: {
+     'sakura-score': sakura_score,
+     'link-list': link_list
+   },
+   computed: {
+     season() {
+       if (this.item.start_date == null) {
+	 return "Unknown"
+       }
+       const month = new Date(this.item.start_date).getMonth();
+       if (month >= 9) {
+	 return "Fall"
+       } else if (month >= 6) {
+	 return "Summer"
+       } else if (month >= 3) {
+	 return "Spring"
+       } else {
+	 return "Winter"
+       }
+     }
+   }
+ }
+</script>
+
+<style scoped>
+
+</style>

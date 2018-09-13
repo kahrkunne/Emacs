@@ -1,0 +1,18 @@
+<template>
+    <div>
+	<div class="tabs">
+	    <ul>
+		<nuxt-link exact-active-class="is-active" tag="li" to="/dashboard/list/anime"><a>Anime</a></nuxt-link>
+		<nuxt-link exact-active-class="is-active" tag="li" to="/dashboard/list/manga"><a>Manga</a></nuxt-link>
+
+	    </ul>
+	</div>
+	<nuxt-child />
+    </div>
+</template>
+
+<style scoped>
+ .tabs {
+     margin-bottom: 5px !important;
+  }
+</style>

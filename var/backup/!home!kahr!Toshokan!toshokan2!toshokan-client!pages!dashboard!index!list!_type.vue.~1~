@@ -1,0 +1,33 @@
+<template>
+    <div>
+	<list-table :entries="filter_entries('current')" :list_type="list_type" :data="data"></list-table>
+    </div>
+</template>
+
+<script>
+ import page_auth from "~/plugins/page-auth-mixin.js"
+ import list_table from "~/components/list/list_table.vue"
+ 
+ async function asyncData({ params, $axios }) {
+     console.log('test')
+     const response = await $axios.$get("/list/" + params.type)
+     const entries = response.list
+     const data = response.data
+     const list_type = params.type
+     return { entries, list_type, data }
+ }
+
+ export default {
+     mixins: [page_auth(asyncData)],
+     components: {
+	 "list-table": list_table
+     },
+     methods: {
+	 filter_entries(status) {
+	     const result = this.entries.filter(el => ( el.entry.status == status ))
+	     return result
+	 }
+     }
+     
+ }
+</script>

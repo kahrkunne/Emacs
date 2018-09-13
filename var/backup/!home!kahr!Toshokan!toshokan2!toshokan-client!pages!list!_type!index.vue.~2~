@@ -1,0 +1,111 @@
+<template>
+  <div>
+    <section class="hero">
+      <div class="hero-body">
+          <h1 class="title">
+            {{list_type}}
+          </h1>
+          <h2 class="subtitle">
+            Your {{list_type}} list
+          </h2>
+      </div>
+    </section>
+    <section>
+      <b-table :data="entries"
+               default-sort="_id"
+                hoverable striped>
+
+        <template slot-scope="props">
+          <b-table-column field="_id" label="ID" width="40" sortable numeric>
+            {{ props.row._id }}
+          </b-table-column>
+
+          <b-table-column field="entry.progress" label="Progress" width="120" sortable numeric>
+            {{ props.row.entry.progress }}
+          </b-table-column>
+          <b-table-column v-if="list_type == 'manga'" field="entry.volumes" label="Volumes" width="120" sortable numeric>
+            {{ props.row.entry.volumes }}
+          </b-table-column>
+
+          <b-table-column field="entry.status" label="Status" width="120" sortable>
+            {{ props.row.entry.status }}
+          </b-table-column>
+          <b-table-column field="entry.score" label="Score" width="120" sortable numeric>
+            {{ props.row.entry.score }}
+          </b-table-column>
+          <b-table-column field="entry.start_date" label="Start Date" width="180" sortable>
+
+            {{ props.row.entry.start_date == 0 ? "" : $moment(props.row.entry.start_date).format('MMM DD, YYYY') }}
+          </b-table-column>
+          <b-table-column field="entry.end_date" label="End Date" width="180" sortable>
+            {{  props.row.entry.end_date == 0 ? "" : $moment(props.row.entry.end_date).format('MMM DD, YYYY') }}
+          </b-table-column>
+          <b-table-column field="entry.comments" label="Comments" width="250">
+            {{ props.row.entry.comments }}
+          </b-table-column>
+          <b-table-column custom-key="Edit" class="has-text-centered">
+            <button class="button" @click="openEditForm(props.row._id, props.row.entry)">Edit</button>
+          </b-table-column>
+        </template>
+        <template slot="footer">
+          <div class="th-wrap">Total {{list_type}}: {{entries.length}}</div>
+        </template>
+        <template slot="empty">
+          <section class="section">
+            <div class="content has-text-grey has-text-centered">
+              <p>
+                <b-icon icon="frown"
+                        size="is-large">
+                </b-icon>
+              </p>
+              <p>Nothing here.</p>
+              <import_form :list_type="list_type" :replace_list="true" @list-update="reload_list"></import_form>
+            </div>
+          </section>
+        </template>
+      </b-table>
+    </section>
+  </div>
+</template>
+<script>
+  import page_auth from '~/plugins/page-auth-mixin.js'
+  import import_form from '~/components/list/import_form.vue'
+  import edit_form from '~/components/list/edit_form.vue'
+
+  async function asyncData({ params, $axios }) {
+    const response = await $axios.$get("/list/" + params.type)
+    const list_type = params.type
+    const entries = response.list
+    return { entries, list_type }
+  }
+  export default {
+    mixins: [page_auth(asyncData)],
+    validate({ params }) {
+      return ["anime", "manga"].includes(params.type)
+    },
+    components: {
+      import_form,
+      edit_form
+    },
+    data: function () {
+      return {
+        entries: [],
+        list_type: ""
+      }
+    },
+    methods: {
+      async reload_list() {
+        const { entries } = await asyncData({ params: {type: this.list_type}, $axios: this.$axios})
+        this.entries = entries
+      },
+      openEditForm(_id, entry) {
+        this.$modal.open({
+          parent: this,
+          component: edit_form,
+          hasModalCard: true,
+          props: {list_type: this.list_type, _id, entry}
+        })
+      }
+    }
+  }
+</script>

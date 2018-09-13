@@ -1,0 +1,50 @@
+Lesson 1: Python Basics
+=========================
+Questions
+---------
+Which of the following is *not* valid Python?
+A. `5 + 5`
+B. `'5' + '5'`
+C. `5 + [5]`
+
+What is the value of `my_list` at the end of the following code snippet?
+```
+my_list = [1, 2]
+my_list.append([3, 4])
+```
+
+What does the following code snippet print?
+```
+my_list = [1, 2, 3]
+for number in my_list:
+    if number == 2:
+        print('Two')
+    else:
+        print(number + 1)
+```
+
+What does the following code snippet print?
+```
+b = 1
+if b and (not (None or b - 1)):
+    print('True')
+else:
+    print('False')
+```
+
+Bonus Question (hard):
+What does the following code snippet print?
+```
+key = 'a'
+our_dicts = [
+    {'a': 5, 'ab': 'text'},
+    {'a': 10, 'ab': False},
+    {'a': 15, 'ab': 3}
+]
+
+for d in our_dicts:
+    if d[key] > 5:
+       key = key + 'b'
+
+    print(not d[key])
+```

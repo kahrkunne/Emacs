@@ -1,0 +1,60 @@
+import scrapy
+import logging
+
+class MALPersonSpider(scrapy.Spider):
+    """Scraper for person pages on MyAnimeList."""
+    name = "MAL_person"
+    def __init__(self,  *args, **kwargs):
+        super(MALPersonSpider, self).__init__(*args, **kwargs)
+        logging.getLogger('scrapy').setLevel(logging.WARNING)
+
+    def start_requests(self):
+        for person_id in range(1, 150000):
+            yield scrapy.Request(url=self.settings["MAL_PERSON_PATH"] % str(person_id),
+                                 callback=self.parse)
+
+    def parse(self, response):
+        # URL: of the format "https://myanimelist.net/people/1234"
+        mal_id = int(response.url.split('/')[-1].split(".")[0])
+        is404 = response.xpath('//*[@id="contentWrapper"]/div[1]/h1/text()').extract_first()
+        is404option2 = response.xpath('/html/head/title/text()').extract_first()
+        if is404 == "404 Not Found" or is404option2 == "404 Not Found":
+            print("%s %s"%(str(mal_id),(is404 or is404option2)))
+            yield None
+            return
+        main_img = response.xpath("//*[@id='content']/table/tr/td[1]/div[1]/a/img/@src").extract_first()
+
+        name = response.xpath("//*[@id='contentWrapper']/div[1]/h1/text()").extract_first()
+
+        text = response.xpath("//*[@id='content']/table/tr/td[1]").extract_first()
+
+        given_name = ''
+        family_name = ''
+        birthday = ''
+        website = ''
+        more = ''
+
+        if 'Given name' in text:
+            s = text.split('Given name:</span> ')[1]
+            given_name = s.split('</div>')[0]
+            text = s
+
+        if 'Family name' in text:
+            s = text.split('Family name:</span> ')[1]
+            family_name = s.split('<div')[0]
+            text = s
+
+        if 'Birthday' in text:
+            s = text.split('Birthday:</span> ')[1]
+            birthday = s.split('</div>')[0]
+            text = s
+
+        if 'Website' in text:
+            s = text.split('Website:</span> <a href="')[1]
+            website = s.split('">')[0]
+            text = s
+
+        if 'More' in text:
+            more = response.xpath("//*[@id='content']/table/tr/td[1]/div[8]").extract_first()
+        yield {'mal_id':mal_id, 'main_img':main_img, 'given_name':given_name, 'family_name':family_name,
+               'birthday':birthday, 'website':website, 'more':more, 'name':name}

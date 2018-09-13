@@ -1,0 +1,162 @@
+import scrapy
+import re
+
+class AniDBAnimeSpider(scrapy.Spider):
+    def start_requests(self):
+        for aid in range(1, 15000):
+            pass
+
+    def parse(self, response):
+        out = {}
+        out['main_title'] = response.xpath("//tr[contains(., //th[contains(./text(), 'Main Title')])]/td/span/text()").extract_first()
+
+        # Titles in other languages
+        other_titles = response.xpath("//tr[contains(., //th[contains(./text(), 'Official Title')])]/td").extract()[0]
+        title_table = {}
+        for title in other_titles:
+            lang = title.split("language: ")[1].split('">')[0]
+            lang_title = title.split('alternateName">')[1].split('</label>')[0]
+            title_table[lang] = lang_title
+        out['other_titles'] = title_table
+
+        out['type'] = response.xpath("//tr[@class='type']/td//text()").extract()[0].replace(', ','')
+        out['num_episodes'] = int(response.xpath("//tr[@class='type']/td//text()").extract()[1])
+        out['start_date'] = response.xpath("//span[@itemprop='startDate']/text()").extract_first()
+        out['end_date'] = response.xpath("//span[@itemprop='endDate']/text()").extract_first()
+        out['genres'] = response.xpath("//span[@itemprop='genre']/text()").extract()
+        out['external_sites'] = response.xpath("//a[@itemprop='sameAs']//@href").extract()
+        out['image'] = response.xpath("//meta[@property='og:image']/@content").extract_first()
+        out['ratings'] = [
+            response.xpath("//a/span[@itemprop='ratingValue']/text()").extract_first(), # "rating"
+            response.xpath("//span[@class='rating tmpanime high']/a/span['@clas=value']/text()").extract_first(), # "average"
+            response.xpath("//span[@class='rating attavg high']/a/span['@clas=value']/text()").extract_first(), # "review rating"
+        ]
+
+        # List of synonyms, comma separated. Not splitting on comma here since I don't know if titles can have commas in the name
+        out['synonyms'] = response.xpath("//tr[@class='synonyms']/td/text()").extract_first()
+        # List "short" synonyms (e.g. Kodomo no Jikan - KnJ); also comma separated
+        out['synonyms_short'] = response.xpath("//tr[@class='g_odd shortnames']/td/text()").extract_first()
+
+        # Subset of full cast, but these are considered "main" by anidb
+        main_cast = {}
+        for row in response.xpath("//table[@id='staffoverview']//tr").extract():
+            role = row.split(';credit=')[1].split('">')[1].split(':<')[0]
+            staff = [x.replace("</span>",'').replace('">')[-1] for x in row.split('</a>')[1:][:-1]]
+            ids = [int(x.split('creatorid=')[-1].split('">')[0]) for x in row.split('</a>')[1:][:-1]]
+
+            slist = []
+            for x in range(len(staff)):
+                slist.append({'name': staff[x], 'id':ids[x]})
+
+            main_cast[role] = slist
+
+        out['main_cast'] = main_cast
+        
+        # Same as above. HTML is slightly different so we can reuse the same code
+        main_staff = []
+        for row in response.xpath("//table[@id='castoverview']//tr").extract():
+            person = row.split(';creatorid=')[1].split('">')[1].split('</a>')[0]
+            person_id = int(row.split(';creatorid=')[1].split('">')[0])
+            chars = []
+            for c in row.split('>as<')[1].split('charid=')[1:]:
+                uid = int(c.split('">')[0])
+                char_name = c.split('">')[1].split('</a>')[0]
+                chars.append({'id':uid, 'name':char_name})
+
+            main_staff.append({'name':person, 'id':person_id, 'characters': chars})
+
+        out['main_staff'] = main_staff
+
+        # Stats mostly about how many people watched things. This part might be brittle since it relies on the very specific html of each part
+        statistics = {}
+        for b in response.xpath("//div[@class='container g_bubblewrap']/div[contains(@class, 'g_bubble')]").extract():
+            out = {}
+            if 'Score/Rank by' in b:
+                out['rating'] = float(b.split('class="value">')[1].split('</span>')[0])
+                out['rating_count'] = int(b.split('class="count">(')[1].split(')')[0])
+                out['rating_rank'] = int(b.split('class="links">')[2].split('rank_rating=0.1">#')[1].split('</a>')[0])
+                out['rating_rank_year'] = int(b.split('class="links">')[2].split('rank_rating=0.1">#')[2].split('</a>')[0])
+                out['popularity_rank'] = int(b.split('class="links">')[4].split('#')[1].split('</a>')[0])
+                out['popularity_rank_year'] = int(b.split('class="links">')[4].split('#')[2].split('</a>')[0])
+
+                statistics['Score/Rank by'] = out
+
+            elif 'Favourites/Rec' in b:
+                out['favourite_rank'] = int(b.split('#')[1].split(' ')[0])
+                out['num_favourites'] = int(b.split('(')[1].split(')')[0])
+                out['num_recommends'] = int(b.split('</a>')[1].split('">')[-1])
+
+                statistics['Favourites/Rec'] = out
+
+            elif 'Running Time' in b:
+                statistics['Running Time'] = b.split('approx. ')[-1].split('\n')[0]
+
+            else:
+                if 'Completed' in b:
+                    cat = 'Completed'
+                elif 'Watching' in b:
+                    cat = 'Watching'
+                elif 'Plan to Watch' in b:
+                    cat = 'Plan To Watch'
+                elif 'Dropped' in b:
+                    cat = 'Dropped'
+                else:
+                    continue
+
+                out['num'] = int(b.split('class="val">')[1].split(' ')[0])
+                out['percent'] = float(b.split('(')[1].split('%')[0])
+
+                statistics[cat] = out
+                
+        out['statistics'] = statistics
+
+        direct_rel = []
+        for rel in response.xpath("//*[@id='relations_direct']/div[2]//div[@class='data']").extract():
+            direct_rel.append(
+                {'aid': int(rel.split('aid=')[1].split('">')[0]),
+                 'desc': rel.split('class="type">')[1].split('\n')[0]})
+
+        out['direct_rel'] = direct_rel
+
+        indirect_rel = []
+        for rel in response.xpath("//*[@id='relations_indirect']/div[2]//div[@class='data']").extract():           
+            indirect_rel.append(int(rel.split('aid=')[1].split('">')[0]))
+                
+        out['indirect_rel'] = indirect_rel
+
+        out['similar_anime'] = [int(x.split('=')[-1]) for x in
+                                response.xpath("//div[@id='similaranime']/div[contains(@class, 'container')]/div[@contains[@class, 'approved')]//div[@class='name']//a[@class='name-colored']/@href").extract()
+        ]
+
+        out['synopsis'] = response.xpath("//*[@id='layout-main']/div[2]/div[2]").extract_first()
+
+        tags = []
+        for t in [x for x in response.xpath("//div[@class='tag']").extract() if 'anidb-weight' in x]:
+            weight = int(t.split('data-anidb-weight="')[1].split('">')[0])
+            tag = t.split('tagname">')[1].split('</span>')[0]
+            tags.append({'weight':weight, 'tag':tag})
+
+        out['tags'] = tags
+
+        ep_tags = []
+        for t in [x for x in response.xpath("//div[@class='tag']").extract() if 'anidb-weight' not in x]:
+            eps = t.split('episode(s): ')[1].split('\n')[0]
+            tag = t.split('tagname">')[1].split('</span>')[0]
+            ep_tags.append({'tag':tag, 'episodes':eps})
+
+        out['ep_tags'] = ep_tags
+
+        out['character_tags'] = [x.strip for x in response.xpath("//div[@class='chartag-list']//span[@class='tagname']/text()").extract()]
+
+        out['characters'] = [int(x.split('=')[-1]) for x in response.xpath("//div[contains(@id, 'charid_')]//a[@Itemprop='url']/@href").extract()]
+
+        out['main_characters'] = [int(x.split('=')[-1]) for x in response.xpath("//div[@class='g_section main character']//div[contains(@id, 'charid_')]//a[@Itemprop='url']/@href").extract()]       
+
+        groups = []
+        for g in response.xpath("//tr[contains(@id, 'gid_')]").extract():
+            gout = {}
+            gout['last_update'] = g.split('data-text="')[1].split('"')[0]
+            gout['group_name'] = g.split('title="')[1].split('">')[0]
+            gout['status'] = g.split('aid=')[1].split('">')[1].split('</a>')[0]
+            
+        

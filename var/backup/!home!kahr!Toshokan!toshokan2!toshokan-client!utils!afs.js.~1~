@@ -1,0 +1,398 @@
+function evalPredicate(args, obj, universe=[obj], subject=obj){
+    function convertDates(arg1, arg2){
+	var arg1_date = false;
+	var arg2_date = false;
+	
+	if(typeof arg1 == "string"){
+	    arg1_date = true
+	    arg1 = stringToUnixUTC(arg1)
+	}
+
+	if(typeof arg2 == "string"){
+	    arg2_date = true
+	    arg2 = stringToUnixUTC(arg2)
+	}
+
+	if(typeof arg1 == "number" && arg1_date){
+	    arg1 = new Date(arg1).setHours(0,0,0,0);
+	}
+
+	if(typeof arg2 == "number" && arg2_date){
+	    arg2 = new Date(arg2).setHours(0,0,0,0);
+	}
+	
+	return [arg1, arg2]
+    }
+
+    if(args){
+	switch(args[0]) {
+	case 'id':
+	    var out = null
+	    if (typeof args[1] == 'string'){
+		if (!(isNaN(parseFloat(obj[args[1]])))){
+		    out = parseFloat(obj[args[1]])
+		} else if (args[1][0] != '"') {
+		    if(args[1] == "universe"){
+			out = universe;
+		    } else if(args[1] == "this"){
+			out = obj;
+		    } else if (args[1] == "subject"){
+			out = subject;
+		    } else{
+			out = obj[args[1]];
+		    }
+		} else {
+		    out = args[1].slice(1, args[1].length)
+		}
+	    } else {
+		out = args[1];
+	    }
+
+	    if (typeof out == 'string'){
+		return out.toLowerCase();
+	    } else {
+		return out;
+	    }
+
+	    break;
+	case '->':
+	    return !evalPredicate(args[1], obj, universe, subject) || evalPredicate(args[2], obj, universe, subject);
+	    break;
+	case '>':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] > conv[1]
+	    break;
+	case '>=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] >= conv[1]
+	    break;
+	case '<':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] < conv[1];
+	    break;
+	case '<=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] <= conv[1];
+	    break;
+	case 'and':
+	    return evalPredicate(args[1], obj, universe, subject) && evalPredicate(args[2], obj, universe, subject);
+	    break;
+	case 'or':
+	    return evalPredicate(args[1], obj, universe, subject) || evalPredicate(args[2], obj, universe, subject);
+	    break;
+	case 'not':
+	    return !evalPredicate(args[1], obj, universe, subject);
+	    break;
+	case '=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] == conv[1];
+	    break;
+	case '!=':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] != conv[1];
+	    break;
+	case '+':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] + conv[1];
+	    break;
+	case '-':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] - conv[1];
+	    break;
+	case '/':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] / conv[1];
+	    break;
+	case '*':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var conv = convertDates(arg1, arg2);
+
+	    return conv[0] * conv[1];
+	    break;
+	case 'in':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg2.indexOf(arg1) != -1;
+	    break;
+	case '!in':
+	    var arg1 = evalPredicate(args[1], obj, universe, subject);
+	    var arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg2.indexOf(arg1) == -1;
+	    break;
+	case 'avg':
+	    var t = 0;
+	    var c = 0;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		c++;
+		t += evalPredicate(args[1], arg2[i], universe, subject);
+	    }
+
+	    return t/c;
+	    break;
+	case 'sum':
+	    var t = 0;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		t += evalPredicate(args[1], arg2[i], universe, subject);
+	    }
+
+	    return t;
+	    break;
+	case 'max':
+	    var max = 0;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		var v = evalPredicate(args[1], arg2[i], universe, subject);
+		if(v > max){
+		    max = v;
+		}
+	    }
+	    return max;
+	    break;
+	case 'min':
+	    var min = Infinity;
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		var v = evalPredicate(args[1], arg2[i], universe, subject);
+		if(v < min){
+		    min = v;
+		}
+	    }
+	    return min;
+	    break;
+	case 'filter':
+	    var newUniverse = []
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		if(evalPredicate(args[1], arg2[i], universe, subject)){
+		    newUniverse.push(arg2[i]);
+		}
+	    }
+	    return newUniverse;
+	    break;
+	case 'sort':
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    var sorted = arg2.concat().sort(function(a, b){
+		return evalPredicate(args[1], b, universe, subject) - evalPredicate(args[1], a, universe, subject);
+	    });
+	    return sorted;
+	    break;
+	case 'fraction':
+	    arg1 = evalPredicate(args[1], obj, universe, subject);
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg2.slice(0, Math.round(arg2.length * arg1));
+	    break;
+	case 'exists':
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		if(evalPredicate(args[1], arg2[i], universe, subject)){
+		    return true;
+		}
+	    }
+	    return false;
+	    break;
+	case 'forall':
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    for (var i in arg2){
+		if(!(evalPredicate(args[1], arg2[i], universe, subject))){
+		    return false;
+		}
+	    }
+	    return true;
+	    break;
+	case 'val':
+	    arg1 = evalPredicate(args[1], obj, universe, subject);
+	    arg2 = evalPredicate(args[2], obj, universe, subject);
+	    return arg1[arg2];
+	}
+    }
+
+}
+
+function parseAtom(str){
+    if (!isNaN(parseFloat(str))){
+	return parseFloat(str)
+    } else if(str == 'true' || str == 'false') {
+	return str == 'true'
+    } else {
+	return str
+    }
+}
+
+function parsePredicate(str){
+    var inPredicate = false
+    var out = []
+    var curPart = ''
+    var c = 0
+    function pushPart(){
+	if (curPart.length != 0){
+	    out.push(curPart.trim())
+	    curPart = ''
+	}
+    }
+    while (c < str.length){
+	//TODO doesn't work yet
+	if (str[c] == '{'){
+	    var depth = 1;
+	    var curTerm = ''
+	    while(true){
+		c++;
+		if (str[c] == '{'){
+		    depth++;
+		} else if (str[c] == '}'){
+		    depth--;
+		}
+
+		if (depth == 0){
+		    out.push(parsePredicate(curTerm));
+		    break
+		}
+		curTerm = curTerm.concat(str[c])
+	    }
+	} else if (str[c] == ' '){
+	    pushPart();
+	} else if (str[c] == '"'){
+	    pushPart();
+	    curPart = '"'
+	    while(true){
+		c++;
+		if(str[c] == '"'){
+		    break;
+		} else if (c >= str.length){
+		    return 'false'
+		}
+		curPart = curPart.concat(str[c]);
+	    }
+	    pushPart();
+	} else {
+	    curPart = curPart.concat(str[c])
+	}
+	c++;
+    }
+
+    pushPart();
+
+    if (out.length == 3){
+	return out
+    } else {
+	return 'false' 
+    }
+}
+
+function preparePredicate(obj, out){
+    if(typeof obj == "string"){
+	return ['id', parseAtom(obj), null];
+    }
+
+    try{
+	return [obj[1], preparePredicate(obj[0]), preparePredicate(obj[2])];
+    }catch(e){
+	return []
+    }
+}
+
+function processListSearchQuery(query){
+    function pushTerm(){
+	if(curTerm != ''){
+	    terms.push(curTerm.toLowerCase())
+	    curTerm = ''
+	}
+    }
+
+    var terms = []
+    var predicates = []
+    var curTerm = ''
+    var c = 0
+
+    if (!((query.match(/{/g) || []).length == (query.match(/}/g) || []).length) || // Number of brackets must be equal
+	(query.indexOf('{') != -1 && query.indexOf('}') < query.indexOf('{'))){ // } can't occur before first {
+	return [terms, predicates]
+    } else {
+	while(c < query.length){
+	    if (query[c] == '{'){
+		pushTerm();
+		var depth = 1;
+		var curPredicate = ''
+		while(true){
+		    c++;
+		    if (query[c] == '{'){
+			depth++;
+		    } else if (query[c] == '}'){
+			depth--;
+		    }
+
+		    if (depth == 0){
+			predicates.push(preparePredicate(parsePredicate(curPredicate)));
+			break
+		    }
+		    curPredicate = curPredicate.concat(query[c])
+		}
+	    } else if (query[c] == ' '){
+		pushTerm();
+	    } else {
+		curTerm = curTerm.concat(query[c])
+	    }
+	    c++;
+	}
+    }
+    pushTerm();
+    return [terms, predicates]
+}
+
+function filterList(type, list, universe=list){
+    var query = $('#'+type+'list-search').val().toLowerCase().replace(/\s+/g,' ').trim();
+
+    var tmp = processListSearchQuery(query)
+    var terms = tmp[0]
+    var predicates = tmp[1]
+
+    var accepted = []
+
+    endloop:
+    for (var thing in list){
+	for (var term in terms){
+	    if(list[thing].title.toLowerCase().indexOf(terms[term]) == -1){
+		continue endloop
+	    }
+	}
+	for (var p in predicates){
+	    if(!(evalPredicate(predicates[p], list[thing], universe))){
+		continue endloop
+	    }
+	}
+	accepted.push(list[thing])
+    }
+
+    return accepted;
+}
+

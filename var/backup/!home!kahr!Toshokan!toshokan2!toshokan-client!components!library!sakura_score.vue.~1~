@@ -1,0 +1,11 @@
+<template>
+  <template v-if="loading">
+  </template>
+  <template v-else>
+    {{sakura_score['score']}}
+  </template>
+</template>
+</template>
+<script>
+ 
+</script>

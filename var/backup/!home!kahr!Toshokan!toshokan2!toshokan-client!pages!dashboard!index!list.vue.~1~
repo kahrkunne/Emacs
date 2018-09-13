@@ -1,0 +1,28 @@
+<template>
+    <div>
+	<div class="tabs">
+	    <ul>
+		<nuxt-link exact-active-class="is-active" tag="li" to="/dashboard/anime"></nuxt-link>
+	    </ul>
+	</div>
+    </div>
+</template>
+
+<script>
+ import page_auth from "~/plugins/page-auth-mixin.js"
+ import list_table from "~/components/list/list_table.vue"
+ 
+ async function asyncData({ params, $axios }) {
+     console.log('test')
+     const response= await $axios.$get("/list/anime")
+     const entries= response.list
+     const data = response.data
+     const list_type = 'anime'
+     return { entries, list_type, data }
+ }
+
+ export default {
+     mixins: [page_auth(asyncData)],
+     
+ }
+</script>

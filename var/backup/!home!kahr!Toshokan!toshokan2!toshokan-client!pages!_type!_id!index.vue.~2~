@@ -1,0 +1,36 @@
+<template>
+  <div>
+    <div class="has-text-centered has-text-weight-bold">Description</div>
+      {{item.description}}
+
+    <template v-if="['manga', 'anime', 'novel'].includes(type)">
+      <div class="has-text-centered has-text-weight-bold">Related Works</div>
+
+      <relations-table :relations="item.links"></relations-table>
+    </template>
+
+    <div v-if="['manga','anime','novel'].includes(type)" class="tile">
+      <div class="full-width">
+        <div class="has-text-centered has-text-weight-bold">Cast</div>
+        <cast-table :type="type" :id="item._id" :main_only="true" :two_parts="(type == 'anime') ? false : true" :initial_data="cast" @fetch="$emit('fetch', $event)"></cast-table>
+      </div>
+
+      <div v-if="type == 'anime'" class="full-width">
+        <div class="has-text-centered has-text-weight-bold header">Staff</div>
+        <cast-table :type="type" :id="item._id" :main_only="true" table_kind="staff" :initial_data="staff" @fetch="$emit('fetch', $event)"></cast-table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+ import relations_table from "~/components/library/relations_table.vue"
+ import cast_table from "~/components/library/cast_table.vue"
+ export default {
+   props: ["item", "type", "staff", "cast"],
+   components: {
+     'relations-table': relations_table,
+     'cast-table': cast_table
+    }
+ }
+</script>

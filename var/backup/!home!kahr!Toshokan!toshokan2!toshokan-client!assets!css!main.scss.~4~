@@ -1,0 +1,14 @@
+@import "~bulmaswatch/cosmo/_overrides.scss";
+
+.navbar-dropdown {
+    box-shadow: none;
+    border: 1px solid #dbdbdb;
+}
+
+.footer {
+    background-color: inherit;
+}
+
+.bd-main {
+    padding: 0 3rem;
+}

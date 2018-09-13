@@ -1,0 +1,44 @@
+<template>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p v-if="$store.getters.isAuthorized" class="modal-card-title">Login/Register</p>
+      <p v-else class="modal-card-title">N-Not allowed! Please log in first!</p>
+    </header>
+    <section class="modal-card-body">
+      <div id="firebaseui"></div>
+
+    </section>
+    <footer class="modal-card-foot has-text-centered">
+      <button v-if="$store.getters.isAuthorized" class="button is-centered" type="button" @click="$parent.close()">Close</button>
+      <button v-else class="button is centered" type="button" @click="backAndClose">Return to previous page</button>
+    </footer>
+  </div>
+</template>
+<script>
+  export default {
+    mounted() {
+      // The start method will wait until the DOM is loaded.
+      this.$firebaseui.ui.start('#firebaseui', this.$firebaseui.uiConfig);
+    },
+    computed: {
+      logged_in() {
+        return this.$store.getters.isAuthenticated
+      }
+    },
+    watch: {
+      "$route"(to, from) {
+        this.$parent.close();
+      },
+      'logged_in': function (new_value, old_value) {
+        if (new_value) {
+          this.$parent.close();
+        }
+      }
+    },
+    methods: {
+      backAndClose() {
+        this.$router.go(-1)
+      }
+    }
+  }
+</script>

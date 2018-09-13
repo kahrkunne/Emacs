@@ -1,0 +1,28 @@
+<template>
+    <div class="dashboard">
+	<div class="columns">
+	    <div class="column is-one-fifth">
+		<div class="tabs">
+		    <ul>
+			<li>fuck</li>
+			<li>your</li>
+			<li>mom</li>
+		    </ul>
+		</div>
+	    </div>
+	    <div class="column">
+		foo bar baz and your mom's gay
+	    </div>
+	</div>
+    </div>
+</template>
+<script>
+  async function asyncData({ params, $axios }) {
+     const response = await $axios.$get("/list/" + params.type)
+     const list_type = params.type
+     const entries = response.list
+     const data = response.data
+     return { entries, list_type, data }
+ }
+
+</script>

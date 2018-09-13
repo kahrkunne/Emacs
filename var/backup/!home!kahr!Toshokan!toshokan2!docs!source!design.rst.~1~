@@ -1,0 +1,23 @@
+Design
+======
+Toshokan has three leading design principles; in order of importance: *clarity*, *completeness* and *convenience*. *Clarity* means that information should be easy to parse and understand. *Completeness* means that all information users might need should be available. *Convenience* means that functions that are often used together should also be together.
+
+As you can see, these principles are often at odds with eachother. For example, *completeness* says we should include a lot of information, but that would make specific information harder to find, impacting *clarity*. Below I will describe some of the tools we use to balance these concerns, and how these tools should be used.
+
+General UI Principles
+---------------------
+We try to keep the UI as simple as reasonable, but no simpler. From the perspective of functionality, we hide information that's not commonly accessed. From a visual perspective, we aim to avoid things like rounded corners and animations, unless they specifically serve to draw attention to something. We also try to use as few colors as possible.
+
+Division of Information
+-----------------------
+To balance clarity and completeness it is often necessary to separate information into different sections. Below is a comparison of some of the tools that do this. Do note that this section applies only to *displaying information*, not to forms and such.
+
+**Good**
+- *Tabs*
+- *Dropdowns*
+Both of these clearly show A) that there is more information and B) what that information is. Generally, tabs are preferred, since you can always easily see exactly where you are; with dropdowns it's quite easy to lose your way in the document. However, tabs should never be nested, whereas dropdowns can be. *Use tabs for different categories, and dropdowns for (potentially nested) sub-categories.*
+
+**Acceptable**
+- *Dropdown selection boxes*
+The advantage of dropdowns is that they take up a small, fixed amount of space. However, you have to actually click them to see what all the available options are. *Use 
+  

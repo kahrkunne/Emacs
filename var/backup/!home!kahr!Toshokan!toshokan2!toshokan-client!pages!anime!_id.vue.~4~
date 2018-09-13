@@ -1,0 +1,80 @@
+<template>
+<div class="columns">
+  <div class="column is-one-fifth">
+    <div class="library-image">
+      <img class="image" :src="anime.image">
+    </div>
+    <div class="library-info">
+      <span class="has-text-weight-bold">Type: </span>{{anime.type}}<br>
+      <span class="has-text-weight-bold">Status: </span>{{anime.status}}<br>
+      <span class="has-text-weight-bold">Episodes: </span>{{(anime.episode_count || "N/A")}}<br>
+      <span class="has-text-weight-bold">Season: </span>{{season}}<br>
+      <span class="has-text-weight-bold">Studios: </span>
+      <template v-for="(studio, i) in anime.studios">
+	<nuxt-link :to="'/studio/'+studio" :key="studio">{{studio}}</nuxt-link>
+	<template v-if="i+1 < anime.studios.length">, </template>
+      </template><br>
+      <span class="has-text-weight-bold">Genres: </span>
+      <template v-for="(genre, i) in anime.genres">
+	<nuxt-link :to="'/genres/'+genre" :key="genre">{{genre}}</nuxt-link>
+	<template v-if="i+1 < anime.genres.length">, </template>
+      </template><br>
+      <span class="has-text-weight-bold">Started: </span>{{anime.start_date == null ? "Unknown" : $moment(anime.start_date).format('MMM DD, YYYY')}}<br>
+      <span class="has-text-weight-bold">Ended: </span>{{anime.start_date == null ? "Unknown" : $moment(anime.end_date).format('MMM DD, YYYY')}}<br>
+      <hr>
+      <span class="has-text-weight-bold">Score: </span><br>
+      <span class="has-text-weight-bold">Ranked: </span><br>
+      <span class="has-text-weight-bold">Members: </span><br>
+      <span class="has-text-weight-bold">Sakura Score: </span><br>
+    </div>
+    <br>
+    <no-ssr>
+      <list-controls v-if="$store.getters.isRegistered" type="anime" :item="anime"></list-controls>
+    </no-ssr>
+  </div>
+  <div class="column">
+    <div class="tabs">
+      <ul>
+	<nuxt-link exact-active-class="is-active" tag="li" :to="'/anime/'+anime._id"><a>Details</a></nuxt-link>
+	<nuxt-link exact-active-class="is-active" tag="li" :to="'/anime/'+anime._id+'/episodes'"><a>Episodes</a></nuxt-link>
+      </ul>
+    </div>
+    <nuxt-child :anime="anime"/>
+
+  </div>
+</div>
+</template>
+
+<script>
+  import list_controls from "~/components/library/list_controls.vue"
+  export default {
+    async asyncData({ params, $axios }) {
+      const id = params.id
+      const anime = await $axios.$get("/anime/" + id)
+      return { id, anime };
+    },
+    components: { 'list-controls': list_controls },
+    data: function () {
+      return {
+        id: null,
+        anime: null
+      }
+    }, computed: {
+      season() {
+        if (this.anime.start_date == null) {
+          return "Unknown"
+        }
+        const month = new Date(this.anime.start_date).getMonth();
+        if (month >= 9) {
+          return "Fall"
+        } else if (month >= 6) {
+          return "Summer"
+        } else if (month >= 3) {
+          return "Spring"
+        } else {
+          return "Winter"
+        }
+      }
+    }
+  }
+</script>

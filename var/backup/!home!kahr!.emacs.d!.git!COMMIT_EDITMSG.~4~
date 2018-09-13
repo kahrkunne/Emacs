@@ -1,0 +1,45 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   #!home!kahr!meme.el#
+#	modified:   init.el
+#	modified:   org-init.el
+#	modified:   org-init.org
+#	modified:   var/auto-save/sessions/1108-Tanya~
+#	modified:   var/auto-save/sessions/832-Tanya~
+#	modified:   var/savehist.el
+#	modified:   var/smex-save.el
+#
+# Untracked files:
+#	#!home!kahr!builds!xonsh!xonsh!ptk!shell.py#
+#	#!home!kahr!mono-theme.el#
+#	elisp/
+#	elpa/all-the-icons-20180125.757/
+#	elpa/dash-functional-20180107.818/
+#	elpa/frame-local-20180330.240/
+#	elpa/memoize-20180614.1230/
+#	elpa/ov-20150311.2228/
+#	elpa/symon-lingr-20150719.642/
+#	var/.#recentf-save.el
+#	var/auto-save/sessions/817-Tanya~
+#	var/auto-save/sessions/819-Tanya~
+#	var/auto-save/sessions/827-Tanya~
+#	var/backup/!home!kahr!.emacs.d!init.el.~26~
+#	var/backup/!home!kahr!.emacs.d!init.el.~27~
+#	var/backup/!home!kahr!.emacs.d!init.el.~28~
+#	var/backup/!home!kahr!.emacs.d!init.el.~29~
+#	var/backup/!home!kahr!.emacs.d!init.el.~30~
+#	var/backup/!home!kahr!.emacs.d!init.el.~31~
+#	var/backup/!home!kahr!.emacs.d!org-init.el.~1~
+#	var/backup/!home!kahr!.emacs.d!org-init.org.~37~
+#	var/backup/!home!kahr!.emacs.d!org-init.org.~38~
+#	var/backup/!home!kahr!.emacs.d!org-init.org.~39~
+#	var/backup/!home!kahr!.emacs.d!org-init.org.~40~
+#	var/backup/!home!kahr!.emacs_workgroups.~1~
+#

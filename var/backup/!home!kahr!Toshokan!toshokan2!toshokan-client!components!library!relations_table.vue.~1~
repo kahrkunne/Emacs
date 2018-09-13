@@ -1,0 +1,27 @@
+<template>
+  <div>
+    <table class="table relations-table">
+	<tbody>
+	    <tr v-for="(rel, i) in relations" :key="i">
+		<td>{{i}}</td>
+		<td>
+		    <template v-for="(item, i) in rel">
+			<nuxt-link :key="i" :to="'/' + item['$ref'] + '/' + item['$id']">{{item['title']}}</nuxt-link>
+			<template v-if="i+1 < rel.length">, </template>
+			
+		    </template>
+		</td>
+		
+	    </tr>
+	</tbody>
+    </table>
+
+</div>
+</template>
+
+<script>
+  export default {
+      name: 'relationstable',
+      props: ['relations']
+  }
+</script>

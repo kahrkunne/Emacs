@@ -1,0 +1,86 @@
+
+@import "cosmo/_overrides.scss";
+@import "../../node_modules/bulma-divider/src/sass/index.sass";
+
+
+.is-divider-vertical {
+    padding-left: 0;
+    padding-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.is-divider-vertical::before {
+    border-left-width: 1px;
+}
+
+hr {
+    margin: 10px 0 10px 0;
+}
+
+.column {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.navbar-dropdown {
+    box-shadow: none;
+    border: 1px solid #dbdbdb;
+}
+
+.footer {
+    background-color: inherit;
+}
+
+.navbar-dropdown {
+    padding: 0;
+    margin: 0;
+
+    .navbar-item {
+	padding-right: 0 !important;
+	padding-top: .6rem;
+	padding-bottom: .6rem;
+
+    }
+}
+
+.bd-main-container {
+    padding: 0 10px 0 10px;
+}
+
+.modal-card-head, .modal-card-foot {
+    background-color: white;
+}
+
+.ml-auto {
+    margin-left: auto;
+}
+
+.mr-auto {
+    margin-right: auto;
+}
+
+.center {
+    margin-left: 25%;
+}
+
+.half-width {
+    width: 50%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+ .card-content {
+   padding: 10px;
+ }
+
+ .tabs {
+   margin-bottom: 0 !important;
+ }
+
+
+ .card {
+     border: none !important;
+ }

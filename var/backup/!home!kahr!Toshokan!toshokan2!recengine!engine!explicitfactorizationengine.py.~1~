@@ -1,0 +1,4 @@
+from . import RecEngine
+
+class ExplicitFactorizationEngine(RecEngine):
+    

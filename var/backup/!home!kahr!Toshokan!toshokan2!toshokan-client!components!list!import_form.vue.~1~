@@ -1,0 +1,78 @@
+<template>
+  <b-field label="Import from MyAnimeList" v-if="!files.length">
+    <b-upload v-model="files"
+              drag-drop>
+      <section class="section">
+        <div class="content has-text-centered">
+          <p>
+            <b-icon icon="upload"
+                    size="is-large">
+            </b-icon>
+          </p>
+          <p>Drop your file here or click to upload</p>
+        </div>
+      </section>
+    </b-upload>
+  </b-field>
+  <div v-else>
+    <progress class="progress is-info" :value="progress" :max="list.length"></progress>
+    <div>
+      {{progress}}/{{list.length}} entries updated
+    </div>
+  </div>
+  
+</template>
+<script>
+  import convertMAL from '~/utils/list/malconvert.js'
+
+  export default {
+    props: {
+      list_type: String,
+      replace_list: Boolean
+    },
+    data() {
+      return {
+        files: [],
+        list: [],
+        progress: 0
+      }
+    },
+    watch: {
+      "files"(){
+        this.importMAL()
+      }
+    },
+    methods: {
+      async importMAL() {
+        const list_obj = await convertMAL(this.files[0])
+        this.list = list_obj[this.list_type]
+        if (!this.list) {
+          this.$toast.open({
+            message: "Error.",
+            type: 'is-danger'
+          })
+          return
+        }
+        if (this.replace_list) { // directly replace entire list, deleting old one
+          var response = await this.$axios.$put(`/list/${this.list_type}?origin=mal`, { list: this.list })
+          this.progress = this.list.length
+          this.$toast.open({
+            message: response.msg,
+            type: 'is-success'
+          })
+        } else { // merge list with current
+          var i;
+          for (i in this.list) {
+            await this.$axios.$put(`/list/${this.list_type}/${this.list[i]._id}`, this.list[i].entry)
+            this.progress++
+          }
+          this.$toast.open({
+            message: "Merged lists",
+            type: 'is-success'
+          })
+        }
+        this.$emit('list-update')
+      }
+    }
+  }
+</script>

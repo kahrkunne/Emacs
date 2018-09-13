@@ -1,0 +1,22 @@
+const status_table_anime = {
+  "current": "Watching",
+  "completed": "Completed",
+  "on-hold": "On-Hold",
+  "dropped": "Dropped",
+  "planned": "Planned"
+}
+const status_table_books = {
+  "current": "Reading",
+  "completed": "Completed",
+  "on-hold": "On-Hold",
+  "dropped": "Dropped",
+  "planned": "Planned"
+}
+export function get_status_pretty(type) {
+  const table = type == "anime" ? status_table_anime : status_table_books
+  return table
+}
+export function get_status_api(type) {
+  const table = type == "anime" ? status_table_anime : status_table_books
+  return Object.keys(table).reduce((obj, key) => (obj[table[key]] = key, obj), {})
+}

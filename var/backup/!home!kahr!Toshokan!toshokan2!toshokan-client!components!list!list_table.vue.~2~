@@ -1,0 +1,101 @@
+<template>
+  <b-table :data="entries"
+           default-sort="_id"
+           hoverable narrowed paginated detailed>
+
+    <template slot-scope="props">
+      <b-table-column field="_id" label="Title" sortable>
+        <nuxt-link :to="'/'+list_type+'/'+props.row._id">{{ data[props.row._id].title }}</nuxt-link>
+      </b-table-column>
+      <b-table-column field="_id" label="Type" width="60" sortable numeric>
+        {{ data[props.row._id].type }}
+      </b-table-column>
+      <b-table-column field="entry.progress" label="Progress" width="120" sortable numeric>
+        {{ props.row.entry.progress }}/{{ (list_type == "anime" ? data[props.row._id].episode_count : data[props.row._id].chapter_count) || "?" }}
+      </b-table-column>
+      <b-table-column v-if="list_type != 'anime'" field="entry.volumes" label="Volumes" width="120" sortable numeric>
+        {{ props.row.entry.volumes }}/{{data[props.row._id].volume_count || "?"}}
+      </b-table-column>
+      <b-table-column field="entry.score" label="Score" width="50" sortable numeric>
+        {{ props.row.entry.score }}
+      </b-table-column>
+      <b-table-column field="entry.start_date" label="Start Date" width="105" sortable numeric>
+        {{ props.row.entry.start_date ? $moment(props.row.entry.start_date).format('MMM DD, YYYY') : "" }}
+      </b-table-column>
+      <b-table-column field="entry.end_date" label="End Date" width="105" sortable numeric>
+        {{  props.row.entry.end_date ? $moment(props.row.entry.end_date).format('MMM DD, YYYY') : "" }}
+      </b-table-column>
+      <b-table-column custom-key="Edit" class="has-text-centered" width="50">
+        <a class="" @click="openEditForm(props.row._id, props.row.entry)">Edit</a>
+      </b-table-column>
+    </template>
+    <template slot="footer">
+      <div class="th-wrap">Total entries: {{entries.length}} | Total {{list_type == "anime" ? "episodes" : "chapters"}}: {{totalprogress}} | Total duration: {{totalduration}} days</div>
+    </template>
+    <template slot="empty">
+      <section class="section">
+        <div class="content has-text-grey has-text-centered">
+          <p>
+            <b-icon icon="frown"
+                    size="is-large">
+            </b-icon>
+          </p>
+          <p>Nothing here.</p>
+        </div>
+      </section>
+    </template>
+
+    <template slot="detail" slot-scope="props">
+	TODO <br>
+	{{props.row.entry.comments}}
+    </template>
+  </b-table>
+</template>
+<script>
+  import edit_form from '~/components/list/list_form.vue'
+  export default {
+    props: {
+      entries: Array,
+      list_type: String,
+      data: Object
+    },
+    components: {
+      edit_form
+    },
+    computed: {
+      totalduration() {
+        if (this.list_type == "anime") {
+          var total = 0
+          var entry;
+          for (entry in this.entries) {
+            total = total + (this.data[this.entries[entry]["_id"]]["duration"] * this.entries[entry]["entry"]["progress"])
+          }
+          return (total / 86400).toPrecision(4)
+        } else {
+          return 0
+        }
+      },
+      totalprogress() {
+        
+          var total = 0
+          var entry;
+          for (entry in this.entries) {
+            total = total + this.entries[entry]["entry"]["progress"]
+          }
+          return total
+ 
+      }
+    },
+    methods: {
+      openEditForm(_id, entry) {
+        this.$modal.open({
+          parent: this,
+          component: edit_form,
+          hasModalCard: true,
+          props: {
+            type: this.list_type, pass_entry: entry, item: { _id, ...this.data[_id] }, raw_entry: true }
+        })
+      }
+    }
+  }
+</script>

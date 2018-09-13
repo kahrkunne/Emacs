@@ -1,0 +1,16 @@
+<template>
+  <div>
+    <navbar></navbar>
+    <nuxt v-if="$store.getters.isAuthorized" />
+    <unauthorized v-else />
+    <t_footer></t_footer>
+  </div>
+</template>
+<script>
+  import navbar from '~/components/layout/navbar.vue'
+  import t_footer from '~/components/layout/t_footer.vue'
+  import unauthorized from '~/components/layout/unauthorized.vue'
+  export default {
+    components: { "navbar": navbar, "t_footer": t_footer, "unauthorized": unauthorized }
+  }
+</script>

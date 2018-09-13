@@ -1,0 +1,63 @@
+<template>
+  <div>
+    TODO this page still needs to update automatically
+    <div class="columns is-vcentered" v-for="(rec, i) in data.recommendations" :key="'rec' + i">
+
+      {{i + 1}} 
+      <div class="column img-col">
+	<img src="/anime.jpg">
+      </div>
+
+      <div class="column">
+	<nuxt-link :to="'/' + list_type + '/' + rec">{{rec}}</nuxt-link><br>
+	some more details here about the anime <br>
+	<button class="button is-primary" @click="addEntry(rec)">Add to list</button>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+ import page_auth from '~/plugins/page-auth-mixin.js'
+
+ async function asyncData({ params, $axios, store }) {
+   const list_type = params.type
+   const data = await $axios.$get('/recommendation/' + list_type)
+   return { list_type, data }
+ }
+
+ export default {
+   mixins: [page_auth(asyncData)],
+   validate({ params }) {
+     return ["anime", "manga", "novel"].includes(params.type)
+   },
+   methods: {
+     async addEntry(rec) {
+       const entry = {
+	 progress: 0,
+	 score: null,
+	 status: "planned",
+	 start_date: null,
+	 end_date: null,
+	 repetitions: 0,
+	 comments: '',
+	 volumes: 0
+       }
+       this.$axios.$put('/list/' + this.list_type + '/' + rec, entry)
+     }
+   }
+ }
+</script>
+
+<style scoped>
+ .img-col {
+   flex: none;
+   width: 75px;
+   padding-bottom: 0;
+ }
+
+ .columns {
+   margin-bottom: 0;
+ }
+</style>

@@ -1,0 +1,20 @@
+FROM python:3
+
+ADD api /
+ADD framework /
+ADD openapi /
+ADD api_endpoint.py /
+ADD requirements.txt /
+
+USER root
+
+RUN apt-get update && \ 
+    apt-get -y install wget libblas3 liblapack3 libstdc++6 python-setuptools && \
+    apt-get clean 
+
+RUN pip install --process-dependency-links -U turicreate h5py keras
+RUN pip install -r requirements.txt
+
+EXPOSE 8128
+
+CMD [ "python", "./api_endpoint.py" ]

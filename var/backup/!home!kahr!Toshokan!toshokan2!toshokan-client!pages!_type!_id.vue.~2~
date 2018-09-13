@@ -1,0 +1,96 @@
+<template>
+  <div class="columns">
+    <div class="column is-one-fifth">
+      <div class="library-image">
+	<img class="image" :src="item.image">
+      </div>
+      <library-info :item="this.item" :id="this.id" :type="this.type"></library-info>
+      <template v-if="['anime', 'manga', 'novel'].includes(this.type)">
+	<br>
+	<no-ssr>
+	  <list-controls v-if="$store.getters.isRegistered" :type="this.type" :item="this.item"></list-controls>
+	</no-ssr>
+      </template>
+    </div>
+    <div class="column right-col" style="height:100% !important;">
+      <div class="has-text-weight-bold has-text-centered">{{item.title}}</div>
+      <div class="tabs">
+	<ul>
+	  <nuxt-link exact-active-class="is-active" tag="li" :to="'/'+type+'/'+item._id"><a>Details</a></nuxt-link>
+	  
+	  <template v-if="['anime', 'manga', 'novel'].includes(type)">
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/'+type+'/'+item._id+'/cast'"><a>Cast</a></nuxt-link>
+	  </template>
+
+	  <template v-if="['person', 'character'].includes(type)">
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/'+type+'/'+item._id+'/animeography'"><a>Animeography</a></nuxt-link>
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/'+type+'/'+item._id+'/mangaography'"><a>Mangaography</a></nuxt-link>
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/'+type+'/'+item._id+'/novelograpy'"><a>Novelography</a></nuxt-link>
+	  </template>
+	  
+	  <template v-if="type == 'anime'">
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/anime/'+item._id+'/staff'"><a>Staff</a></nuxt-link>
+	    <nuxt-link exact-active-class="is-active" tag="li" :to="'/anime/'+item._id+'/episodes'"><a>Episodes</a></nuxt-link>
+	  </template>
+
+	</ul>
+      </div>
+      <nuxt-child :item="item" :type="type" :cast="cast" :staff="staff" @fetch="fetched($event)" />
+    </div>
+  </div>
+</template>
+
+<script>
+ import list_controls from "~/components/library/list_controls.vue"
+ import library_info from "~/components/library/library_info.vue"
+
+ export default {
+   async asyncData({ params, $axios }) {
+     const id = params.id
+     const type = params.type
+     const item = await $axios.$get(`/${type}/${id}`)
+     return { id, item, type };
+   },
+   validate({ params }) {
+     return ["anime", "manga", "novel", "person", "character"].includes(params.type)
+   },
+   components: {
+     'list-controls': list_controls,
+     'library-info': library_info
+   },
+   computed: {
+     season() {
+       if (this.anime.start_date == null) {
+	 return "Unknown"
+       }
+       const month = new Date(this.anime.start_date).getMonth();
+       if (month >= 9) {
+	 return "Fall"
+       } else if (month >= 6) {
+	 return "Summer"
+       } else if (month >= 3) {
+	 return "Spring"
+       } else {
+	 return "Winter"
+       }
+     }
+   },
+   methods: {
+     fetched(obj) {
+       this[obj.type] = obj[obj.type]
+     }
+   },
+   data: function () {
+     return {
+       cast: null,
+       staff: null
+     }
+   }
+ }
+</script>
+
+<style scoped>
+ .tabs {
+   margin-bottom: 0;
+ }
+</style>

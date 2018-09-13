@@ -1,0 +1,59 @@
+* Lists
+** Autofocus inline editing fields
+   I tried looking into this. I think I know how to do it with normal <input> tags, but I don't know how to do it with b-inputs.
+** Remember stuff when using the browser back button
+** Tags
+   Requires back-end work
+*** Plus corresponding interface, search &c
+** Some kind of query builder for the AFS
+   Probably out of scope for the initial release.
+** Make all the list controls actually work
+   Need to figure out how to make it work with the vuex store.
+** Make rendering faster (for when pagination is off)
+** Per episode information?
+   Probably out of scope for the initial releasej
+   Would be nice to at least be able to do stuff like:
+*** Marking which episodes you've seen
+*** Comments on individual episodes
+*** Scores for individual episodes
+** Change default sorting to "score" 
+
+* Dashboard
+** Make navigation actually work properly
+*** Make vertical tabs look good
+    Kinda like the is-toggle class, though that doesn't work for how it's currently set up
+*** Integrate second layer of tabs in the list interface in the top tab bar
+    If there's space
+    Hard to do because of nuxt-child and shit.
+*** Correctly set active class on tabs
+*** Add redirects for things like /dashboard and /dashboard/list
+** Fix "add anime" interface
+*** Make it use the search 
+*** Add some separation between the two columns
+*** Fix the code duplication in the edit form
+** Fix recs page
+*** Make it look good
+    Table?
+*** Implement for different lists
+*** Add some settings/controls
+** Implement missing pages
+   
+* Profile
+** Implement missing parts
+   
+* Settings
+** Add more settings
+** Search through settings
+   
+* Library
+** Pictures update
+** Make left column bigger (?)
+** Better search
+*** Allow exact matches
+
+* General
+** Remove (or at least change) focus halo
+** Remove animation on opening modal, and remove little "x" on the top right
+
+* Data
+** VNs

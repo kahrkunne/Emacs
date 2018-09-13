@@ -1,0 +1,107 @@
+export default {
+    /* List entry utils.
+       For this module to work completely, the following need to be defined:
+       this.type: type of list entry ('anime', 'manga', etc)
+       this.item: data for the library item corresponding to this entry (does not need to be fully populated)
+    */
+
+    methods: {
+	async addEntry() {
+	    // Add a new entry with some default settings
+	    this.entry = {
+		progress: 0,
+		score: 0,
+		status: "Planned",
+		start_date: null,
+		end_date: null,
+		repetitions: 0,
+		comments: ''
+	    }
+	    
+	    await this.updateEntry()
+	},
+	async fetchEntry (){
+	    // Fetch the entry from the server
+	    var serverEntry = await this.$axios.$get(this.apiUrl)
+	    if(serverEntry){
+		this.initializeEntry(serverEntry)
+	    } else {
+		this.entry = null
+	    }
+	},
+	initializeEntry(rawEntry) {
+	    // Initialize this.entry for editing
+	    this.entry = {
+		...rawEntry
+	    }
+	    this.entry.status = this.invertedStatusConversionTable[rawEntry.status]
+	},
+	incrementProgress(){
+	    this.entry.progress = parseInt(this.entry.progress) + 1
+	    this.updateEntry()
+	},
+	async updateEntry() {
+	    await this.$axios.$put(this.apiUrl, this.convertedEntry)
+	}
+
+    },
+    computed: {
+	apiUrl(){
+	    return "/list/" + this.type + "/" + this.item._id
+	},
+	itemProgress(){
+	    if(this.type == 'anime'){
+		return this.item.episode_count
+	    }
+	},
+	progressName(){
+	    // For displaying
+	    if(this.type == 'anime'){
+		return 'Episodes'
+	    } else {
+		return 'Chapters'
+	    }
+	},
+	upcasedType(){
+	    // Name of the type, but with the first letter as a capital, for display
+	    return this.type.charAt(0).toUpperCase() + this.type.substr(1)
+	},
+	statuses(){
+	    return Object.keys(this.statusConversionTable)
+	},
+	statusConversionTable(){
+	    // Convert from human-readable status to API status
+	    if (this.type == 'anime') {
+		var current = 'Watching'
+	    } else {
+		var current = 'Reading'
+	    }
+
+	    var out = {
+		'Planned':'planned',
+		'On Hold':'on-hold',
+		'Completed':'completed',
+		'Dropped':'dropped'
+	    }
+	    out[current] = 'current'
+	    return out
+	},
+	invertedStatusConversionTable(){
+	    // statusConversionTable, but inverted
+	    return Object.keys(this.statusConversionTable).reduce((obj, key) => (obj[this.statusConversionTable[key]] = key, obj), {})
+	},
+	convertedEntry(){
+	    // This is what's actually sent to the API
+      return {
+        progress: parseInt(this.entry.progress),
+        score: parseFloat(this.entry.score),
+        status: this.statusConversionTable[this.entry.status],
+        start_date: this.entry.start_date ? new Date(this.entry.start_date).toISOString() : null,
+        end_date: this.entry.end_date ? new Date(this.entry.end_date).toISOString() : null,
+        repetitions: parseInt(this.entry.repetitions),
+        comments: this.entry.comments
+
+	    }
+	}
+    }
+}

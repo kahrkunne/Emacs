@@ -1,0 +1,44 @@
+<template>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Edit {{list_type}} entry</p>
+    </header>
+    <section class="modal-card-body">
+      <b-field label="ID">
+        <b-input v-model="_id"></b-input>
+      </b-field>
+      <b-field label="Score">
+        <b-select v-model="entry.score" placeholder="Select the score">
+          <option v-for="score in 10"
+                  :key="score">
+            {{ score }}
+          </option>
+        </b-select>
+      </b-field>
+
+    </section>
+    <footer class="modal-card-foot has-text-centered">
+      <button  class="button is-centered" type="button" @click="$parent.close()">Cancel</button>
+      <button class="button is centered" type="button" @click="submit">Save</button>
+    </footer>
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+      list_type: String,
+      _id: String,
+      entry: Object
+    },
+    methods: {
+      async submit() {
+        this.entry.score = parseInt(this.entry.score)
+        var response = await this.$axios.$put(`/list/${this.list_type}/${this._id}`, this.entry)
+        this.$toast.open({
+          message: response.msg,
+          type: 'is-success'
+        })
+      }
+    }
+  }
+</script>

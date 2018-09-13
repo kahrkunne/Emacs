@@ -1,0 +1,14 @@
+<template>
+  <div>
+    <cast-table type="anime" :id="anime._id" table_kind="staff"></cast-table>
+  </div>
+</template>
+<script>
+ import cast_table from "~/components/library/cast_table.vue"
+ export default {
+   props: ["anime"],
+   components: {
+     'cast-table': cast_table
+   }
+ }
+</script>

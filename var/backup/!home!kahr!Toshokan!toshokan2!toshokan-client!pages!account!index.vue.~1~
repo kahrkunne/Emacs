@@ -1,0 +1,64 @@
+<template>
+  <div>
+    <article class="media">
+      <figure class="media-left">
+        <p class="image is-64x64">
+          <img :src="firebaseAccount.photo_url">
+        </p>
+      </figure>
+      <div class="media-content">
+        <div class="content">
+          <p>
+            <strong>{{userAccount.username}} </strong> <small>{{firebaseAccount.uid}}</small>
+            <br>
+            Email: {{firebaseAccount.email}} <br />
+            Registered: {{date_registered}}
+          </p>
+        </div>
+      </div>
+    </article>
+    <article v-for="event in last_events['user_events']" :key="event._id" class="media">
+      <figure class="media-left">
+        <p class="image is-64x64">
+          <img src="/anime.jpg">
+        </p>
+      </figure>
+      <div class="media-content">
+        <div class="content">
+          <p>
+            <strong>{{event.operation}} </strong> <small><nuxt-link :to="event.library_ref.href">{{event.library_ref.type}}</nuxt-link></small>
+            <br>
+            Changes: {{event.fields}} <br />
+            Time: {{event.time}}
+          </p>
+        </div>
+      </div>
+    </article>
+  </div>
+</template>
+
+<script>
+  async function asyncData({ $axios, store }) {
+    var userAccount = await $axios.$get("/account")
+    const last_events = await $axios.$get("/events?ns=list&amount=10")
+    return { userAccount, last_events }
+  }
+  import page_auth from '~/plugins/page-auth-mixin.js'
+
+  export default {
+    mixins: [page_auth(asyncData)],
+    data() {
+      return {
+        userAccount: {},
+      }
+    },
+    computed: {
+      firebaseAccount() {
+        return this.$store.getters.activeUser
+      },
+      date_registered() {
+        return (new Date(this.userAccount.date_registered*1000)).toString()
+      }
+    }
+  }
+</script>

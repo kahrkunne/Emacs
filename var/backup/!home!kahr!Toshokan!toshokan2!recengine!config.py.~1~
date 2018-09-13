@@ -1,0 +1,6 @@
+engines = [{'type':'ExplicitFactorizationEngine',
+            'settings':{
+                'data_frame':None,
+                'save_model':False,
+                'force_new':False
+            }}]

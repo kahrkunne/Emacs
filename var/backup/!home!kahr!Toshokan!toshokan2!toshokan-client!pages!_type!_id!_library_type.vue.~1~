@@ -1,0 +1,14 @@
+<template>
+  <div>
+  {{type}}
+  </div>
+</template>
+<script>
+  export default {
+   async asyncData({ params, $axios }) {
+     const id = params.id
+     const type = params.type
+     return { id, type };
+   },
+  }
+</script>

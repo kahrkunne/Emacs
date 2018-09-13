@@ -1,0 +1,13 @@
+import scrapy
+
+class MALAnimeSpider(scrapy.Spider):
+    name = "MAL_anime"
+
+    def start_requests(self):
+        anime_ids = iter(range(1,40000)) # TODO more elegant way of doing this
+        yield scrapy.Request(url="https://myanimelist.net/anime/" + next(anime_ids), callback=self.parse)
+
+    def parse(self, response):
+        pass
+    
+    

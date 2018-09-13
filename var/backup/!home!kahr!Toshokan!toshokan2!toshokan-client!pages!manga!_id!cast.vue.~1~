@@ -1,0 +1,14 @@
+<template>
+  <div>
+    <cast-table type="manga" :id="manga._id"></cast-table>
+  </div>
+</template>
+<script>
+ import cast_table from "~/components/library/cast_table.vue"
+ export default {
+   props: ["manga"],
+   components: {
+     'cast-table': cast_table
+   }
+ }
+</script>

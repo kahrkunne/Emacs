@@ -1,0 +1,23 @@
+import turicreate as tc
+
+class Engine():
+    def __init__(self, data_frame, extra_data, save_model, force_new, model_name):
+        self.data = tc.load_sframe(data_frame).append(extra_data)
+
+        self.death_hooks = []
+
+        if save_model:
+            self.death_hooks.append(lambda: self.model.save('{}.model'.format(model_name)))
+
+    def die(self):
+        for f in self.death_hooks:
+            try:
+                f()
+            except:
+                # TODO logging, or something
+                pass
+
+    def predict(self, users, items):
+        return tc.SFrame({'user':users * len(items),
+                          'item_id':items * len(users),
+                          'rating':[-1] * len(items) * len(users)})

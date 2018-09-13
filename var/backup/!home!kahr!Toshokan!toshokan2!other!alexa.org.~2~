@@ -1,0 +1,133 @@
+* Meta
+** Sites
+Comparing MAL, anidb, anime-planet, CR and vndb
+* Comparisons of sites
+** Traffic
+Data is for the US, but should be universally applicable. This is per month.
+*** Visitors
+MAL: 7.6m
+Anidb: 331k 
+A-P: 1.9m
+*** Visits 
+MAL: 29.9m (3.9 per visitor)
+Anidb: 600k (1.8 per visitor)
+A-P: 3.9m (2 per visitor)
+*** Pageviews
+MAL: 144m (18.9 per visitor, 4.8 per visit)
+Anidb: 2m (6 per visitor, 3.3 per visit)
+A-P: 16.1m (8.5 per visitor, 4.1 per visit)
+
+** Demographics
+This may of course not be entirely accurate, but I think all sites are big enough that it is fairly accurate.
+- Anidb is notably less male-dominated than other sites
+- Anidb is overrepresented in college-educated users, but has the least graduate school level users.
+- Anidb users are notably older, being higher than the internet average in 25-34 year olds. Anidb has the most users in 35-44 and 45-54 age ranges, but is then underrepresented for older users, compared to the other two sites.
+
+* General
+** Backlinks
+** Share of voice
+*** "anime"
+Wikipedia: 28.74%
+Youtube: 14.94%
+CR: 13.49%
+MAL: 7.29%
+Anime-Planet: 6.44%
+ANN: 3%
+
+*** "Kill la Kill"
+Wikipedia: 32.92%
+MAL: 14.54%
+Youtube: 11.29%
+Wikia: 10.46%
+CR: 7.88%
+Anime-Planet: not even on this list, less than 0.01%
+
+*** "manabi straight"
+Youtube: 32.74%
+Wikipedia: 25.30%
+MAL: 14.30%
+tvtropes: 6.53%
+ANN: 6.44%
+CR: 5.51%
+
+
+Nothing really  interesting here, mostly major sites that happen to link to things, like wikia.com. 
+
+* MAL
+** Keywords
+Mostly all kinds of random anime. No paid keywords. Biggest: "steins gate".
+** General stats
+Unique visitors per month: approx 11.5m between US/UK/CA/DE/FR/ES, estimated to be over 20 million total.
+Visits per month: approx 46.8m between above countries, estimated over 90 million total.
+Pageviews per month: approx 250m between above countries, estimated above 500m total.
+** Upstream sites
+20.7% google.com
+7.4% youtube.com
+2.9% reddit.com
+The rest is mostly random googles, wikipedia, facebook, notably kissanime.ru at 1.9%.
+** Downstream sites
+16.4% google.com
+9.9% youtube.com
+3.2% reddit.com
+2.7% kissanime.ru
+** Related sites
+crunchyroll.com
+animenewsnetwork.com
+anime-planet.com
+honeysanime.com
+mangarock.com
+mangaupdates.com
+mangakakalot.com
+aminoapps.com
+kissanime.ac
+tvtropes.org
+** Load Time
+1.732 seconds
+** Demographics
+Gender: Males *far* overrepresented
+Age: 18-24 *far* overrepresented
+Education: "no college" and "college" about normal, graduate school somewhat underrepresented, "some college" significantly overrepresented.
+Income: $0-$30k far overrepresented, other income ranges increasingly underrepresented.
+Location: Home *far* overrepresented, school somewhat overrepresented, work significantly underrepresented.
+Children: No *far* overrepresented.
+** Traffic Sources
+50.83% search
+42.68% direct
+6% internal link
+negligible social
+** Engagement
+Bounce Rate: 41.40%
+Daily Pageviews per Visitor: 4.67
+Daily Time on Site: 4:21
+
+* VNDB
+** Keywords
+"vndb" as top, other than that mostly random VNs. "katawa shoujo" as the biggest of them. No paid keywords.
+** General stats
+Unique visitors per month: approx 710k for US, estimated 2.5m total.
+Visits per month: approx 1.38m for US, estimated 5m total.
+Pageviews per month: approx 8.77m for US, estimated 31.3m total.
+** Upstream sites
+
+
+* Anime-Planet
+** Keywords
+All variations on "anime": "anime",  "watch anime online", "anime list" etc. No paid keywords.
+
+** traffic sources
+66.85% search
+30.21% direct
+2.75% internal link
+negligible social
+* Anidb
+** Keywords
+Top is "anidb", other than that mostly anime, with a few subgroups. No paid keywords. Mostly obscure anime, for some reason.
+
+** traffic
+21.47% search
+70.41% direct
+7.87% internal link
+negligible social
+* Crunchyroll
+** Keywords
+Top is "crunchyroll". Popular "normie" anime other than that. Many paid keywords, also "normie" anime (think: "my hero academia", "one piece", "pop team epic")

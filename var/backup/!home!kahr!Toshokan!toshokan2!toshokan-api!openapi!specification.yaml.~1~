@@ -1,0 +1,554 @@
+swagger: '2.0'
+info:
+  title: Toshokan Public API
+  description: Toshokan's public API Swagger specification and documentation
+  version: "0.1"
+host: 127.0.0.1
+schemes:
+    - http
+basePath: /api/1/
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: Updates
+    description: Keep yourself updated with toshokan's event system
+  - name: Library
+    description: Functions to access the public anime/manga data library
+  - name: Lists
+    description: List-related functions
+  - name: Account
+    description: "Authentication & Account Management"
+  
+paths:
+  /events:
+    parameters:
+        - $ref: '#/parameters/Namespace'
+        - name: amount
+          in: query
+          type: integer
+          required: true
+          maximum: 50
+    get:
+        tags:
+          - Updates
+        operationId: api.events.get_user_events
+        summary: Retrieve your last `amount` events
+        responses:
+            200:
+              description: Event Data
+              schema:
+                type: object
+                properties:
+                  user_events:
+                    $ref: '#/definitions/EventList'
+        security:
+            - oauth2: ['user']   
+
+  /anime/{id}:
+    parameters:
+        - $ref: '#/parameters/LibraryID'
+    get:
+        tags:
+          - Library
+        operationId: api.library.get_anime
+        summary: Get data about an anime
+        responses:
+            200:
+              description: Anime Data
+              schema:
+                $ref: '#/definitions/Anime'
+            404:
+              $ref: '#/responses/NotFound'
+  
+  /manga/{id}:
+    parameters:
+        - $ref: '#/parameters/LibraryID'
+    get:
+        tags:
+          - Library
+        operationId: api.library.get_manga
+        summary: Get data about a manga
+        responses:
+            200:
+              description: Manga Data
+              schema:
+                $ref: '#/definitions/Anime'
+            404:
+              $ref: '#/responses/NotFound'
+  /novel/{id}:
+    parameters:
+        - $ref: '#/parameters/LibraryID'
+    get:
+        tags:
+          - Library
+        operationId: api.library.get_novel
+        summary: Get data about a novel
+        responses:
+            200:
+              description: Novel Data
+              schema:
+                $ref: '#/definitions/Anime'
+            404:
+              $ref: '#/responses/NotFound'
+  
+  /account/complete-registration:
+    post:
+      tags:
+        - Account
+      operationId: api.auth.complete_registration
+      summary: Completes user registration
+      parameters:
+        - in: "body"
+          name: "user_data"
+          description: User Registration Data
+          required: true
+          schema:
+                type: "object"
+                required:
+                    - username
+                    - token
+                properties:
+                    username:
+                        $ref: '#/definitions/username'
+                    token:
+                        type: string
+                        description: Your API token.
+      responses:
+        200:
+           $ref: '#/responses/SuccessMessage'
+        400:
+            description: "Invalid or taken username, or the user has already completed registration."
+            schema:
+                type: object
+                properties:
+                    msg:
+                        type: string
+        401:
+            description: "Invalid API token."
+            schema:
+                type: object
+                properties:
+                    msg:
+                        type: string
+
+  /account/registered:
+    post:
+      tags:
+        - Account
+      operationId: api.auth.is_registered
+      summary: Returns whether user registration has been completed
+      parameters:
+        - in: "body"
+          name: "user_data"
+          description: API Token
+          required: true
+          schema:
+                type: "object"
+                required:
+                    - token
+                properties:
+                    token:
+                        type: string
+                        description: Your API token.
+      responses:
+        200:
+          description: "The user's registration status"
+          schema:
+                type: object
+                properties:
+                  registered:
+                    type: boolean
+        401:
+            description: "Invalid API token."
+            schema:
+                type: object
+                properties:
+                    msg:
+                        type: string
+            
+  /account/login:
+    post:
+        tags:
+          - Account
+        operationId: api.auth.login
+        summary: Log in and obtain API token
+        description: "Log in with email and password. Will return an API token, which expires after 1h, and a refresh token. The latter is used to obtain fresh API tokens when they expire. Use /refresh-token"
+        parameters:
+            - in: "body"
+              name: "credentials"
+              description: Email and Password
+              required: true
+              schema:
+                type: "object"
+                required:       
+                   - email
+                   - password
+                properties:
+                    email:
+                        $ref: '#/definitions/email'
+                    password:
+                        $ref: '#/definitions/password'
+        responses:
+            200:
+                description: Successful response.
+                schema:
+                    type: object
+                    properties:
+                        token:
+                            type: string       
+                            description: API token. Expires every hour.
+                        refreshToken:
+                            type: string
+                            description: Refresh Token.
+            401:
+                description: Login Failure. Invalid credentials.
+                schema:
+                    type: object
+                    properties:
+                        msg:
+                            type: string
+                            description: The error message.
+
+  /account/refresh-token:
+    post:
+        tags:
+          - Account
+        operationId: api.auth.refresh_token
+        summary: Get a new API token with your refresh token.
+        parameters:
+            - in: "body"
+              name: "refreshToken"
+              description: Your refresh token.
+              required: true
+              schema:
+                type: "object"
+                required:       
+                   - refreshToken
+                properties:
+                    refreshToken:
+                        type: string
+        responses:
+            200:
+                description: Successful response.
+                schema:
+                    type: object
+                    properties:
+                        token:
+                            type: string       
+                            description: API token. Expires every hour.
+            401:
+                description: Invalid refresh token or it has expired as well. Use /login to get a new one.
+                schema:
+                    type: object
+                    properties:
+                        msg:
+                            type: string
+                            description: The error message.
+  /account:
+    get:
+        tags:
+          - Account
+        operationId: api.auth.get_account_data
+        summary: Get your account related information.
+        responses:
+          200:
+            description: Account information
+            schema:
+                type: object
+                properties:
+                  username:
+                    $ref: '#/definitions/username'
+        security:
+            - oauth2: ['user']
+            
+  /list/{type}:
+    parameters:
+          - $ref: '#/parameters/ListType'
+          - name: origin
+            type: string
+            in: query
+            required: false
+            enum: [mal]
+    get:
+        tags:
+          - Lists
+        operationId: api.lists.get_user_list
+        summary: Get your own list
+        responses:
+            200:
+                description: List
+                schema:
+                  $ref: '#/definitions/ListData'
+
+        security:
+            - oauth2: ['user']
+    put:
+        tags:
+          - Lists
+        operationId: api.lists.replace_user_list
+        summary: Delete ALL entries and replace your list with new list.
+        parameters:
+            - in: "body"
+              name: "list_object"
+              description: An object containing the replacement list
+              required: true
+              schema:
+                type: object
+                required:
+                  - list
+                properties:
+                  list:
+                    $ref: '#/definitions/List'
+        responses:
+            200:
+             $ref: '#/responses/SuccessMessage'
+        security:
+            - oauth2: ['user']
+
+  /list/{type}/{id}:
+    parameters:
+        - $ref: '#/parameters/ListType'
+        - name: id
+          in: path
+          required: true
+          type: string
+    get:
+        tags:
+          - Lists
+        operationId: api.lists.get_list_entry
+        summary: Get an entry in your list
+        responses:
+            200:
+              description: List entry
+              schema:
+                $ref: '#/definitions/ListEntry'
+            204:
+              description: Entry doesn't exist. Empty response.
+        security:
+            - oauth2: ['user']
+    put:
+        tags:
+          - Lists
+        operationId: api.lists.set_list_entry
+        summary: Create or replace a list entry
+        parameters:
+            - in: "body"
+              name: "entry"
+              description: The entry to create or replace
+              required: true
+              schema:
+                $ref: '#/definitions/ListEntry'
+        responses:
+          200:
+             $ref: '#/responses/SuccessMessage'
+          400:
+             $ref: '#/responses/FailureMessage'
+        security:
+            - oauth2: ['user']
+    delete:
+        tags:
+          - Lists
+        operationId: api.lists.delete_list_entry
+        summary: Delete a list entry
+        responses:
+          200:
+            $ref: '#/responses/SuccessMessage'
+        security:
+            - oauth2: ['user']
+
+
+securityDefinitions:
+    oauth2:
+        type: oauth2
+        flow: implicit
+        authorizationUrl: "https://example.com/oauth2/dialog"
+        x-tokenInfoFunc: "api.auth.token_info"
+        scopes:
+            user: Is authenticated. Basic user scope.
+
+definitions:
+            username:
+                type: "string"
+                pattern: "^[A-Za-z0-9_]+[A-Za-z0-9_-]*[A-Za-z][A-Za-z0-9_-]*$"
+                maxLength: 32
+                minLength: 3
+            email:
+                type: "string"
+                minLength: 5
+                maxLength: 64
+            password:
+                type: "string"
+                minLength: 3
+                maxLength: 256
+            ListData:
+              type: object
+              required:
+                - list
+              properties:
+                list:
+                  $ref: '#/definitions/List'
+                data:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/definitions/AnimeDataMin'
+                  example:
+                    k-on:
+                      title: K-On!
+                      episode_count: 13
+                      type: TV
+            List:
+              type: array
+              maxItems: 5000
+              items:
+                type: object
+                required:
+                  - _id
+                  - entry
+                properties:
+                        _id:
+                          description: _id of the anime/manga/vn corresponding to this entry.
+                          type: string
+                          example: k-on
+                        entry:
+                          $ref: '#/definitions/ListEntry'
+            ListEntry:
+                type: object
+                required:
+                  - status
+                  - progress
+                  - score
+                  - start_date
+                  - end_date
+                  - repetitions
+                  - comments
+                properties:
+                        progress:
+                            description: How many episodes or chapters you have reached
+                            type: integer
+                            minimum: 0
+                            maximum: 10000
+                        score:
+                            description: Your score for this work, from 1 to 10
+                            type: ["number", "null"]
+                            minimum: 0
+                            maximum: 10
+                        status:
+                            description: Whether you are currently watching or reading this, or you plan to in the future, etc
+                            type: string
+                            enum: [planned, current, on-hold, completed, dropped]
+                        start_date:
+                            description: When you started watching/reading this. Must be null if status is "planned"
+                            format: date-time
+                            type: ["string", "null"]
+                        end_date:
+                            description: When you finished watching/reading this. Must be null if status is "planned"
+                            format: date-time
+                            type: ["string", "null"]
+                        repetitions:
+                            description: How many times you have rewatched or reread this work
+                            type: integer
+                            minimum: 0
+                            maximum: 512
+                        comments:
+                            description: Arbitrary text.
+                            type: string
+                            maxLength: 4096
+                        volumes:
+                            description: Your progress in volumes. Only applicable to Manga or novels. Ignored for anime.
+                            type: ["integer", "null"]
+                            minimum: 0
+                            default: null
+            AnimeDataMin:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: K-On!
+                episode_count:
+                  type: integer
+                  example: 13
+                type:
+                  type: string
+                  example: TV
+            Anime:
+                type: object
+            
+            EventList:
+              type: array
+              items:
+                $ref: '#/definitions/Event'
+            Event:
+              type: object
+              discriminator: ns
+              required: [ns]
+              properties:
+                _id:
+                  type: string
+                  description: The event's unique ID
+                ns:
+                  type: string
+                  enum: [list]
+                  description: When the event occurred
+                time:
+                  type: string
+                  format: date-time
+            list:
+              allOf:
+                - $ref: '#/definitions/Event'
+                - properties:
+                    user:
+                      type: string
+                      description: the user's ID
+                    library_ref:
+                      type: object
+                      description: Link to the Library entry corresponding to this list update. Could be an anime, manga, etc.
+                    fields:
+                      type: object
+                      description: List of the fields in the entry which were modified
+                  
+                
+                
+responses:
+  SuccessMessage:
+    description: Successful response.
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+  FailureMessage:
+    description: Error.
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+  NotFound:
+    description: Object not found.
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+parameters:
+  ListType:
+    name: type
+    in: path
+    required: true
+    type: string
+    enum: [anime, manga]
+  LibraryID:
+    name: id
+    in: path
+    required: true
+    type: string
+    description: Unique identifier of an anime/manga/novel/vn within the Library.
+  Namespace:
+    name: ns
+    in: query
+    required: true
+    type: string
+    description: The namespace for the events you want to retrieve
+    enum: [list]

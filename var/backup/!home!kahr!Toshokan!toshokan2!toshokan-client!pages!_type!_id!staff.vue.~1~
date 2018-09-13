@@ -1,0 +1,14 @@
+<template>
+  <div>
+    <cast-table :type="type" :id="item._id" table_kind="staff" :initial_data="staff" @fetch="$emit('fetch', $event)"></cast-table>
+  </div>
+</template>
+<script>
+ import cast_table from "~/components/library/cast_table.vue"
+ export default {
+   props: ["item", "type", "staff"],
+   components: {
+     'cast-table': cast_table
+   }
+ }
+</script>

@@ -1,0 +1,86 @@
+import math
+from bson.dbref import DBRef
+import turicreate as tc
+from clients import toshokan, auth
+from datetime import datetime
+
+# TODO manga lists n shiet
+
+explicit_model = tc.load_model('../models/explicit.model')
+implicit_model = tc.load_model('../models/implicit.model')
+
+# Temporary
+remove_prequels = True
+filter_planned = True
+
+def get_user_recommendations(user, type_='anime', number=30):
+    try:
+        last_completed = next(toshokan.events.find({'ns':"list", 'user':user, "library_ref.$ref":"anime", "fields.status":"completed"}, {"time":1}).sort({'ns':1, 'library_ref.$ref':1, 'fields.status':1, 'time':-1}).limit(1))['time']
+    except:
+        last_completed = None
+
+    user_list = list(toshokan.lists.find({"user":user, "library_ref.$ref":type_}, {'_id': 0, 'user': 0}))
+
+    # For testing:
+    #user_list = list(toshokan.lists.find({'user':'ICYcXGPMwgU314xg3clRNNaMx4y2', 'library_ref.$ref':'anime'}, {'_id':0, 'user':0}))
+    user_planned = [x['library_ref'].id for x in user_list if x['status'] == 'planned']
+    user_completed = set([x['library_ref'].id for x in user_list]) - set(user_planned)
+
+    model = explicit_model # TODO set conditionally
+    recs = list(model.recommend(users=[user], k=10*number)[type_]) # TODO set a suitable value for k (can't be "number" since some will be filtered out usually)
+
+    has_prequels = [x['_id'] for x in toshokan[type_].find({'_id': {'$in': recs}}, {'links':1}) if 'Prequel' in x['links']]
+    # Note to future smartass self: no, we can't use fast set substraction to filter out anime which have prequels, since recommendations are ordered
+
+    out = []
+    for rec in recs: 
+        if len(out) >= 3*number:
+            break
+        if rec in user_completed:
+            continue
+        if remove_prequels and rec in has_prequels:
+            continue
+        if filter_planned and rec in user_planned:
+            continue
+
+        out.append(rec)
+
+    temp_out = {}
+    l = 0
+    min_ = 10e6
+    rec_entries = {x["library_ref"].id:x for x in toshokan.recommendation.find({"user":user, "library_ref":{"$in": [DBRef(type_, rec) for rec in out]}}, {'_id':0, 'user':0})}
+    index_table = {}
+    for i in range(len(out)):
+        rec = out[i]
+        index_table[rec] = i + 1
+        view_factor = 1
+        if rec in rec_entries:
+            rec_entry = rec_entries[rec]
+            view_factor = rec_entry['view_factor']
+
+        factor = (view_factor + 1) ** 1.2 / 5.0
+        if l < 3*number or i * factor < min_:
+            #num = ((10/(i+1)) * factor)
+            num = i + factor
+            #num = i
+            while num in temp_out:
+                num += 0.001
+
+            temp_out[num] = rec
+            l += 1
+            if i * factor < min_:
+                min_ = i * factor
+
+    final_out = [temp_out[x] for x in sorted(temp_out.keys())][:number]
+    for rec in final_out:
+        if rec not in rec_entries or rec_entries[rec]['last_modified'] < last_completed:
+            view_factor = 1 if rec not in rec_entries else ((rec_entries[rec]['view_factor'] + 1) * (max(1, 6 / index_table[rec]) ** (1. / 20)))
+            #view_factor = 0
+            toshokan.recommendation.update_one({"user": user, "library_ref": DBRef(type_, rec)},
+                                                {"$set": {"view_factor":view_factor}, "$currentDate":{"last_modified":True},
+                                                 "$setOnInsert":{"user": user, "library_ref": DBRef(type_, rec), "date_added": datetime.utcnow()}},
+                                                upsert=True)
+            
+    return {
+        'recommendations': final_out
+    }

@@ -1,0 +1,14 @@
+/sudo:root@localhost:/etc/mkinitcpio.conf
+/home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aetc_amkinitcpio.conf#
+/sudo:root@localhost:/boot/grub/grub.cfg
+/home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aboot_agrub_agrub.cfg#
+/sudo:root@localhost:/etc/modprobe.d/vfio.conf
+/home/kahr/.emacs.d/var/tramp/auto-save/#_asudo_broot@localhost_b_aetc_amodprobe.d_avfio.conf#
+/home/kahr/Toshokan/toshokan2/other/alexa/alexa.org
+~/.emacs.d/#!home!kahr!Toshokan!toshokan2!other!alexa!alexa.org#
+/home/kahr/selectors.org
+~/.emacs.d/#!home!kahr!selectors.org#
+/home/kahr/Toshokan/toshokan2/scraper/__init__.py
+~/.emacs.d/#!home!kahr!Toshokan!toshokan2!scraper!__init__.py#
+/home/kahr/Toshokan/toshokan2/scraper/toshokan/toshokan/spiders/anidb_anime_spider.py
+~/.emacs.d/#!home!kahr!Toshokan!toshokan2!scraper!toshokan!toshokan!spiders!anidb_anime_spider.py#

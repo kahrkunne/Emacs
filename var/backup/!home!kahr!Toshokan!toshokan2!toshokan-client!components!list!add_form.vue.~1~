@@ -1,0 +1,23 @@
+<template>
+    <div class="columns">
+	<div class="column">
+	    your
+	</div>
+	<div class="column">
+	    mum
+	</div>
+    </div>
+</template>
+<script>
+ import { get_status_pretty, get_status_api } from '~/utils/list/status.js'
+ import edit_form from '~/components/list/list_form.vue'
+
+ export default {
+     props: {
+	 list_type: String
+     },
+     components: {
+	 edit_form
+     }
+ }
+</script>

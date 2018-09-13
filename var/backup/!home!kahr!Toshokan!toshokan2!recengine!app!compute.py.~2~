@@ -1,0 +1,10 @@
+import turicreate as tc
+
+data = tc.SFrame.read_csv('interactions.csv')
+implicit_model = tc.recommender.ranking_factorization_recommender.create(data, 'user', 'anime')
+
+data = data[data['score'] > 0] 
+explicit_model = tc.recommender.ranking_factorization_recommender.create(data, 'user', 'anime', target='score')
+
+implicit_model.save('implicit.model')
+explicit_model.save('explicit.model')

@@ -1,0 +1,5 @@
+import turicreate as tc
+import scipy.parse as sp
+
+data = tc.SFrame.read_csv('v2-interactions.csv')
+print(data)

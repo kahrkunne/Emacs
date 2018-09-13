@@ -1,0 +1,10 @@
+<template>
+  ur mum hahaha
+</template>
+
+<script>
+ async function asyncData({params, $axios}) {
+     const id = params.id;
+     return { id };
+ }
+</script>

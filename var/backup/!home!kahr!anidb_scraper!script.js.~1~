@@ -1,0 +1,54 @@
+var async = require('async')
+var req = require('request-promise')
+var fs = require('fs');
+var RateLimiter = require('request-rate-limiter');
+var limiter = new RateLimiter({
+    rate: 60              // requests per interval,
+    // defaults to 60
+    , interval: process.argv[5]          // interval for the rate, x
+    // requests per interval,
+    // defaults to 60
+    , backoffCode: 429      // back off when this status is
+    // returned, defaults to 429
+    , backoffTime: 10       // back off for n seconds,
+    // defauts to rate/5
+    , maxWaitingTime: 25000   // return errors for requests
+    // that will have to wait for
+    // n seconds or more. defaults
+    // to 5 minutes
+});
+async function scrape(task) {
+    try {
+        var resp = await limiter.request({ url: "https://anidb.net/perl-bin/animedb.pl", qs: { show: "anime", "aid": task.aid }, headers: { 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Cookie": "adbsess="+process.argv[4] } })
+        if (resp.body.search("We don't like robots.") != -1) {
+            console.log("Captcha! "+task.aid)
+            process.exit()
+        }
+        fs.writeFile("./anime/" + task.aid + ".html", resp.body, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+
+            console.log(task.aid + " Saved.");
+        });
+        
+    } catch (err){
+        fs.writeFile("./anime/" + task.aid + "error.html", err, function (errf) {
+            if (errf) {
+                return console.log(errf);
+            }
+            console.log(task.aid + " Error: " + err);
+            setTimeout(function () {
+                console.log("Retrying: "+task.aid)
+                scrape({ aid: task.aid })
+            }, 3000)
+        });
+    }
+    return
+}
+
+
+tsk = []
+for (var i = process.argv[2]; i < process.argv[3]; i++) {
+    scrape({ aid: i})
+}

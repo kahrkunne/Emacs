@@ -1,0 +1,323 @@
+* Meta
+** Sites
+Comparing MAL, kitsu, ANN, anidb, anime-planet, CR, vndb, anilist and shikimori
+* Comparisons of sites
+** Traffic
+Data is for the US, but should be universally applicable. This is per month.
+*** Visitors
+MAL: 7.6m
+Anidb: 331k 
+A-P: 1.9m
+*** Visits 
+MAL: 29.9m (3.9 per visitor)
+Anidb: 600k (1.8 per visitor)
+A-P: 3.9m (2 per visitor)
+*** Pageviews
+MAL: 144m (18.9 per visitor, 4.8 per visit)
+Anidb: 2m (6 per visitor, 3.3 per visit)
+A-P: 16.1m (8.5 per visitor, 4.1 per visit)
+
+** Demographics
+This may of course not be entirely accurate, but I think all sites are big enough that it is fairly accurate.
+- Anidb is notably less male-dominated than other sites
+- Anidb is overrepresented in college-educated users, but has the least graduate school level users.
+- Anidb users are notably older, being higher than the internet average in 25-34 year olds. Anidb has the most users in 35-44 and 45-54 age ranges, but is then underrepresented for older users, compared to the other two sites.
+
+* General
+** Share of voice
+*** "anime"
+Wikipedia: 28.74%
+Youtube: 14.94%
+CR: 13.49%
+MAL: 7.29%
+Anime-Planet: 6.44%
+ANN: 3%
+
+*** "Kill la Kill"
+Wikipedia: 32.92%
+MAL: 14.54%
+Youtube: 11.29%
+Wikia: 10.46%
+CR: 7.88%
+Anime-Planet: not even on this list, less than 0.01%
+
+*** "manabi straight"
+Youtube: 32.74%
+Wikipedia: 25.30%
+MAL: 14.30%
+tvtropes: 6.53%
+ANN: 6.44%
+CR: 5.51%
+
+
+Nothing really  interesting here, mostly major sites that happen to link to things, like wikia.com. 
+
+* MAL
+** Keywords
+Mostly all kinds of random anime. No paid keywords. Biggest: "steins gate".
+** General stats
+Unique visitors per month: approx 11.5m between US/UK/CA/DE/FR/ES, estimated to be over 20 million total.
+Visits per month: approx 46.8m between above countries, estimated over 90 million total.
+Pageviews per month: approx 250m between above countries, estimated above 500m total.
+** Upstream sites
+20.7% google.com
+7.4% youtube.com
+2.9% reddit.com
+The rest is mostly random googles, wikipedia, facebook, notably kissanime.ru at 1.9%.
+** Downstream sites
+16.4% google.com
+9.9% youtube.com
+3.2% reddit.com
+2.7% kissanime.ru
+** Related sites
+crunchyroll.com
+animenewsnetwork.com
+anime-planet.com
+honeysanime.com
+mangarock.com
+mangaupdates.com
+mangakakalot.com
+aminoapps.com
+kissanime.ac
+tvtropes.org
+** Load Time
+1.732 seconds
+** Demographics
+Gender: Males *far* overrepresented
+Age: 18-24 *far* overrepresented
+Education: "no college" and "college" about normal, graduate school somewhat underrepresented, "some college" significantly overrepresented.
+Income: $0-$30k far overrepresented, other income ranges increasingly underrepresented.
+Location: Home *far* overrepresented, school somewhat overrepresented, work significantly underrepresented.
+Children: No *far* overrepresented.
+** Traffic Sources
+50.83% search
+42.68% direct
+6% internal link
+negligible social
+** Engagement
+Bounce Rate: 41.40%
+Daily Pageviews per Visitor: 4.67
+Daily Time on Site: 4:21
+
+* VNDB
+** Keywords
+"vndb" as top, other than that mostly random VNs. "katawa shoujo" as the biggest of them. No paid keywords.
+** General stats
+Unique visitors per month: approx 710k for US, estimated 2.5m total.
+Visits per month: approx 1.38m for US, estimated 5m total.
+Pageviews per month: approx 8.77m for US, estimated 31.3m total.
+** Upstream sites
+17.1% google.com
+4.4% google.ru
+4.0% youtube.com
+2.6% reddit.com
+2.6% vk.com
+** Downstream sites
+13.8% google.com
+4.8% youtube.com
+4.0% google.ru
+2.9% vk.com
+2.5% reddit.com
+
+** Related sites
+erogedownload.com
+fuwanovel.net
+anime-sharing.com
+f95zone.com
+hitomi.la
+dlsite.com
+onlyhgames.com
+erogegames.com
+donmai.us
+getchu.com
+** Load Time
+0.824 seconds
+** Demographics
+Gender: Males *far* overrepresented.
+Age: 18-24 *far* overrepresented.
+Education: "some college" *far* overrepresented, everything else slightly underrepresented.
+Income: $0-$30k far overrepresented, $30k-$100k range about normal, $100k+ far underrepresented.
+Location: Home and school far overrepresented, work far underrepresented.
+Children: "No" far overrepresented.
+** Traffic Sources
+62.73% search
+11.77% link
+24.91% direct
+negligible social
+** Engagement
+Bounce rate: 36.80%
+Daily Pageviews per Visitor: 6.24
+Daily Time on Site: 4:10
+* Anime-Planet
+** Keywords
+All variations on "anime": "anime",  "watch anime online", "anime list" etc. No paid keywords.
+
+** General stats
+Unique visitors per month: approx 1.96m for US, estimated 5.4m total.
+Visits per month: approx 3.95m for us, estimated 10.9m total.
+Pageviews per month: approx 16.1m for us, estimated 44.6m total.
+** Upstream sites
+26.3% google.com
+4.5% youtube.com
+2.7% myanimelist.net
+** Downstream sites
+23.2% google.com
+5.9% youtube.com
+2.5% myanimelist.net
+2.1% kissanime.ru
+** Related sites
+honeysanime.com
+myanimelist.net
+crunchyroll.com
+animenewsnetwork.com
+funimation.com
+kissanime.ac
+otakustream.tv
+mangaupdates.com
+soul-anime.us
+kiss-anime.me
+** Load Time
+1.814 seconds
+** Demographics
+Gender: Males overrepresented.
+Age: 18-24 age 18-24 *far* overrepresented.
+Education: "some college" and "college" somewhat overrepresented, "no college" about average, "graduate school" somewhat underrepresented.
+Income: $0-$30k far overrpresented.
+Location: Home *far* overrepresented, school far overrepresented, work far underrepresented.
+Children: "No" *far* underrepresented
+** Traffic Sources
+66.85% search
+30.21% direct
+2.75% internal link
+negligible social
+** Engagement
+Bounce rate: 47.90%
+Daily Pageviews per Visitor: 3.11
+Daily Time on Site: 2:43
+* Anidb
+** Keywords
+Top is "anidb", other than that mostly anime, with a few subgroups. No paid keywords. Mostly obscure anime, for some reason.
+
+** General stats
+Unique visitors per month: approx 331k for US, estimated 1.6m total.
+Visits per month: approx 607k for US, estimated 2.9m total.
+Pageviews per month: approx 2.1m for US, estimated 10m total.
+** Upstream sites
+11.8% google.com
+4.8% nyaa.si
+4.1% myanimelist.net
+3.7% youtube.com
+3.6% world-art.ru
+** Downstream sites
+10.5% google.com
+5.3% nyaa.si
+4.4% youtube.com
+4.1% myanimelist.net
+2.4% google.ru
+** Related sites
+shinden.pl
+animenewsnetwork.com
+anilist.co
+shikimori.org
+anime-planet.com
+anisearch.com
+world-art.ru
+horriblesubs.info
+zerochan.net
+vndb.org
+** Load Time
+1.266 seconds
+** Demographics
+Gender: Slightly overrepresented in males, but it's pretty close.
+Age: Far overrepresented in 18-24, somewhat overrepresented in 25-34.
+Education: Overrepresented in "no college", "some college" and "college", underrepresented in "graduate school". Most overrepresented in "college".
+Income: $0-$30k far overrepresented
+Location: "Home" *far* overrepresented.
+Children: "No" far overrepresented.
+** Traffic Sources
+21.47% search
+70.41% direct
+7.87% internal link
+negligible social
+** Engagement
+Bounce rate: 55.60%
+Daily Pageviews per Visitor: 3.18
+Daily Time on Site: 3:16
+* Crunchyroll
+** Keywords
+Top is "crunchyroll". Popular "normie" anime other than that. Many paid keywords, also "normie" anime (think: "my hero academia", "one piece", "pop team epic")
+** General stats
+Unique visitors per month: approx 10.8m for US, estimated 16.74m total.
+Visits per month: approx 78m for US, estimated 120m total.
+Pageviews per month: approx 309m for US, estimated 480m total.
+** Upstream sites
+26.1% google.com
+10.8% youtube.com
+5.2% reddit.com
+2.8% facebook.com
+** Downstream sites
+24.8% google.com
+12.5% youtube.com
+5.5% reddit.com
+2.9% facebook.com
+** Related sites
+myanimelist.net
+animenewsnetwork.com
+funimation.com
+anime-planet.com
+kissanime.ac
+otakustream.tv
+soul-anime.us
+kiss-anime.me
+cartooncrazy.net
+vrv.co
+** Load Time
+1.93 seconds
+** Demographics
+Just the same fucking shit as everything else, you know the drill.
+** Traffic Source
+20.1% search
+77.49% direct
+negligible everything else
+** Engagement
+Bounce rate: 33.00%
+Daily Pageviews per Visitor: 5.30
+Daily Time on Site: 4:13
+* Anilist
+** General stats 
+631k/1.8m
+2.1m/6m
+6.5m/18.5m
+** Upstream sites
+10.5% anichart.net
+10.2% google.com
+8.2% reddit.com
+7.8% myanimelist.net
+6.9% youtube.com
+** Downstream sites
+12.9% google.com
+8.9% youtube.com
+7.6% myanimelist.net
+7.4% reddit.com
+** Related sites
+anichart.net
+kitsu.io
+anidb.net
+shinden.pl
+sakugabooru.com
+horriblesubs.info
+shikimori.org
+mangadex.org
+livechart.me
+anisearch.de
+** Load time
+3.06 seconds
+** Demographics
+You know the drill
+** Traffic Source
+6.05% search
+28.53% link
+64.64% direct
+negligible social
+** Engagement
+

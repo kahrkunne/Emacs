@@ -1,0 +1,24 @@
+import scrapy, re, logging
+
+class AniDBCharacterSpider(scrapy.Spider):
+    name = "anidb_character"
+
+    def start_requests(self):
+        yield scrapy.Request(url='file://127.0.0.1/home/kahr/character.html', callback=self.pasre)
+
+
+    def parse(self, response):
+        out = {}
+        # TODO uid
+        out['main_name'] = response.xpath("//tr[contains(., //th[contains(./text(), 'Main Name')])]/td[@class='value']/span[@itemprop='name']/text()").extract_first()
+
+        out['alt_names'] = []
+        alt_names = response.xpath("//div[@id='tab_2_pane']//tr[@class='official verified yes' and contains(., //th[contains(./text(), 'Official Name')])]//label[@itemprop='alternateName']/text()").extract()
+        alt_languages =[x.replace('language: ', '') for x in
+                        response.xpath("//div[@id='tab_2_pane']//span[contains(@class, 'i_icon') and contains(@title, 'language:')]/*title").extract()]
+        for i in range(len(alt_names)):
+            out['alt_names'].append({'name': alt_names[i], 'language':alt_languages[i]})
+
+        out['birth_date'] = response.xpath("//span[@itemprop='birthDate']/text()").extract_first()
+        out['death_date'] = response.xpath("//span[@itemprop='deathDate']/text()").extract_first()
+        

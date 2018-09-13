@@ -1,0 +1,13 @@
+import pymongo
+import pyrebase
+
+# Connect to mongodb and select database
+with open('dbcredentials.txt') as f:
+    credentials = f.readline()
+mclient = pymongo.MongoClient(credentials)
+toshokan = mclient['toshokan']
+
+firebase_config = toshokan.settings.find_one({"_id":"firebase"})
+del firebase_config["_id"]
+firebase = pyrebase.initialize_app(firebase_config)
+auth = firebase.auth()

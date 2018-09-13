@@ -1,0 +1,68 @@
+<template>
+<div v-if="$store.getters.isRegistered" class="list-control">
+  <template v-if="entry == 'loading'">
+    loading
+  </template>
+  <template v-else-if="entry">
+
+    <b-field label="Score" :horizontal="true" custom-class="list-control-label">
+      <b-input v-model="entry.score" class="list-control-input is-normal">
+      </b-input>
+    </b-field>
+
+    <b-field label="Episodes" :horizontal="true">
+      <b-input v-model="entry.progress" class="list-control-input is-normal">
+      </b-input>
+    </b-field>
+
+  </template>
+  <template v-else>
+    <button class="button is-primary" @click="addEntry">Add {{type.charAt(0).toUpperCase() + type.substr(1)}}</button>
+  </template>
+</div>
+</template>
+<script>
+export default {
+    name: 'list_controls',
+    props: ['type', 'object'],
+    async created() {
+	this.entry = await this.$axios.$get(this.apiUrl)
+    },
+    data() {
+	return {
+	    entry: 'loading'
+	}
+    },
+    computed: {
+	apiUrl: function (){
+	    return "/list/" + this.type + "/" + this.object._id
+	}
+    },
+    methods: {
+	addEntry: async function() {
+	    this.entry = {
+		progress: 0,
+		score: 0,
+		status: "planned",
+		start_date: 0,
+		end_date: 0,
+		repetitions: 0,
+		comments: ''
+	    }
+	    
+	    await this.$axios.$put(this.apiUrl, this.entry)
+	},
+    }
+}
+</script>
+<style scoped>
+.list-control >>> .list-control-input {
+    text-align: right;
+}
+
+.list-control >>> .list-control-label {
+    text-align: left;
+    background-color: green;
+}
+
+</style>

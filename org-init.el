@@ -205,8 +205,14 @@
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.tmpl\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
   (setq web-mode-engines-alist
-        '(("cheetah" . "\\.tmpl\\'"))))
+	'(("cheetah" . "\\.tmpl\\'")))
+  (defun my-web-mode-hook ()
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-code-indent-offset 2)
+    (setq web-mode-css-indent-offset 2))
+  (add-hook 'web-mode-hook  'my-web-mode-hook))
 
 (use-package rainbow-delimiters
   :config
@@ -375,10 +381,6 @@
           ("*Help*" :select t)))
   (shackle-mode t))
 
-(use-package workgroups2
-  :config
-  (workgroups-mode t))
-
 (use-package treemacs
   :config
   (setq-local imenu-create-index-function #'ggtags-build-imenu-index)
@@ -404,6 +406,12 @@
   :after treemacs evil)
 (use-package treemacs-evil
   :after treemacs projectile)
+
+;;  (add-to-list 'load-path "/etc/icons-in-terminal/") ;; If it's not already done
+;;  (add-to-list 'load-path "~/.emacs.d/elisp/sidebar.el")
+;;  (require 'sidebar)
+  ;; (global-set-key (kbd "C-x C-f") 'sidebar-open)
+  ;; (global-set-key (kbd "C-x C-a") 'sidebar-buffers-open)
 
 (use-package crux)
 
@@ -469,6 +477,8 @@
 (setq org-todo-keywords
       '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
 (global-set-key (kbd "C-c g") 'org-agenda )
+
+
 
 (defun sudo-edit (&optional arg)
   "Edit currently visited file as root.
